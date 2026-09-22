@@ -1,0 +1,140 @@
+{
+ "generated": "2026-09-22T01:23+00:00",
+ "start": "2026-09-23",
+ "capital": 100000.0,
+ "weights": {
+  "B": 0.5,
+  "A": 0.3,
+  "G": 0.2
+ },
+ "signal": {
+  "us_date": "2026-09-18",
+  "qqq_close": 721.45,
+  "qqq_ma200": 661.77,
+  "qqq_vol20": 0.1326,
+  "qqq_mom126": 0.2194,
+  "qqq_trend_on": 1,
+  "spy_close": 761.69,
+  "spy_ma200": 712.48,
+  "B": 1,
+  "A": 1
+ },
+ "tomorrow": [
+  {
+   "depot": "MSCI World SRI",
+   "text": "100.000 EUR in iShares MSCI World SRI UCITS ETF (Acc) (Xetra) kaufen"
+  },
+  {
+   "depot": "Offensiv-Plan",
+   "text": "Topf B: 50.000 EUR in WisdomTree S&P 500 3x Daily Leveraged (Borsa Italiana, IE00B7Y34M31) kaufen"
+  },
+  {
+   "depot": "Offensiv-Plan",
+   "text": "Topf A: 30.000 EUR in Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF (Euronext Paris, FR0010342592) kaufen"
+  },
+  {
+   "depot": "Offensiv-Plan",
+   "text": "Topf G: 20.000 EUR in Xetra-Gold (Xetra, DE000A0S9GB0) kaufen"
+  }
+ ],
+ "state": null,
+ "history": [],
+ "trades": [],
+ "holdings": [
+  {
+   "depot": "MSCI World SRI",
+   "sleeve": "",
+   "product": "CASH",
+   "units": null,
+   "price": null,
+   "value": 100000.0
+  },
+  {
+   "depot": "Offensiv-Plan",
+   "sleeve": "",
+   "product": "CASH",
+   "units": null,
+   "price": null,
+   "value": 100000.0
+  }
+ ],
+ "totals": {
+  "MSCI World SRI": {
+   "fees": 0.0,
+   "taxes": 0.0,
+   "loss_pot": 0.0
+  },
+  "Offensiv-Plan": {
+   "fees": 0.0,
+   "taxes": 0.0,
+   "loss_pot": 0.0
+  }
+ },
+ "products": {
+  "MSCI": {
+   "ticker": "2B7K.DE",
+   "name": "iShares MSCI World SRI UCITS ETF (Acc)",
+   "isin": "IE00BYX2JD69",
+   "venue": "Xetra",
+   "costs": "0,20 % p.a. (im Kurs enthalten)",
+   "half_spread": 0.0005,
+   "custody_pa": 0.0,
+   "teilfreistellung": 0.3
+  },
+  "SP3X": {
+   "ticker": "3USL.MI",
+   "name": "WisdomTree S&P 500 3x Daily Leveraged",
+   "isin": "IE00B7Y34M31",
+   "venue": "Borsa Italiana",
+   "costs": "0,75 % p.a. (im Kurs enthalten)",
+   "half_spread": 0.0015,
+   "custody_pa": 0.0,
+   "teilfreistellung": 0.0
+  },
+  "UST20": {
+   "ticker": "IS04.DE",
+   "name": "iShares $ Treasury Bond 20+yr UCITS ETF (Dist)",
+   "isin": "IE00BSKRJZ44",
+   "venue": "Xetra",
+   "costs": "0,07 % p.a. (im Kurs enthalten)",
+   "half_spread": 0.001,
+   "custody_pa": 0.0,
+   "teilfreistellung": 0.0
+  },
+  "NDX2X": {
+   "ticker": "LQQ.PA",
+   "name": "Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF",
+   "isin": "FR0010342592",
+   "venue": "Euronext Paris",
+   "costs": "0,60 % p.a. (im Kurs enthalten)",
+   "half_spread": 0.001,
+   "custody_pa": 0.0,
+   "teilfreistellung": 0.0
+  },
+  "UST710": {
+   "ticker": "IUSM.DE",
+   "name": "iShares $ Treasury Bond 7-10yr UCITS ETF (Dist)",
+   "isin": "IE00B1FZS798",
+   "venue": "Xetra",
+   "costs": "0,07 % p.a. (im Kurs enthalten)",
+   "half_spread": 0.0015,
+   "custody_pa": 0.0,
+   "teilfreistellung": 0.0
+  },
+  "GOLD": {
+   "ticker": "4GLD.DE",
+   "name": "Xetra-Gold",
+   "isin": "DE000A0S9GB0",
+   "venue": "Xetra",
+   "costs": "0,30 % p.a. Verwahrentgelt (taeglich abgezogen)",
+   "half_spread": 0.0005,
+   "custody_pa": 0.003,
+   "teilfreistellung": 0.0
+  }
+ },
+ "assumptions": {
+  "fee": "0,05 % je Order, mindestens 3 EUR (Annahme Interactive Brokers, Europa)",
+  "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
+  "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
+ }
+}

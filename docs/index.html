@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Depot-Duell</title>
+<meta name="description" content="Papierdepot-Vergleich: MSCI World SRI gegen den Offensiv-Plan, täglich aktualisiert.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F3F5F2; --surface:#FFFFFF; --ink:#16212B; --muted:#5E6B72; --line:#DCE2DE;
+  --msci:#4E8A6E; --plan:#3553C8; --gain:#1F7A4D; --loss:#B8433A; --warn:#A86A12;
+  --chip-on:#E3EEE7; --chip-off:#F6E6E3; --shadow:0 1px 2px rgba(22,33,43,.06),0 8px 24px rgba(22,33,43,.05);
+  --font-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#10171D; --surface:#172129; --ink:#E6ECEF; --muted:#94A3AB; --line:#26333C;
+    --msci:#7CC2A0; --plan:#8EA6FF; --gain:#5CC98F; --loss:#F08A7F; --warn:#E3AE52;
+    --chip-on:#1C3328; --chip-off:#3A2422; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#10171D; --surface:#172129; --ink:#E6ECEF; --muted:#94A3AB; --line:#26333C;
+  --msci:#7CC2A0; --plan:#8EA6FF; --gain:#5CC98F; --loss:#F08A7F; --warn:#E3AE52;
+  --chip-on:#1C3328; --chip-off:#3A2422; --shadow:none;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 var(--font-body)}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:28px 56px;display:grid;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font:700 clamp(28px,4.2vw,40px)/1.05 var(--font-display);margin:0;letter-spacing:-.01em}
+h1 .vs{color:var(--muted);font-weight:600}
+h2{font:600 19px/1.2 var(--font-display);margin:0 0 12px;text-wrap:balance}
+.stand{color:var(--muted);font-size:13px}
+.stand b{color:var(--ink);font-weight:500}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;box-shadow:var(--shadow)}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.depot{display:grid;gap:6px;border-top:4px solid var(--c)}
+.depot .name{font-weight:600;display:flex;align-items:center;gap:8px}
+.depot .name i{width:10px;height:10px;border-radius:50%;background:var(--c);display:inline-block}
+.big{font:500 30px/1.1 var(--font-mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.pos{color:var(--gain)} .neg{color:var(--loss)}
+.lead{border-left:4px solid var(--plan)}
+.lead ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.lead .none{color:var(--muted)}
+.tag{display:inline-block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.signals{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.gauge{display:grid;gap:6px}
+.gauge .row{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.gauge .row b{font-family:var(--font-mono);font-weight:500;font-variant-numeric:tabular-nums}
+.bar{position:relative;height:8px;border-radius:4px;background:var(--line)}
+.bar span{position:absolute;top:-3px;width:3px;height:14px;border-radius:2px;background:var(--ink)}
+.bar em{position:absolute;top:0;height:8px;border-radius:4px;opacity:.35}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
+.chip.on{background:var(--chip-on);color:var(--gain)} .chip.off{background:var(--chip-off);color:var(--loss)}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.rule p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.charthead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.charthead h2{margin:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:500 13px var(--font-body);background:transparent;color:var(--muted);border:0;padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.seg button:focus-visible{outline:2px solid var(--plan);outline-offset:-2px}
+.chartbox{position:relative;height:340px}
+.empty{height:100%;display:grid;place-items:center;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px;padding:16px}
+.tables{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.kauf{color:var(--gain);font-weight:600} .verkauf{color:var(--loss);font-weight:600}
+.small{font-size:12px;color:var(--muted)}
+details summary{cursor:pointer;font-weight:600}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:10px 0 0;font-size:13px}
+dt{color:var(--muted)} dd{margin:0}
+footer{color:var(--muted);font-size:12px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>MSCI World SRI <span class="vs">gegen</span> Offensiv-Plan</h1>
+      <div class="stand" id="stand">Lade Daten …</div>
+    </div>
+    <div class="stand" id="startinfo"></div>
+  </header>
+
+  <section class="duo" id="duo" aria-label="Depotstände"></section>
+
+  <section class="panel lead" aria-labelledby="todo-h">
+    <h2 id="todo-h">Nächster Handelstag zur Eröffnung</h2>
+    <div id="todo"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="sig-h">
+    <h2 id="sig-h">Signale</h2>
+    <div class="rules" id="rules"></div>
+    <div class="signals" id="gauges" style="margin-top:14px"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="chart-h">
+    <div class="charthead">
+      <h2 id="chart-h">Verlauf der beiden Depots</h2>
+      <div class="seg" role="group" aria-label="Ansicht">
+        <button id="v-pre" aria-pressed="true">vor Steuer</button>
+        <button id="v-post" aria-pressed="false">nach Steuer bei Verkauf</button>
+      </div>
+    </div>
+    <div class="chartbox"><canvas id="chart" aria-label="Wertverlauf beider Depots"></canvas><div class="empty" id="chart-empty" hidden></div></div>
+  </section>
+
+  <section class="tables">
+    <div class="panel"><h2>Bestand MSCI-Depot</h2><div class="scroll"><table id="hold-msci"></table></div></div>
+    <div class="panel"><h2>Bestand Plan-Depot</h2><div class="scroll"><table id="hold-plan"></table></div></div>
+  </section>
+
+  <section class="panel" aria-labelledby="trades-h">
+    <h2 id="trades-h">Alle Käufe und Verkäufe</h2>
+    <div class="scroll"><table id="trades"></table></div>
+  </section>
+
+  <section class="panel">
+    <details>
+      <summary>Produkte, Kosten und Annahmen</summary>
+      <div class="scroll" style="margin-top:12px"><table id="products"></table></div>
+      <dl id="assumptions"></dl>
+    </details>
+  </section>
+
+  <footer id="foot">Papierdepots zur Beobachtung, keine Anlageberatung. Kurse: Yahoo Finance, Aktualisierung werktags nach US-Börsenschluss.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const eur = v => v == null ? "–" : v.toLocaleString("de-DE", {style: "currency", currency: "EUR", maximumFractionDigits: 0});
+const eur2 = v => v == null ? "–" : v.toLocaleString("de-DE", {style: "currency", currency: "EUR", minimumFractionDigits: 2, maximumFractionDigits: 2});
+const num = (v, d = 2) => v == null ? "–" : v.toLocaleString("de-DE", {minimumFractionDigits: d, maximumFractionDigits: d});
+const pct = (v, d = 1) => (v >= 0 ? "+" : "") + (v * 100).toLocaleString("de-DE", {minimumFractionDigits: d, maximumFractionDigits: d}) + " %";
+const dDE = s => new Date(s + "T12:00:00").toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const el = (tag, attrs = {}, text) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text != null) e.textContent = text; return e; };
+let DATA, chart, view = "pre";
+
+function productName(key) { return key === "CASH" ? "Kasse (Gebühren, Rundung)" : (DATA.products[key]?.name || key); }
+const SLEEVE = {B: "Topf B · 50 %", A: "Topf A · 30 %", G: "Topf G · 20 %", M: "", "": ""};
+
+function renderDuo() {
+  const h = DATA.history, last = h[h.length - 1], box = document.getElementById("duo");
+  box.replaceChildren();
+  [["msci", "MSCI World SRI", "--msci", "iShares MSCI World SRI UCITS ETF"], ["plan", "Offensiv-Plan", "--plan", "50 % Regel B · 30 % Regel A · 20 % Gold"]].forEach(([k, name, color, desc]) => {
+    const card = el("div", {class: "panel depot", style: `--c: var(${color})`});
+    const n = el("div", {class: "name"}); n.append(el("i"), document.createTextNode(name)); card.append(n);
+    const v = last ? last[k] : DATA.capital, va = last ? last[k + "_after_tax"] : DATA.capital;
+    card.append(el("div", {class: "big"}, eur(v)));
+    const ch = v / DATA.capital - 1;
+    const s = el("div", {class: "sub"}); const sp = el("span", {class: ch >= 0 ? "pos" : "neg"}, pct(ch)); s.append(sp, document.createTextNode(" seit Start · nach Steuer bei Verkauf " + eur(va)));
+    card.append(s);
+    const t = DATA.totals[name]; card.append(el("div", {class: "sub"}, `${desc} · Gebühren ${eur2(t.fees)} · gezahlte Steuer ${eur2(t.taxes)}`));
+    box.append(card);
+  });
+  if (last) {
+    const diff = last.plan - last.msci;
+    document.getElementById("startinfo").textContent = `Vorsprung Plan: ${diff >= 0 ? "+" : ""}${eur(diff)} (${pct(last.plan / last.msci - 1)})`;
+  }
+}
+
+function renderTodo() {
+  const box = document.getElementById("todo"); box.replaceChildren();
+  const s = DATA.signal;
+  const lead = el("p", {class: "small"}, `Grundlage: US-Schlusskurse vom ${dDE(s.us_date)}. Orders zur Eröffnung von Xetra, Mailand und Paris aufgeben.`);
+  if (!DATA.tomorrow.length) {
+    box.append(el("p", {class: "none"}, "Nichts zu tun – alle Signale unverändert."), lead);
+    return;
+  }
+  const ul = el("ul");
+  DATA.tomorrow.forEach(t => { const li = el("li"); li.append(el("span", {class: "tag"}, t.depot), document.createTextNode(t.text)); ul.append(li); });
+  box.append(ul, lead);
+}
+
+function gauge(title, valueText, pos, marks, zones, note) {
+  const g = el("div", {class: "gauge"});
+  const r = el("div", {class: "row"}); r.append(el("span", {}, title), el("b", {}, valueText)); g.append(r);
+  const bar = el("div", {class: "bar", role: "img", "aria-label": `${title}: ${valueText}`});
+  zones.forEach(([a, b, c]) => { const z = el("em", {style: `left:${a}%;width:${b - a}%;background:${c}`}); bar.append(z); });
+  marks.forEach(m => bar.append(el("span", {style: `left:calc(${m}% - 1px);background:var(--muted);opacity:.6`})));
+  bar.append(el("span", {style: `left:calc(${Math.max(0, Math.min(100, pos))}% - 1px)`}));
+  g.append(bar, el("div", {class: "small"}, note));
+  return g;
+}
+
+function renderSignals() {
+  const s = DATA.signal, rules = document.getElementById("rules"), gauges = document.getElementById("gauges");
+  rules.replaceChildren(); gauges.replaceChildren();
+  const state = DATA.state || {B: s.B, A: s.A};
+  [["B", "Regel B · Topf 50 %", "QQQ über 200-Tage-Schnitt (Einstieg ab +5 %, Ausstieg unter −5 %), 20-Tage-Schwankung unter 30 % und 6-Monats-Rendite positiv.", "3× S&P 500", "US-Staatsanleihen 20+ J."],
+   ["A", "Regel A · Topf 30 %", "SPY über 200-Tage-Schnitt (Einstieg ab +5 %, Ausstieg unter −5 %).", "2× Nasdaq-100", "½ US-Staatsanleihen 7–10 J. + ½ Gold"]].forEach(([k, title, text, on, off]) => {
+    const d = el("div", {class: "rule"});
+    const head = el("div"); head.append(el("b", {}, title + " "), el("span", {class: "chip " + (s[k] ? "on" : "off")}, s[k] ? "an · " + on : "aus · " + off));
+    d.append(head, el("p", {}, text));
+    rules.append(d);
+  });
+  const g = el("div", {class: "rule"}); g.append(el("b", {}, "Topf G · 20 %  "), el("span", {class: "chip on"}, "immer Gold")); g.append(el("p", {}, "Fester Anteil, am ersten Handelstag des Jahres wird auf 50/30/20 zurückgesetzt.")); rules.append(g);
+  const qd = s.qqq_close / s.qqq_ma200 - 1, sd = s.spy_close / s.spy_ma200 - 1;
+  const scale = x => 50 + x / 0.20 * 50;   // −20 % … +20 %
+  const on = "var(--gain)", off = "var(--loss)";
+  gauges.append(
+    gauge("QQQ gegen 200-Tage-Schnitt", pct(qd), scale(qd), [scale(-0.05), scale(0.05)], [[0, scale(-0.05), off], [scale(0.05), 100, on]], `Schluss ${num(s.qqq_close)} $ · Schnitt ${num(s.qqq_ma200)} $ · Trend ${s.qqq_trend_on ? "an" : "aus"}`),
+    gauge("QQQ 20-Tage-Schwankung", pct(s.qqq_vol20, 0).replace("+", ""), s.qqq_vol20 / 0.6 * 100, [50], [[0, 50, on], [50, 100, off]], "Grenze 30 % p.a."),
+    gauge("QQQ 6-Monats-Rendite", pct(s.qqq_mom126), 50 + s.qqq_mom126 / 0.6 * 50, [50], [[0, 50, off], [50, 100, on]], "muss positiv sein"),
+    gauge("SPY gegen 200-Tage-Schnitt", pct(sd), scale(sd), [scale(-0.05), scale(0.05)], [[0, scale(-0.05), off], [scale(0.05), 100, on]], `Schluss ${num(s.spy_close)} $ · Schnitt ${num(s.spy_ma200)} $`)
+  );
+}
+
+function renderChart() {
+  const h = DATA.history, canvas = document.getElementById("chart"), empty = document.getElementById("chart-empty");
+  if (!h.length) {
+    canvas.hidden = true; empty.hidden = false;
+    empty.textContent = `Die Kurven beginnen nach dem ersten Handelstag (${dDE(DATA.start)}). Beide Depots starten mit ${eur(DATA.capital)}.`;
+    return;
+  }
+  canvas.hidden = false; empty.hidden = true;
+  const labels = [dDE(DATA.start).slice(0, 6) + "Start", ...h.map(r => dDE(r.date))];
+  const k = view === "pre" ? "" : "_after_tax";
+  const series = key => [DATA.capital, ...h.map(r => r[key + k])];
+  const ink = css("--muted"), grid = css("--line");
+  const ds = [
+    {label: "MSCI World SRI", data: series("msci"), borderColor: css("--msci"), backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, tension: 0.15},
+    {label: "Offensiv-Plan", data: series("plan"), borderColor: css("--plan"), backgroundColor: "transparent", borderWidth: 2.4, pointRadius: 0, tension: 0.15},
+  ];
+  if (chart) { chart.data.labels = labels; chart.data.datasets = ds; chart.update(); return; }
+  chart = new Chart(canvas, {
+    type: "line", data: {labels, datasets: ds},
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false, interaction: {mode: "index", intersect: false},
+      plugins: {legend: {labels: {color: ink, boxWidth: 12, usePointStyle: true}},
+                tooltip: {callbacks: {label: c => `${c.dataset.label}: ${eur(c.parsed.y)}`}}},
+      scales: {x: {ticks: {color: ink, maxTicksLimit: 8, maxRotation: 0}, grid: {display: false}},
+               y: {ticks: {color: ink, callback: v => eur(v)}, grid: {color: grid}}}
+    }
+  });
+}
+
+function table(id, head, rows) {
+  const t = document.getElementById(id); t.replaceChildren();
+  const thead = el("thead"), tr = el("tr");
+  head.forEach(([label, cls]) => tr.append(el("th", cls ? {class: cls} : {}, label))); thead.append(tr);
+  const tb = el("tbody");
+  if (!rows.length) { const r = el("tr"); const td = el("td", {colspan: head.length, class: "small"}, "Noch keine Einträge – Start am " + dDE(DATA.start) + "."); r.append(td); tb.append(r); }
+  rows.forEach(cells => { const r = el("tr"); cells.forEach(([v, cls]) => r.append(el("td", cls ? {class: cls} : {}, v))); tb.append(r); });
+  t.append(thead, tb);
+}
+
+function renderTables() {
+  const hold = d => DATA.holdings.filter(x => x.depot === d).map(x => [[productName(x.product)], [SLEEVE[x.sleeve] || "", "small"], [x.units == null ? "–" : num(x.units, 3), "num"], [x.price == null ? "–" : num(x.price, 3) + " €", "num"], [eur(x.value), "num"]]);
+  const hh = [["Produkt"], ["Topf"], ["Stück", "num"], ["Kurs", "num"], ["Wert", "num"]];
+  table("hold-msci", hh, hold("MSCI World SRI"));
+  table("hold-plan", hh, hold("Offensiv-Plan"));
+  const tr = [...DATA.trades].reverse().map(t => [[dDE(t.date)], [t.depot === "Offensiv-Plan" ? "Plan" : "MSCI"], [t.action, t.action === "Kauf" ? "kauf" : "verkauf"], [productName(t.product)],
+    [num(t.units, 3), "num"], [num(t.price, 3) + " €", "num"], [eur2(t.value), "num"], [eur2(t.fee), "num"], [t.tax ? eur2(t.tax) : "–", "num"], [t.reason, "small"]]);
+  table("trades", [["Datum"], ["Depot"], ["Art"], ["Produkt"], ["Stück", "num"], ["Kurs", "num"], ["Betrag", "num"], ["Gebühr", "num"], ["Steuer", "num"], ["Grund"]], tr);
+  table("products", [["Kürzel"], ["Produkt"], ["ISIN"], ["Börse"], ["Kosten"], ["Spread je Seite", "num"]],
+    Object.entries(DATA.products).map(([k, p]) => [[p.ticker], [p.name], [p.isin], [p.venue], [p.costs], [num(p.half_spread * 100, 2) + " %", "num"]]));
+  const dl = document.getElementById("assumptions"); dl.replaceChildren();
+  [["Ordergebühr", DATA.assumptions.fee], ["Steuer", DATA.assumptions.tax], ["Kurse", DATA.assumptions.prices]].forEach(([a, b]) => { dl.append(el("dt", {}, a), el("dd", {}, b)); });
+}
+
+function render() {
+  const gen = new Date(DATA.generated);
+  const stand = document.getElementById("stand"); stand.replaceChildren();
+  stand.append(document.createTextNode("Start "), el("b", {}, dDE(DATA.start)), document.createTextNode(` mit je ${eur(DATA.capital)} · aktualisiert `),
+    el("b", {}, gen.toLocaleString("de-DE", {dateStyle: "medium", timeStyle: "short"})), document.createTextNode(` · ${DATA.history.length} Handelstage`));
+  renderDuo(); renderTodo(); renderSignals(); renderChart(); renderTables();
+}
+
+["pre", "post"].forEach(v => document.getElementById("v-" + v).addEventListener("click", () => {
+  view = v; document.getElementById("v-pre").setAttribute("aria-pressed", v === "pre"); document.getElementById("v-post").setAttribute("aria-pressed", v === "post"); renderChart();
+}));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (chart) { chart.destroy(); chart = null; } if (DATA) renderChart(); });
+
+fetch("data.json?" + Date.now()).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { DATA = d; render(); })
+  .catch(e => { document.getElementById("stand").textContent = "Daten konnten nicht geladen werden (" + e.message + "). Bitte später neu laden."; });
+</script>
+</body>
+</html>
