@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 
-START = date.fromisoformat(os.environ.get("DEPOT_START", "2026-09-23"))
+START = date.fromisoformat(os.environ.get("DEPOT_START", "2026-09-22"))
 CAPITAL = 100_000.0
 OUT = Path(__file__).parent / "docs" / "data.json"
 
