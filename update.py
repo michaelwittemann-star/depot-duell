@@ -1,9 +1,9 @@
-"""Depot-Vergleich: MSCI World SRI gegen den Offensiv-Plan, Papierdepots ab START mit je 100.000 EUR.
+"""Depot-Vergleich: MSCI World SRI gegen den Masterplan, Papierdepots ab START mit je 100.000 EUR.
 
 Laeuft taeglich (GitHub Actions) und rechnet beide Depots bei jedem Lauf vollstaendig ab START neu
 (deterministisch, kein gespeicherter Zustand). Ergebnis: docs/data.json fuer docs/index.html.
 
-Regeln des Offensiv-Plans (Signale aus US-Schlusskursen, um Dividenden bereinigt):
+Regeln des Masterplans (Signale aus US-Schlusskursen, um Dividenden bereinigt):
   Topf B (50 %): QQQ ueber 200-Tage-Schnitt (Einstieg ueber +5 %, Ausstieg unter -5 %) UND 20-Tage-Vola von QQQ < 30 %
                  UND QQQ-Rendite ueber 126 Handelstage > 0  ->  3x S&P 500, sonst US-Staatsanleihen 20+ Jahre
   Topf A (30 %): SPY über 200-Tage-Schnitt (Einstieg ueber +5 %, Ausstieg unter -5 %)  ->  2x Nasdaq-100,
@@ -234,7 +234,7 @@ def main():
     opens = opens.fillna(closes.shift(1)).fillna(closes)          # fehlende Eroeffnung: Vortagesschluss
     eu_days = [d for d in raw["MSCI"].dropna(subset=["Close"]).index if d.date() >= START]
 
-    msci, plan = Depot("MSCI World SRI"), Depot("Offensiv-Plan")
+    msci, plan = Depot("MSCI World SRI"), Depot("Masterplan")
     state, history, last_day = None, [], None
     for day_ts in eu_days:
         day = day_ts.date()
@@ -297,14 +297,14 @@ def main():
         for sleeve, w in WEIGHTS.items():
             for prod, share in tgt_now[sleeve].items():
                 amount = f"{CAPITAL * w * share:,.0f}".replace(",", ".")
-                tomorrow.append({"depot": "Offensiv-Plan", "text": f"Topf {sleeve}: {amount} EUR in {PRODUCTS[prod]['name']} "
+                tomorrow.append({"depot": "Masterplan", "text": f"Topf {sleeve}: {amount} EUR in {PRODUCTS[prod]['name']} "
                                  f"({PRODUCTS[prod]['venue']}, {PRODUCTS[prod]['isin']}) kaufen"})
     else:
         for sleeve, now in (("B", b_now), ("A", a_now)):
             if now != state[sleeve]:
                 old = " + ".join(PRODUCTS[p]["name"] for p in target_assets(state["B"], state["A"])[sleeve])
                 new = " + ".join(PRODUCTS[p]["name"] for p in tgt_now[sleeve])
-                tomorrow.append({"depot": "Offensiv-Plan", "text": f"Topf {sleeve}: {old} verkaufen, Erlös in {new} ({RULE_TEXT[sleeve][0 if now else 1]})"})
+                tomorrow.append({"depot": "Masterplan", "text": f"Topf {sleeve}: {old} verkaufen, Erlös in {new} ({RULE_TEXT[sleeve][0 if now else 1]})"})
 
     pc_last = {k: float(closes[k].iloc[-1]) for k in PRODUCTS}
     holdings = []
