@@ -45,15 +45,17 @@ PRODUCTS = {
     "GOLD": {"ticker": "4GLD.DE", "name": "Xetra-Gold", "isin": "DE000A0S9GB0", "venue": "Xetra",
              "costs": "0,30 % p.a. Verwahrentgelt (taeglich abgezogen)", "half_spread": 0.0005, "custody_pa": 0.003, "teilfreistellung": 0.0},
 }
-FEE_PCT, FEE_MIN = 0.0005, 3.0          # Annahme Interactive Brokers (Europa): 0,05 % je Order, mindestens 3 EUR
+FEE_FLAT, FEE_FOREIGN = 5.90, 2.00      # flatex: 5,90 EUR je Order, an Auslandsboersen (Paris, Mailand) zzgl. ca. 2 EUR Fremdkosten
 TAX = 0.26375                            # Abgeltungsteuer + Soli, ohne Kirchensteuer, ohne Sparer-Pauschbetrag
 WEIGHTS = {"B": 0.5, "A": 0.3, "G": 0.2}
 RULE_TEXT = {"B": ("Regel B an: QQQ-Trend, Vola und Momentum erfüllt", "Regel B aus: QQQ-Trend, Vola oder Momentum verletzt"),
              "A": ("Regel A an: SPY über 200-Tage-Schnitt (+5 %)", "Regel A aus: SPY unter 200-Tage-Schnitt (-5 %)")}
 
 
-def fee(value: float) -> float:
-    return max(FEE_MIN, FEE_PCT * value) if value > 0 else 0.0
+def fee(value: float, prod: str) -> float:
+    if value <= 0:
+        return 0.0
+    return FEE_FLAT + (0.0 if PRODUCTS[prod]["venue"] == "Xetra" else FEE_FOREIGN)
 
 
 def download(ticker: str, start: str, tries: int = 4) -> pd.DataFrame:
@@ -141,7 +143,7 @@ class Depot:
             return
         sleeve, prod = key.split(":")
         p = price * (1 + PRODUCTS[prod]["half_spread"])
-        f = fee(amount)
+        f = fee(amount, prod)
         units = (amount - f) / p
         self.lots.setdefault(key, []).append(Lot(units, amount, day))
         self.cash -= amount
@@ -160,7 +162,7 @@ class Depot:
         to_sell = total_units * min(fraction, 1.0)
         p = price * (1 - PRODUCTS[prod]["half_spread"])
         gross = to_sell * p
-        f = fee(gross)
+        f = fee(gross, prod)
         taxable, remaining, new_lots = 0.0, to_sell, []
         for lot in lots:
             if remaining <= 1e-12:
@@ -326,7 +328,7 @@ def main():
         "totals": {d.name: {"fees": round(d.fees_paid, 2), "taxes": round(d.taxes_paid, 2), "loss_pot": round(d.loss_pot, 2)} for d in (msci, plan)},
         "products": PRODUCTS,
         "assumptions": {
-            "fee": "0,05 % je Order, mindestens 3 EUR (Annahme Interactive Brokers, Europa)",
+            "fee": "flatex: 5,90 EUR je Order, an Euronext Paris und Borsa Italiana zzgl. ca. 2 EUR Fremdkosten",
             "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. "
                    "MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. "
                    "Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
