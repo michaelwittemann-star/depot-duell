@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-22T10:15+00:00",
+ "generated": "2026-09-22T13:24+00:00",
  "start": "2026-09-22",
  "capital": 100000.0,
  "weights": {
@@ -27,10 +27,10 @@
  "history": [
   {
    "date": "2026-09-22",
-   "msci": 100071.9,
-   "plan": 100019.78,
-   "msci_after_tax": 100067.86,
-   "plan_after_tax": 100019.78,
+   "msci": 100373.94,
+   "plan": 99966.95,
+   "msci_after_tax": 100314.16,
+   "plan_after_tax": 99966.95,
    "B": 1,
    "A": 1
   }
@@ -42,10 +42,10 @@
    "action": "Kauf",
    "sleeve": "M",
    "product": "MSCI",
-   "units": 7160.2675,
+   "units": 7163.4268,
    "price": 13.959,
    "value": 100000.0,
-   "fee": 50.0,
+   "fee": 5.9,
    "tax": 0.0,
    "reason": "Start: 100 % MSCI World SRI"
   },
@@ -55,10 +55,10 @@
    "action": "Kauf",
    "sleeve": "B",
    "product": "SP3X",
-   "units": 297.007,
+   "units": 297.1087,
    "price": 168.262,
    "value": 50000.0,
-   "fee": 25.0,
+   "fee": 7.9,
    "tax": 0.0,
    "reason": "Start: Topf B (50 %) – Regel B an: QQQ-Trend, Vola und Momentum erfüllt"
   },
@@ -68,10 +68,10 @@
    "action": "Kauf",
    "sleeve": "A",
    "product": "NDX2X",
-   "units": 2929.3023,
+   "units": 2929.9959,
    "price": 10.2362,
    "value": 30000.0,
-   "fee": 15.0,
+   "fee": 7.9,
    "tax": 0.0,
    "reason": "Start: Topf A (30 %) – Regel A an: SPY über 200-Tage-Schnitt (+5 %)"
   },
@@ -81,10 +81,10 @@
    "action": "Kauf",
    "sleeve": "G",
    "product": "GOLD",
-   "units": 164.7972,
+   "units": 164.831,
    "price": 121.3006,
    "value": 20000.0,
-   "fee": 10.0,
+   "fee": 5.9,
    "tax": 0.0,
    "reason": "Start: Topf G (20 %)"
   }
@@ -94,43 +94,43 @@
    "depot": "MSCI World SRI",
    "sleeve": "M",
    "product": "MSCI",
-   "units": 7160.2675,
-   "price": 13.976,
-   "value": 100071.9
+   "units": 7163.4268,
+   "price": 14.012,
+   "value": 100373.94
   },
   {
    "depot": "Masterplan",
    "sleeve": "B",
    "product": "SP3X",
-   "units": 297.007,
-   "price": 168.06,
-   "value": 49915.0
+   "units": 297.1087,
+   "price": 168.1,
+   "value": 49943.97
   },
   {
    "depot": "Masterplan",
    "sleeve": "A",
    "product": "NDX2X",
-   "units": 2929.3023,
-   "price": 10.262,
-   "value": 30060.5
+   "units": 2929.9959,
+   "price": 10.228,
+   "value": 29968.0
   },
   {
    "depot": "Masterplan",
    "sleeve": "G",
    "product": "GOLD",
-   "units": 164.7972,
-   "price": 121.63,
-   "value": 20044.28
+   "units": 164.831,
+   "price": 121.67,
+   "value": 20054.99
   }
  ],
  "totals": {
   "MSCI World SRI": {
-   "fees": 50.0,
+   "fees": 5.9,
    "taxes": 0.0,
    "loss_pot": 0.0
   },
   "Masterplan": {
-   "fees": 50.0,
+   "fees": 21.7,
    "taxes": 0.0,
    "loss_pot": 0.0
   }
@@ -198,7 +198,7 @@
   }
  },
  "assumptions": {
-  "fee": "0,05 % je Order, mindestens 3 EUR (Annahme Interactive Brokers, Europa)",
+  "fee": "flatex: 5,90 EUR je Order, an Euronext Paris und Borsa Italiana zzgl. ca. 2 EUR Fremdkosten",
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  }
