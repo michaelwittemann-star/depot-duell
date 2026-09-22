@@ -83,6 +83,14 @@ details summary{cursor:pointer;font-weight:600}
 dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:10px 0 0;font-size:13px}
 dt{color:var(--muted)} dd{margin:0}
 footer{color:var(--muted);font-size:12px}
+.mine{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.mine input{width:110px;font:500 14px var(--font-mono);color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:5px 8px;text-align:right}
+.mine input:focus-visible{outline:2px solid var(--plan);outline-offset:1px}
+.prob{display:flex;align-items:baseline;gap:14px;margin:6px 0}
+.prob b{font:500 26px/1 var(--font-mono);font-variant-numeric:tabular-nums}
+.prob span{font-size:12px;color:var(--muted)}
+.prob .hot{color:var(--warn)}
+.cond{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--muted);display:grid;gap:3px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -99,8 +107,20 @@ footer{color:var(--muted);font-size:12px}
   <section class="duo" id="duo" aria-label="Depotstände"></section>
 
   <section class="panel lead" aria-labelledby="todo-h">
-    <h2 id="todo-h">Nächster Handelstag zur Eröffnung</h2>
+    <div class="charthead">
+      <h2 id="todo-h">Nächster Handelstag zur Eröffnung</h2>
+      <label class="mine" for="my-depot">Mein Plan-Depot
+        <input id="my-depot" type="number" min="1000" step="500" inputmode="numeric" value="15000"> €</label>
+    </div>
     <div id="todo"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="fc-h">
+    <h2 id="fc-h">Ausblick: Muss bald umgeschichtet werden?</h2>
+    <div class="rules" id="forecast"></div>
+    <p class="small" style="margin:12px 0 0">Wahrscheinlichkeit aus der nötigen Kursbewegung bis zur Schwelle und der aktuellen Tagesschwankung. Im Rückblick 2000–2026 wurden
+      gut 8 von 10 Wechseln mindestens einen Tag vorher mit 20 % oder mehr angekündigt; etwa 4 von 10 solcher Warnungen führten tatsächlich zu einem Wechsel.
+      Ab 20 % gibt es eine Vorwarnung per E-Mail.</p>
   </section>
 
   <section class="panel" aria-labelledby="sig-h">
@@ -175,17 +195,49 @@ function renderDuo() {
   }
 }
 
+function myScale() {
+  const v = parseFloat(document.getElementById("my-depot").value);
+  return (isFinite(v) && v > 0 ? v : 15000) / DATA.capital;
+}
+
 function renderTodo() {
   const box = document.getElementById("todo"); box.replaceChildren();
-  const s = DATA.signal;
-  const lead = el("p", {class: "small"}, `Grundlage: US-Schlusskurse vom ${dDE(s.us_date)}. Orders zur Eröffnung von Xetra, Mailand und Paris aufgeben.`);
-  if (!DATA.tomorrow.length) {
+  const s = DATA.signal, k = myScale();
+  const lead = el("p", {class: "small"}, `Grundlage: US-Schlusskurse vom ${dDE(s.us_date)}. Orders zur Eröffnung an der jeweiligen Heimatbörse aufgeben, am besten als Limit-Order. Beträge beim Kauf sind Schätzungen aus dem letzten Schlusskurs.`);
+  const orders = DATA.orders || [];
+  if (!orders.length) {
     box.append(el("p", {class: "none"}, "Nichts zu tun – alle Signale unverändert."), lead);
     return;
   }
-  const ul = el("ul");
-  DATA.tomorrow.forEach(t => { const li = el("li"); li.append(el("span", {class: "tag"}, t.depot), document.createTextNode(t.text)); ul.append(li); });
-  box.append(ul, lead);
+  const rows = orders.map(o => {
+    const p = DATA.products[o.product];
+    const what = o.action === "Verkauf" ? (o.all ? "alle Stücke" : "nur Anteil Topf A") : "";
+    const mine = o.depot === "Masterplan" ? eur(o.amount * k) + (o.units ? ` · ${num(o.units * k, 3)} Stk.` : "") : "–";
+    return [[o.depot === "Masterplan" ? "Masterplan" : "MSCI"], [`${o.action} ${what}`.trim(), o.action === "Kauf" ? "kauf" : "verkauf"],
+            [p.name], [`${p.venue} · ${p.isin}`, "small"], [eur(o.amount) + (o.units ? ` · ${num(o.units, 3)} Stk.` : ""), "num"], [mine, "num"]];
+  });
+  const wrap = el("div", {class: "scroll"}); const t = el("table", {id: "orders"}); wrap.append(t); box.append(wrap, lead);
+  table("orders", [["Depot"], ["Aktion"], ["Produkt"], ["Börse · ISIN"], ["Musterdepot", "num"], ["Mein Depot", "num"]], rows);
+}
+
+function renderForecast() {
+  const box = document.getElementById("forecast"); box.replaceChildren();
+  const s = DATA.signal, fc = s.forecast || {};
+  [["B", "Regel B · 3× S&P 500"], ["A", "Regel A · 2× Nasdaq-100"]].forEach(([key, title]) => {
+    const f = fc[key]; if (!f) return;
+    const d = el("div", {class: "rule"});
+    const head = el("div"); head.append(el("b", {}, title + " "), el("span", {class: "chip " + (s[key] ? "on" : "off")}, s[key] ? "jetzt an" : "jetzt aus"));
+    const pr = el("div", {class: "prob"});
+    [["p1", "Wechsel morgen"], ["p5", "in 5 Handelstagen"]].forEach(([pk, lab]) => {
+      const b = el("b", {class: f[pk] >= DATA.warn ? "hot" : ""}, Math.round(f[pk] * 100) + " %");
+      const w = el("div"); w.append(b, el("span", {}, " " + lab)); pr.append(w);
+    });
+    const ul = el("ul", {class: "cond"});
+    f.conditions.forEach(c => ul.append(el("li", {}, c.name === "20-Tage-Schwankung" ? c.text.replace("ueber", "über") :
+      `${c.name}: ${c.text.replace("ueber", "über")} (${pct(c.move)})`)));
+    f.flat.forEach(x => ul.append(el("li", {}, x)));
+    d.append(head, pr, ul); box.append(d);
+  });
 }
 
 function gauge(title, valueText, pos, marks, zones, note) {
@@ -265,7 +317,11 @@ function renderTables() {
   const hold = d => DATA.holdings.filter(x => x.depot === d).map(x => [[productName(x.product)], [SLEEVE[x.sleeve] || "", "small"], [x.units == null ? "–" : num(x.units, 3), "num"], [x.price == null ? "–" : num(x.price, 3) + " €", "num"], [eur(x.value), "num"]]);
   const hh = [["Produkt"], ["Topf"], ["Stück", "num"], ["Kurs", "num"], ["Wert", "num"]];
   table("hold-msci", hh, hold("MSCI World SRI"));
-  table("hold-plan", hh, hold("Masterplan"));
+  const k = myScale();
+  table("hold-plan", [["Produkt"], ["Topf"], ["Stück", "num"], ["Kurs", "num"], ["Wert", "num"], ["Mein Depot", "num"]],
+    DATA.holdings.filter(x => x.depot === "Masterplan").map(x => [[productName(x.product)], [SLEEVE[x.sleeve] || "", "small"],
+      [x.units == null ? "–" : num(x.units, 3), "num"], [x.price == null ? "–" : num(x.price, 3) + " €", "num"], [eur(x.value), "num"],
+      [(x.units == null ? "" : num(x.units * k, 3) + " Stk. · ") + eur(x.value * k), "num"]]));
   const tr = [...DATA.trades].reverse().map(t => [[dDE(t.date)], [t.depot === "Masterplan" ? "Masterplan" : "MSCI"], [t.action, t.action === "Kauf" ? "kauf" : "verkauf"], [productName(t.product)],
     [num(t.units, 3), "num"], [num(t.price, 3) + " €", "num"], [eur2(t.value), "num"], [eur2(t.fee), "num"], [t.tax ? eur2(t.tax) : "–", "num"], [t.reason, "small"]]);
   table("trades", [["Datum"], ["Depot"], ["Art"], ["Produkt"], ["Stück", "num"], ["Kurs", "num"], ["Betrag", "num"], ["Gebühr", "num"], ["Steuer", "num"], ["Grund"]], tr);
@@ -280,8 +336,17 @@ function render() {
   const stand = document.getElementById("stand"); stand.replaceChildren();
   stand.append(document.createTextNode("Start "), el("b", {}, dDE(DATA.start)), document.createTextNode(` mit je ${eur(DATA.capital)} · aktualisiert `),
     el("b", {}, gen.toLocaleString("de-DE", {dateStyle: "medium", timeStyle: "short"})), document.createTextNode(` · ${DATA.history.length} Handelstage`));
-  renderDuo(); renderTodo(); renderSignals(); renderChart(); renderTables();
+  renderDuo(); renderTodo(); renderForecast(); renderSignals(); renderChart(); renderTables();
 }
+
+(() => {
+  const input = document.getElementById("my-depot");
+  try { const saved = localStorage.getItem("myDepot"); if (saved) input.value = saved; } catch (e) {}
+  input.addEventListener("input", () => {
+    try { localStorage.setItem("myDepot", input.value); } catch (e) {}
+    if (DATA) { renderTodo(); renderTables(); }
+  });
+})();
 
 ["pre", "post"].forEach(v => document.getElementById("v-" + v).addEventListener("click", () => {
   view = v; document.getElementById("v-pre").setAttribute("aria-pressed", v === "pre"); document.getElementById("v-post").setAttribute("aria-pressed", v === "post"); renderChart();

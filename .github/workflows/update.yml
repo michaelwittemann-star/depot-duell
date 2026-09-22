@@ -5,9 +5,15 @@ on:
     - cron: "30 22 * * 1-5"   # werktags nach US-Boersenschluss (22:30 UTC)
     - cron: "30 5 * * 2-6"    # Sicherheitslauf frueh morgens, falls Kurse abends noch fehlten
   workflow_dispatch:
+    inputs:
+      test_benachrichtigung:
+        description: "Test-Benachrichtigung senden"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: update
@@ -24,6 +30,8 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python update.py
+        env:
+          TEST_NOTIFY: ${{ inputs.test_benachrichtigung }}
       - name: Ergebnis einchecken
         run: |
           git config user.name "github-actions[bot]"
@@ -31,3 +39,14 @@ jobs:
           git add docs/data.json
           git diff --cached --quiet || git commit -m "Depots aktualisiert $(date -u +%Y-%m-%d)"
           git push
+      - name: Benachrichtigung (Ticket -> E-Mail/Push von GitHub)
+        if: hashFiles('notify/title.txt') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="$(cat notify/title.txt)"
+          if gh issue list --state all --limit 200 --json title --jq '.[].title' | grep -Fxq "$title"; then
+            echo "Schon gemeldet: $title"
+          else
+            gh issue create --title "$title" --body-file notify/body.md --assignee "${{ github.repository_owner }}"
+          fi
