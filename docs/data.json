@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-22T01:32+00:00",
+ "generated": "2026-09-22T10:15+00:00",
  "start": "2026-09-22",
  "capital": 100000.0,
  "weights": {
@@ -8,64 +8,129 @@
   "G": 0.2
  },
  "signal": {
-  "us_date": "2026-09-18",
-  "qqq_close": 721.45,
-  "qqq_ma200": 661.77,
-  "qqq_vol20": 0.1326,
-  "qqq_mom126": 0.2194,
+  "us_date": "2026-09-21",
+  "qqq_close": 741.47,
+  "qqq_ma200": 661.7,
+  "qqq_vol20": 0.1658,
+  "qqq_mom126": 0.2782,
   "qqq_trend_on": 1,
-  "spy_close": 761.69,
-  "spy_ma200": 712.48,
+  "spy_close": 773.5,
+  "spy_ma200": 712.98,
   "B": 1,
   "A": 1
  },
- "tomorrow": [
+ "tomorrow": [],
+ "state": {
+  "B": 1,
+  "A": 1
+ },
+ "history": [
   {
-   "depot": "MSCI World SRI",
-   "text": "100.000 EUR in iShares MSCI World SRI UCITS ETF (Acc) (Xetra) kaufen"
-  },
-  {
-   "depot": "Masterplan",
-   "text": "Topf B: 50.000 EUR in WisdomTree S&P 500 3x Daily Leveraged (Borsa Italiana, IE00B7Y34M31) kaufen"
-  },
-  {
-   "depot": "Masterplan",
-   "text": "Topf A: 30.000 EUR in Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF (Euronext Paris, FR0010342592) kaufen"
-  },
-  {
-   "depot": "Masterplan",
-   "text": "Topf G: 20.000 EUR in Xetra-Gold (Xetra, DE000A0S9GB0) kaufen"
+   "date": "2026-09-22",
+   "msci": 100071.9,
+   "plan": 100019.78,
+   "msci_after_tax": 100067.86,
+   "plan_after_tax": 100019.78,
+   "B": 1,
+   "A": 1
   }
  ],
- "state": null,
- "history": [],
- "trades": [],
+ "trades": [
+  {
+   "date": "2026-09-22",
+   "depot": "MSCI World SRI",
+   "action": "Kauf",
+   "sleeve": "M",
+   "product": "MSCI",
+   "units": 7160.2675,
+   "price": 13.959,
+   "value": 100000.0,
+   "fee": 50.0,
+   "tax": 0.0,
+   "reason": "Start: 100 % MSCI World SRI"
+  },
+  {
+   "date": "2026-09-22",
+   "depot": "Masterplan",
+   "action": "Kauf",
+   "sleeve": "B",
+   "product": "SP3X",
+   "units": 297.007,
+   "price": 168.262,
+   "value": 50000.0,
+   "fee": 25.0,
+   "tax": 0.0,
+   "reason": "Start: Topf B (50 %) – Regel B an: QQQ-Trend, Vola und Momentum erfüllt"
+  },
+  {
+   "date": "2026-09-22",
+   "depot": "Masterplan",
+   "action": "Kauf",
+   "sleeve": "A",
+   "product": "NDX2X",
+   "units": 2929.3023,
+   "price": 10.2362,
+   "value": 30000.0,
+   "fee": 15.0,
+   "tax": 0.0,
+   "reason": "Start: Topf A (30 %) – Regel A an: SPY über 200-Tage-Schnitt (+5 %)"
+  },
+  {
+   "date": "2026-09-22",
+   "depot": "Masterplan",
+   "action": "Kauf",
+   "sleeve": "G",
+   "product": "GOLD",
+   "units": 164.7972,
+   "price": 121.3006,
+   "value": 20000.0,
+   "fee": 10.0,
+   "tax": 0.0,
+   "reason": "Start: Topf G (20 %)"
+  }
+ ],
  "holdings": [
   {
    "depot": "MSCI World SRI",
-   "sleeve": "",
-   "product": "CASH",
-   "units": null,
-   "price": null,
-   "value": 100000.0
+   "sleeve": "M",
+   "product": "MSCI",
+   "units": 7160.2675,
+   "price": 13.976,
+   "value": 100071.9
   },
   {
    "depot": "Masterplan",
-   "sleeve": "",
-   "product": "CASH",
-   "units": null,
-   "price": null,
-   "value": 100000.0
+   "sleeve": "B",
+   "product": "SP3X",
+   "units": 297.007,
+   "price": 168.06,
+   "value": 49915.0
+  },
+  {
+   "depot": "Masterplan",
+   "sleeve": "A",
+   "product": "NDX2X",
+   "units": 2929.3023,
+   "price": 10.262,
+   "value": 30060.5
+  },
+  {
+   "depot": "Masterplan",
+   "sleeve": "G",
+   "product": "GOLD",
+   "units": 164.7972,
+   "price": 121.63,
+   "value": 20044.28
   }
  ],
  "totals": {
   "MSCI World SRI": {
-   "fees": 0.0,
+   "fees": 50.0,
    "taxes": 0.0,
    "loss_pot": 0.0
   },
   "Masterplan": {
-   "fees": 0.0,
+   "fees": 50.0,
    "taxes": 0.0,
    "loss_pot": 0.0
   }
