@@ -560,6 +560,8 @@ def write_notification(data: dict, state) -> None:
     scale = MY_DEPOT / CAPITAL
     handeln = bool(orders)
     day = date.fromisoformat(sig["us_date"]) + timedelta(days=1)
+    while day.weekday() >= 5:                                  # Samstag/Sonntag -> naechster Werktag
+        day += timedelta(days=1)
 
     title = ("\U0001F534 Heute handeln" if handeln else "\U0001F7E2 Heute nichts tun") + f" - {day.strftime('%d.%m.%Y')}"
     lines = [f"# {'\U0001F534 Heute handeln' if handeln else '\U0001F7E2 Heute nichts tun'}", ""]
@@ -589,6 +591,14 @@ def write_notification(data: dict, state) -> None:
         lines += ["", "_Orders zur Börseneröffnung aufgeben, am besten als Limit-Order. Beträge und Stückzahlen für "
                   + _eur(MY_DEPOT) + " Depotwert; Kaufbeträge sind Schätzungen aus dem letzten Schlusskurs._", ""]
 
+    soll = [h for h in data["holdings"] if h["depot"] == "Masterplan" and h["product"] != "CASH"]
+    if soll and last:
+        gesamt = sum(h["value"] for h in soll)
+        lines += ["## Soll-Bestand (zur Kontrolle)", ""]
+        for h in sorted(soll, key=lambda x: -x["value"]):
+            stk = f"{h['units'] * scale:,.3f}".replace(",", "X").replace(".", ",").replace("X", ".")
+            lines.append(f"- {PRODUCTS[h['product']]['name']}: {h['value'] / gesamt * 100:.0f} % ({stk} Stück)")
+        lines.append("")
     if last and len(hist) > 1 and date.fromisoformat(last["date"]).month != date.fromisoformat(hist[-2]["date"]).month:
         wert = f"{last['plan']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         lines += ["## Monatsanfang: Parqet aktualisieren", "",
