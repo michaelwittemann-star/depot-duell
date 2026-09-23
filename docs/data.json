@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-23T09:18+00:00",
+ "generated": "2026-09-23T09:28+00:00",
  "start": "2026-09-22",
  "capital": 100000.0,
  "weights": {
@@ -90,10 +90,10 @@
   },
   {
    "date": "2026-09-23",
-   "msci": 100631.82,
-   "plan": 100825.14,
-   "msci_after_tax": 100524.46,
-   "plan_after_tax": 100638.04,
+   "msci": 100617.49,
+   "plan": 100835.03,
+   "msci_after_tax": 100512.77,
+   "plan_after_tax": 100645.32,
    "B": 1,
    "A": 1
   }
@@ -158,8 +158,8 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 7163.4266,
-   "price": 14.048,
-   "value": 100631.82
+   "price": 14.046,
+   "value": 100617.49
   },
   {
    "depot": "Masterplan",
@@ -182,8 +182,8 @@
    "sleeve": "G",
    "product": "GOLD",
    "units": 164.831,
-   "price": 121.63,
-   "value": 20048.39
+   "price": 121.69,
+   "value": 20058.28
   }
  ],
  "totals": {

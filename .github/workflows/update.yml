@@ -39,14 +39,23 @@ jobs:
           git add docs/data.json
           git diff --cached --quiet || git commit -m "Depots aktualisiert $(date -u +%Y-%m-%d)"
           git push
-      - name: Benachrichtigung (Ticket -> E-Mail/Push von GitHub)
-        if: hashFiles('notify/title.txt') != ''
+      - name: Tagesmeldung als Kommentar (eine Mail pro Tag)
+        if: hashFiles('notify/body.md') != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          title="$(cat notify/title.txt)"
-          if gh issue list --state all --limit 200 --json title --jq '.[].title' | grep -Fxq "$title"; then
-            echo "Schon gemeldet: $title"
+          set -eu
+          marker="$(cat notify/marker.txt)"
+          issue="$(gh issue list --state open --search 'Tagesmeldung in:title' --json number,title --jq '.[] | select(.title | startswith("Tagesmeldung")) | .number' | head -1)"
+          if [ -z "$issue" ]; then
+            issue="$(gh issue create --title "Tagesmeldung Depot-Duell" \
+              --body "Hier kommt jeden Handelstag eine Meldung: handeln oder nichts tun, Gesamtwert, Wahrscheinlichkeit und ggf. die Orders." \
+              | sed 's#.*/##')"
+          fi
+          if gh issue view "$issue" --json comments --jq '.comments[-3:][].body' | grep -Fq "$marker"; then
+            echo "Meldung fuer $marker schon vorhanden"
           else
-            gh issue create --title "$title" --body-file notify/body.md --assignee "${{ github.repository_owner }}"
+            title="$(cat notify/title.txt)"
+            { echo "## $title"; echo; cat notify/body.md; } > /tmp/comment.md
+            gh issue comment "$issue" --body-file /tmp/comment.md
           fi

@@ -20,7 +20,7 @@ import math
 import os
 import time
 from dataclasses import dataclass, field
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -467,7 +467,7 @@ def main():
                 tomorrow.append({"depot": "Masterplan", "text": f"Topf {sleeve}: {old} verkaufen, Erlös in {new} ({RULE_TEXT[sleeve][0 if now else 1]})"})
 
     pc_last = {k: float(closes[k].iloc[-1]) for k in PRODUCTS}
-    orders = []                         # je Order: Betrag/Stueck fuer das 100.000-EUR-Musterdepot (Seite skaliert)
+    orders = []                         # je Order: Betrag/Stück fuer das 100.000-EUR-Musterdepot (Seite skaliert)
     if state is None:
         orders.append({"depot": "MSCI World SRI", "action": "Kauf", "product": "MSCI", "sleeve": "M", "amount": CAPITAL, "units": None})
         for sleeve, w in WEIGHTS.items():
@@ -551,63 +551,60 @@ def _eur(x: float) -> str:
 
 
 def write_notification(data: dict, state) -> None:
-    """Legt notify/title.txt + notify/body.md an, wenn gehandelt werden muss oder eine Regel neu in den Warnbereich kommt."""
+    """Schreibt notify/title.txt + notify/body.md: eine Meldung je Handelstag, kurz und in fester Reihenfolge."""
     for f in NOTIFY.glob("*"):
         f.unlink()
     sig, fc = data["signal"], data["signal"]["forecast"]
-    scale = MY_DEPOT / CAPITAL
-    names = {"B": "Regel B (Topf 50 %: 3x S&P 500 oder Staatsanleihen 20+)", "A": "Regel A (Topf 30 %: 2x Nasdaq-100 oder Anleihen 7-10 + Gold)"}
-    lines_fc = ["| Regel | Zustand | Wechsel morgen | Wechsel in 5 Tagen |", "|---|---|---|---|"]
-    for k in ("B", "A"):
-        lines_fc.append(f"| {names[k]} | {'an' if sig[k] else 'aus'} | {fc[k]['p1']:.0%} | {fc[k]['p5']:.0%} |")
-    detail = []
-    for k in ("B", "A"):
-        for c in fc[k]["conditions"]:
-            detail.append(f"- {k}: {c['name']}: {c['text']} ({c['move'] * 100:+.1f} % vom letzten Schluss)" if c["name"] != "20-Tage-Schwankung"
-                          else f"- {k}: {c['text']}")
-        for f in fc[k]["flat"]:
-            detail.append(f"- {k}: {f}")
-    hist = data["history"]
+    hist, orders = data["history"], data["orders"]
     last = hist[-1] if hist else None
-    parqet = []
+    scale = MY_DEPOT / CAPITAL
+    handeln = bool(orders)
+    day = date.fromisoformat(sig["us_date"]) + timedelta(days=1)
+
+    title = ("\U0001F534 Heute handeln" if handeln else "\U0001F7E2 Heute nichts tun") + f" - {day.strftime('%d.%m.%Y')}"
+    lines = [f"# {'\U0001F534 Heute handeln' if handeln else '\U0001F7E2 Heute nichts tun'}", ""]
+
     if last:
+        seit = last["plan"] / CAPITAL - 1
         wert = f"{last['plan']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        parqet = ["", "### Wert für Parqet (eigener Vermögenswert „Masterfonds“)",
-                  f"Stand {last['date']}: **{wert} EUR**", "(Alle Tageswerte: docs/masterfonds.csv im Repository.)"]
-    footer = [*parqet, "", "### Ausblick", *lines_fc, "", *detail, "", f"Seite: {SITE}",
-              "", f"_Grundlage: US-Schluss vom {sig['us_date']}. Beträge 'Mein Depot' für {_eur(MY_DEPOT)}, Kurse vom letzten Schluss (Schätzung)._"]
-    title, body = None, []
-    if data["orders"]:
-        title = f"Handeln zur nächsten Eröffnung (Signal vom {sig['us_date']})"
-        body = ["Zur Eröffnung des nächsten Handelstags bitte umschichten:", "",
-                "| Depot | Aktion | Produkt | ISIN | Börse | Musterdepot 100k | Mein Depot |", "|---|---|---|---|---|---|---|"]
-        for o in data["orders"]:
-            p = PRODUCTS[o["product"]]
-            mine = _eur(o["amount"] * scale) + (f" ({o['units'] * scale:,.3f} Stk.)".replace(",", "X").replace(".", ",").replace("X", ".") if o.get("units") else "")
-            if o["depot"] == "MSCI World SRI":
-                mine = "-"
-            what = "alle Stücke" if o.get("all") else ("nur Topf-A-Anteil" if o["action"] == "Verkauf" else "")
-            body.append(f"| {o['depot']} | {o['action']} {what} | {p['name']} | {p['isin']} | {p['venue']} | {_eur(o['amount'])} | {mine} |")
-    else:
-        newly = [k for k in ("B", "A") if fc[k]["p5"] >= WARN > data["signal"]["forecast_prev"][k]]
-        if newly:
-            title = f"Vorwarnung: {' und '.join('Regel ' + k for k in newly)} könnte bald umschalten (Signal vom {sig['us_date']})"
-            body = ["Noch nichts zu tun. " + " ".join(
-                f"Regel {k} ist {'an' if sig[k] else 'aus'} und könnte mit {fc[k]['p5']:.0%} Wahrscheinlichkeit in den nächsten 5 Handelstagen umschalten."
-                for k in newly),
-                "Historisch wurden gut 8 von 10 Wechseln so vorher angekuendigt; etwa 4 von 10 Warnungen führen tatsaechlich zu einem Wechsel."]
-    if not title and last and len(hist) > 1 and date.fromisoformat(last["date"]).month != date.fromisoformat(hist[-2]["date"]).month:
-        wert0 = f"{last['plan']:,.0f}".replace(",", ".")
-        title = f"Monatswert für Parqet: Masterfonds {wert0} EUR ({last['date']})"
-        body = ["Bitte den Wert des eigenen Vermögenswerts „Masterfonds“ in Parqet aktualisieren."]
-    if not title and os.environ.get("TEST_NOTIFY") == "true":
-        title = f"Test der Benachrichtigung (Signal vom {sig['us_date']})"
-        body = ["Dies ist eine Test-Nachricht. So sehen künftige Hinweise aus; gehandelt werden muss gerade nichts."]
-    if title:
-        NOTIFY.mkdir(exist_ok=True)
-        (NOTIFY / "title.txt").write_text(title, encoding="utf-8")
-        (NOTIFY / "body.md").write_text("\n".join(body + footer), encoding="utf-8")
-        print("Benachrichtigung:", title)
+        lines += [f"**Gesamtwert Masterplan: {wert} EUR** ({f'{seit * 100:+.1f}'.replace('.', ',')} % seit Start, Stand {date.fromisoformat(last['date']).strftime('%d.%m.%Y')})", ""]
+
+    top_rule = max(("B", "A"), key=lambda k: fc[k]["p5"])
+    lines += [f"Wahrscheinlichkeit, dass morgen gehandelt werden muss: **{fc[top_rule]['p1'] * 100:.0f} %**"
+              f" (in 5 Handelstagen {fc[top_rule]['p5'] * 100:.0f} %, jeweils Regel {top_rule})", "",
+              f"[Alle Details auf der Website]({SITE})", ""]
+
+    if handeln:
+        lines += ["## Das ist zu tun", ""]
+        for o in orders:
+            prod = PRODUCTS[o["product"]]
+            wo = f"{prod['venue']}, {prod['isin']}"
+            if o["action"] == "Verkauf":
+                menge = f"{o['units'] * scale:,.3f} Stück".replace(",", "X").replace(".", ",").replace("X", ".")
+                zusatz = "alle Stücke" if o.get("all") else "nur den Anteil aus Topf A"
+                lines.append(f"- **Verkaufen:** {prod['name']} - {menge} ({zusatz}), {wo}")
+            else:
+                betrag = f"{o['amount'] * scale:,.0f}".replace(",", ".")
+                lines.append(f"- **Kaufen:** {prod['name']} - für ca. {betrag} EUR, {wo}")
+        lines += ["", "_Orders zur Börseneröffnung aufgeben, am besten als Limit-Order. Beträge und Stückzahlen für "
+                  + _eur(MY_DEPOT) + " Depotwert; Kaufbeträge sind Schätzungen aus dem letzten Schlusskurs._", ""]
+
+    if last and len(hist) > 1 and date.fromisoformat(last["date"]).month != date.fromisoformat(hist[-2]["date"]).month:
+        wert = f"{last['plan']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        lines += ["## Monatsanfang: Parqet aktualisieren", "",
+                  f"Wert des eigenen Vermögenswerts \u201eMasterfonds\u201c auf **{wert} EUR** setzen.", ""]
+
+    if data.get("stale"):
+        lines += [f"> Hinweis: Für {', '.join(data['stale'])} lagen keine frischen Kurse vor, es wurden archivierte Werte benutzt.", ""]
+    if data.get("waiting"):
+        lines += ["> Hinweis: Fuer den Starttag liegen noch keine Schlusskurse vor.", ""]
+
+    lines.append(f"<!-- meldung:{sig['us_date']} -->")
+    NOTIFY.mkdir(exist_ok=True)
+    (NOTIFY / "title.txt").write_text(title, encoding="utf-8")
+    (NOTIFY / "body.md").write_text(chr(10).join(lines), encoding="utf-8")
+    (NOTIFY / "marker.txt").write_text(f"meldung:{sig['us_date']}", encoding="utf-8")
+    print("Meldung geschrieben:", title.encode("ascii", "replace").decode())
 
 
 if __name__ == "__main__":
