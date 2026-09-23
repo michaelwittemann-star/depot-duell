@@ -35,7 +35,6 @@ SITE = "https://michaelwittemann-star.github.io/depot-duell/"
 OUT = Path(__file__).parent / "docs" / "data.json"
 CACHE = Path(__file__).parent / "docs" / "prices.csv"
 TRACK = Path(__file__).parent / "docs" / "masterfonds.csv"      # taeglicher Gesamtwert des Masterplans ("Masterfonds")
-PARQET = Path(__file__).parent / "docs" / "parqet_aktivitaeten.csv"   # Importdatei fuer Parqet (date;price;shares;tax;fee;type;assetType;identifier)    # Kursarchiv: einmal geholte Kurse bleiben erhalten (Luecken bei Yahoo)
 NOTIFY = Path(__file__).parent / "notify"
 
 PRODUCTS = {
@@ -518,7 +517,6 @@ def main():
         },
     }
     write_tracking(history)
-    write_parqet(plan.trades)
     stale = sorted(k for k, v in SOURCES.items() if v == "Archiv")
     data["stale"] = stale
     if OUT.exists():
@@ -548,15 +546,6 @@ def write_tracking(history: list) -> None:
     TRACK.write_text(chr(10).join(rows) + chr(10), encoding="utf-8")
 
 
-def write_parqet(trades: list) -> None:
-    """Alle Orders des Masterplans im Parqet-Importformat (Semikolon, ISO-Datum, Punkt als Dezimaltrennzeichen)."""
-    rows = ["date;price;shares;tax;fee;type;assetType;identifier"]
-    for tr in trades:
-        rows.append(f"{tr['date']};{tr['price']:.4f};{tr['units']:.6f};{tr['tax']:.2f};{tr['fee']:.2f};"
-                    f"{'Buy' if tr['action'] == 'Kauf' else 'Sell'};Security;{PRODUCTS[tr['product']]['isin']}")
-    PARQET.write_text(chr(10).join(rows) + chr(10), encoding="utf-8")
-
-
 def _eur(x: float) -> str:
     return f"{x:,.0f} EUR".replace(",", ".")
 
@@ -578,13 +567,20 @@ def write_notification(data: dict, state) -> None:
                           else f"- {k}: {c['text']}")
         for f in fc[k]["flat"]:
             detail.append(f"- {k}: {f}")
-    footer = ["", "### Ausblick", *lines_fc, "", *detail, "", f"Seite: {SITE}",
+    hist = data["history"]
+    last = hist[-1] if hist else None
+    parqet = []
+    if last:
+        wert = f"{last['plan']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        parqet = ["", "### Wert für Parqet (eigener Vermögenswert „Masterfonds“)",
+                  f"Stand {last['date']}: **{wert} EUR**", "(Alle Tageswerte: docs/masterfonds.csv im Repository.)"]
+    footer = [*parqet, "", "### Ausblick", *lines_fc, "", *detail, "", f"Seite: {SITE}",
               "", f"_Grundlage: US-Schluss vom {sig['us_date']}. Beträge 'Mein Depot' für {_eur(MY_DEPOT)}, Kurse vom letzten Schluss (Schätzung)._"]
     title, body = None, []
     if data["orders"]:
-        title = f"Handeln zur nächsten Eroeffnung (Signal vom {sig['us_date']})"
-        body = ["Zur Eroeffnung des nächsten Handelstags bitte umschichten:", "",
-                "| Depot | Aktion | Produkt | ISIN | Boerse | Musterdepot 100k | Mein Depot |", "|---|---|---|---|---|---|---|"]
+        title = f"Handeln zur nächsten Eröffnung (Signal vom {sig['us_date']})"
+        body = ["Zur Eröffnung des nächsten Handelstags bitte umschichten:", "",
+                "| Depot | Aktion | Produkt | ISIN | Börse | Musterdepot 100k | Mein Depot |", "|---|---|---|---|---|---|---|"]
         for o in data["orders"]:
             p = PRODUCTS[o["product"]]
             mine = _eur(o["amount"] * scale) + (f" ({o['units'] * scale:,.3f} Stk.)".replace(",", "X").replace(".", ",").replace("X", ".") if o.get("units") else "")
@@ -600,6 +596,10 @@ def write_notification(data: dict, state) -> None:
                 f"Regel {k} ist {'an' if sig[k] else 'aus'} und könnte mit {fc[k]['p5']:.0%} Wahrscheinlichkeit in den nächsten 5 Handelstagen umschalten."
                 for k in newly),
                 "Historisch wurden gut 8 von 10 Wechseln so vorher angekuendigt; etwa 4 von 10 Warnungen führen tatsaechlich zu einem Wechsel."]
+    if not title and last and len(hist) > 1 and date.fromisoformat(last["date"]).month != date.fromisoformat(hist[-2]["date"]).month:
+        wert0 = f"{last['plan']:,.0f}".replace(",", ".")
+        title = f"Monatswert für Parqet: Masterfonds {wert0} EUR ({last['date']})"
+        body = ["Bitte den Wert des eigenen Vermögenswerts „Masterfonds“ in Parqet aktualisieren."]
     if not title and os.environ.get("TEST_NOTIFY") == "true":
         title = f"Test der Benachrichtigung (Signal vom {sig['us_date']})"
         body = ["Dies ist eine Test-Nachricht. So sehen künftige Hinweise aus; gehandelt werden muss gerade nichts."]

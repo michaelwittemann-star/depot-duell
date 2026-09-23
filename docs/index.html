@@ -84,6 +84,8 @@ dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:10px 0
 dt{color:var(--muted)} dd{margin:0}
 footer{color:var(--muted);font-size:12px;line-height:1.8}
 footer a{color:var(--plan)}
+.parqet button{margin-left:6px;font:500 12px var(--font-body);color:var(--plan);background:transparent;border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+.parqet button:hover{border-color:var(--plan)}
 .mine{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
 .mine input{width:110px;font:500 14px var(--font-mono);color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:5px 8px;text-align:right}
 .mine input:focus-visible{outline:2px solid var(--plan);outline-offset:1px}
@@ -165,7 +167,6 @@ footer a{color:var(--plan)}
 
   <footer id="foot">Zum Mitverfolgen, keine Anlageberatung. Kurse: Yahoo Finance, Aktualisierung werktags nach US-Börsenschluss.<br>
     Dateien zum Herunterladen: <a href="masterfonds.csv">Tageswerte des Masterfonds (CSV)</a> ·
-    <a href="parqet_aktivitaeten.csv">Orders im Parqet-Importformat (CSV)</a> ·
     <a href="data.json">Rohdaten (JSON)</a></footer>
 </div>
 
@@ -195,6 +196,18 @@ function renderDuo() {
     const s = el("div", {class: "sub"}); const sp = el("span", {class: ch >= 0 ? "pos" : "neg"}, pct(ch)); s.append(sp, document.createTextNode(" seit Start · nach Steuer bei Verkauf " + eur(va)));
     card.append(s);
     const t = DATA.totals[name]; card.append(el("div", {class: "sub"}, `${desc} · Gebühren ${eur2(t.fees)} · gezahlte Steuer ${eur2(t.taxes)}`));
+    if (k === "plan" && last) {
+      const row = el("div", {class: "sub parqet"});
+      const value = last.plan.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      const btn = el("button", {type: "button", title: "Wert in die Zwischenablage kopieren"}, "kopieren");
+      btn.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(value.replace(/\./g, "").replace(",", ".")); btn.textContent = "kopiert"; }
+        catch (e) { btn.textContent = value; }
+        setTimeout(() => { btn.textContent = "kopieren"; }, 2500);
+      });
+      row.append(document.createTextNode(`Für Parqet („Masterfonds“, eigener Vermögenswert): ${value} € `), btn);
+      card.append(row);
+    }
     box.append(card);
   });
   if (last) {
