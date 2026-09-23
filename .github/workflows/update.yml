@@ -2,8 +2,8 @@ name: Depots aktualisieren
 
 on:
   schedule:
-    - cron: "30 22 * * 1-5"   # werktags nach US-Boersenschluss (22:30 UTC)
-    - cron: "30 5 * * 2-6"    # Sicherheitslauf frueh morgens, falls Kurse abends noch fehlten
+    - cron: "45 21 * * 1-5"   # werktags kurz nach US-Boersenschluss (21:45 UTC = 23:45 Sommer / 22:45 Winter)
+    - cron: "30 5 * * 2-6"    # Sicherheitslauf frueh morgens, falls die Kurse abends noch fehlten
   workflow_dispatch:
     inputs:
       test_benachrichtigung:

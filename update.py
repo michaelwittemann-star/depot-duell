@@ -550,11 +550,25 @@ def _eur(x: float) -> str:
     return f"{x:,.0f} EUR".replace(",", ".")
 
 
+def last_us_session(now: datetime) -> date:
+    """Datum der letzten abgeschlossenen US-Sitzung (Schluss 20:00 UTC im Sommer, 21:00 UTC im Winter; Puffer bis 21:30)."""
+    d = now.date()
+    if now.hour < 21 or (now.hour == 21 and now.minute < 30):
+        d -= timedelta(days=1)
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d
+
+
 def write_notification(data: dict, state) -> None:
     """Schreibt notify/title.txt + notify/body.md: eine Meldung je Handelstag, kurz und in fester Reihenfolge."""
     for f in NOTIFY.glob("*"):
         f.unlink()
     sig, fc = data["signal"], data["signal"]["forecast"]
+    now = datetime.now(timezone.utc)
+    if now.hour >= 20 and date.fromisoformat(sig["us_date"]) < last_us_session(now):
+        print("Abendlauf ohne frischen US-Schluss - keine Meldung, der Morgenlauf uebernimmt")
+        return
     hist, orders = data["history"], data["orders"]
     last = hist[-1] if hist else None
     scale = MY_DEPOT / CAPITAL
