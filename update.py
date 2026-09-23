@@ -469,11 +469,12 @@ def main():
     pc_last = {k: float(closes[k].iloc[-1]) for k in PRODUCTS}
     orders = []                         # je Order: Betrag/Stück fuer das 100.000-EUR-Musterdepot (Seite skaliert)
     if state is None:
-        orders.append({"depot": "MSCI World SRI", "action": "Kauf", "product": "MSCI", "sleeve": "M", "amount": CAPITAL, "units": None})
+        orders.append({"depot": "MSCI World SRI", "action": "Kauf", "product": "MSCI", "sleeve": "M", "amount": CAPITAL,
+                       "units": None, "price": round(pc_last["MSCI"], 4)})
         for sleeve, w in WEIGHTS.items():
             for prod, share in tgt_now[sleeve].items():
                 orders.append({"depot": "Masterplan", "action": "Kauf", "product": prod, "sleeve": sleeve,
-                               "amount": round(CAPITAL * w * share, 2), "units": None})
+                               "amount": round(CAPITAL * w * share, 2), "units": None, "price": round(pc_last[prod], 4)})
     else:
         for sleeve, now in (("B", b_now), ("A", a_now)):
             if now == state[sleeve]:
@@ -485,10 +486,11 @@ def main():
                 value = u * pc_last[prod]
                 proceeds += value
                 orders.append({"depot": "Masterplan", "action": "Verkauf", "product": prod, "sleeve": sleeve,
-                               "amount": round(value, 2), "units": round(u, 4), "all": prod != "GOLD"})
+                               "amount": round(value, 2), "units": round(u, 4), "all": prod != "GOLD",
+                               "price": round(pc_last[prod], 4)})
             for prod, share in tgt_now[sleeve].items():
                 orders.append({"depot": "Masterplan", "action": "Kauf", "product": prod, "sleeve": sleeve,
-                               "amount": round(proceeds * share, 2), "units": None})
+                               "amount": round(proceeds * share, 2), "units": None, "price": round(pc_last[prod], 4)})
     holdings = []
     for depot in (msci, plan):
         for key in depot.lots:
@@ -592,18 +594,30 @@ def write_notification(data: dict, state) -> None:
 
     if handeln:
         lines += ["## Das ist zu tun", ""]
+        def _de(x, n=2):
+            return f"{x:,.{n}f}".replace(",", "X").replace(".", ",").replace("X", ".")
         for o in orders:
             prod = PRODUCTS[o["product"]]
-            wo = f"{prod['venue']}, {prod['isin']}"
+            kurs = o.get("price")
             if o["action"] == "Verkauf":
-                menge = f"{o['units'] * scale:,.3f} Stück".replace(",", "X").replace(".", ",").replace("X", ".")
+                menge = _de(o["units"] * scale, 3) + " Stück"
                 zusatz = "alle Stücke" if o.get("all") else "nur den Anteil aus Topf A"
-                lines.append(f"- **Verkaufen:** {prod['name']} - {menge} ({zusatz}), {wo}")
+                limit = f", Limit ca. {_de(kurs * 0.995)} EUR" if kurs else ""
+                lines += [f"- **Verkaufen: {prod['name']}**",
+                          f"  - Menge: {menge} ({zusatz})",
+                          f"  - Handelsplatz: {prod['venue']} · ISIN {prod['isin']}",
+                          f"  - Modus: Limit-Verkauf{limit} (letzter Schluss {_de(kurs) if kurs else '-'} EUR), gültig für den Tag"]
             else:
-                betrag = f"{o['amount'] * scale:,.0f}".replace(",", ".")
-                lines.append(f"- **Kaufen:** {prod['name']} - für ca. {betrag} EUR, {wo}")
-        lines += ["", "_Orders zur Börseneröffnung aufgeben, am besten als Limit-Order. Beträge und Stückzahlen für "
-                  + _eur(MY_DEPOT) + " Depotwert; Kaufbeträge sind Schätzungen aus dem letzten Schlusskurs._", ""]
+                betrag = _de(o["amount"] * scale, 0)
+                limit = f", Limit ca. {_de(kurs * 1.005)} EUR" if kurs else ""
+                stk = f" (ca. {_de(o['amount'] * scale / kurs, 3)} Stück)" if kurs else ""
+                lines += [f"- **Kaufen: {prod['name']}**",
+                          f"  - Betrag: ca. {betrag} EUR{stk}",
+                          f"  - Handelsplatz: {prod['venue']} · ISIN {prod['isin']}",
+                          f"  - Modus: Limit-Kauf{limit} (letzter Schluss {_de(kurs) if kurs else '-'} EUR), gültig für den Tag"]
+        lines += ["", "_Zuerst verkaufen, dann mit dem Erlös kaufen. Limit jeweils 0,5 % über bzw. unter dem letzten Schlusskurs - "
+                  "bei ruhigem Markt reicht das meist für eine Ausführung in der Eröffnungsauktion. Beträge und Stückzahlen für "
+                  + _eur(MY_DEPOT) + " Depotwert._", ""]
 
     soll = [h for h in data["holdings"] if h["depot"] == "Masterplan" and h["product"] != "CASH"]
     if soll and last:
