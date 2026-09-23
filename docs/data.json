@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-22T13:41+00:00",
+ "generated": "2026-09-23T00:48+00:00",
  "start": "2026-09-22",
  "capital": 100000.0,
  "weights": {
@@ -10,26 +10,26 @@
  "signal": {
   "forecast": {
    "B": {
-    "sigma_day": 0.01,
+    "sigma_day": 0.0104,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 629.24,
-      "move": -0.1544,
-      "text": "kippt auf aus bei Schluss unter 629.24 $"
+      "trigger_price": 628.65,
+      "move": -0.1522,
+      "text": "kippt auf aus bei Schluss unter 628.65 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": true,
-      "trigger_price": 582.73,
-      "move": -0.2169,
-      "text": "morgen positiv, solange Schluss über 582.73 $"
+      "trigger_price": 586.74,
+      "move": -0.2087,
+      "text": "morgen positiv, solange Schluss über 586.74 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": true,
-      "value": 0.1587,
+      "value": 0.1648,
       "move": 0.072,
       "text": "jetzt 16 %, über 30 % bei einer Tagesbewegung von mehr als 7.2 %"
      }
@@ -39,14 +39,14 @@
     "flat": []
    },
    "A": {
-    "sigma_day": 0.0066,
+    "sigma_day": 0.0067,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 677.8,
-      "move": -0.1249,
-      "text": "kippt auf aus bei Schluss unter 677.80 $"
+      "trigger_price": 677.34,
+      "move": -0.1243,
+      "text": "kippt auf aus bei Schluss unter 677.34 $"
      }
     ],
     "p1": 0.0,
@@ -58,132 +58,100 @@
    "B": 0.0,
    "A": 0.0
   },
-  "us_date": "2026-09-22",
-  "qqq_close": 744.12,
-  "qqq_ma200": 662.31,
-  "qqq_vol20": 0.1597,
-  "qqq_mom126": 0.2682,
+  "us_date": "2026-09-21",
+  "qqq_close": 741.47,
+  "qqq_ma200": 661.7,
+  "qqq_vol20": 0.1658,
+  "qqq_mom126": 0.2782,
   "qqq_trend_on": 1,
-  "spy_close": 774.59,
-  "spy_ma200": 713.47,
+  "spy_close": 773.5,
+  "spy_ma200": 712.98,
   "B": 1,
   "A": 1
  },
- "tomorrow": [],
- "orders": [],
- "state": {
-  "B": 1,
-  "A": 1
- },
- "my_depot": 15000.0,
- "warn": 0.2,
- "history": [
+ "tomorrow": [
   {
-   "date": "2026-09-22",
-   "msci": 100416.91,
-   "plan": 99968.6,
-   "msci_after_tax": 100349.21,
-   "plan_after_tax": 99968.6,
-   "B": 1,
-   "A": 1
+   "depot": "MSCI World SRI",
+   "text": "100.000 EUR in iShares MSCI World SRI UCITS ETF (Acc) (Xetra) kaufen"
+  },
+  {
+   "depot": "Masterplan",
+   "text": "Topf B: 50.000 EUR in WisdomTree S&P 500 3x Daily Leveraged (Borsa Italiana, IE00B7Y34M31) kaufen"
+  },
+  {
+   "depot": "Masterplan",
+   "text": "Topf A: 30.000 EUR in Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF (Euronext Paris, FR0010342592) kaufen"
+  },
+  {
+   "depot": "Masterplan",
+   "text": "Topf G: 20.000 EUR in Xetra-Gold (Xetra, DE000A0S9GB0) kaufen"
   }
  ],
- "trades": [
+ "orders": [
   {
-   "date": "2026-09-22",
    "depot": "MSCI World SRI",
    "action": "Kauf",
-   "sleeve": "M",
    "product": "MSCI",
-   "units": 7163.4268,
-   "price": 13.959,
-   "value": 100000.0,
-   "fee": 5.9,
-   "tax": 0.0,
-   "reason": "Start: 100 % MSCI World SRI"
+   "sleeve": "M",
+   "amount": 100000.0,
+   "units": null
   },
   {
-   "date": "2026-09-22",
    "depot": "Masterplan",
    "action": "Kauf",
-   "sleeve": "B",
    "product": "SP3X",
-   "units": 297.1087,
-   "price": 168.262,
-   "value": 50000.0,
-   "fee": 7.9,
-   "tax": 0.0,
-   "reason": "Start: Topf B (50 %) – Regel B an: QQQ-Trend, Vola und Momentum erfüllt"
+   "sleeve": "B",
+   "amount": 50000.0,
+   "units": null
   },
   {
-   "date": "2026-09-22",
    "depot": "Masterplan",
    "action": "Kauf",
-   "sleeve": "A",
    "product": "NDX2X",
-   "units": 2929.9959,
-   "price": 10.2362,
-   "value": 30000.0,
-   "fee": 7.9,
-   "tax": 0.0,
-   "reason": "Start: Topf A (30 %) – Regel A an: SPY über 200-Tage-Schnitt (+5 %)"
+   "sleeve": "A",
+   "amount": 30000.0,
+   "units": null
   },
   {
-   "date": "2026-09-22",
    "depot": "Masterplan",
    "action": "Kauf",
-   "sleeve": "G",
    "product": "GOLD",
-   "units": 164.831,
-   "price": 121.3006,
-   "value": 20000.0,
-   "fee": 5.9,
-   "tax": 0.0,
-   "reason": "Start: Topf G (20 %)"
+   "sleeve": "G",
+   "amount": 20000.0,
+   "units": null
   }
  ],
+ "state": null,
+ "my_depot": 15000.0,
+ "warn": 0.2,
+ "history": [],
+ "trades": [],
  "holdings": [
   {
    "depot": "MSCI World SRI",
-   "sleeve": "M",
-   "product": "MSCI",
-   "units": 7163.4268,
-   "price": 14.018,
-   "value": 100416.91
+   "sleeve": "",
+   "product": "CASH",
+   "units": null,
+   "price": null,
+   "value": 100000.0
   },
   {
    "depot": "Masterplan",
-   "sleeve": "B",
-   "product": "SP3X",
-   "units": 297.1087,
-   "price": 168.1,
-   "value": 49943.97
-  },
-  {
-   "depot": "Masterplan",
-   "sleeve": "A",
-   "product": "NDX2X",
-   "units": 2929.9959,
-   "price": 10.228,
-   "value": 29968.0
-  },
-  {
-   "depot": "Masterplan",
-   "sleeve": "G",
-   "product": "GOLD",
-   "units": 164.831,
-   "price": 121.68,
-   "value": 20056.63
+   "sleeve": "",
+   "product": "CASH",
+   "units": null,
+   "price": null,
+   "value": 100000.0
   }
  ],
  "totals": {
   "MSCI World SRI": {
-   "fees": 5.9,
+   "fees": 0.0,
    "taxes": 0.0,
    "loss_pot": 0.0
   },
   "Masterplan": {
-   "fees": 21.7,
+   "fees": 0.0,
    "taxes": 0.0,
    "loss_pot": 0.0
   }
