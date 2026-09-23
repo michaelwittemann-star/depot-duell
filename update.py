@@ -25,7 +25,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import yfinance as yf
+import requests
 
 START = date.fromisoformat(os.environ.get("DEPOT_START", "2026-09-22"))
 CAPITAL = 100_000.0
@@ -64,12 +64,6 @@ def fee(value: float, prod: str) -> float:
     return FEE_FLAT + (0.0 if PRODUCTS[prod]["venue"] == "Xetra" else FEE_FOREIGN)
 
 
-def _today_unfinished() -> pd.Timestamp | None:
-    """Der heutige Handelstag ist erst nach US-Boersenschluss (22:00 UTC) vollstaendig - vorher ignorieren."""
-    now = datetime.now(timezone.utc)
-    return pd.Timestamp(now.date()) if now.hour < 22 else None
-
-
 def load_cache() -> pd.DataFrame:
     if CACHE.exists():
         df = pd.read_csv(CACHE, parse_dates=["date"])
@@ -83,6 +77,36 @@ def save_cache(cache: pd.DataFrame) -> None:
     keep.round(6).reset_index().sort_values(["ticker", "date"]).to_csv(CACHE, index=False)
 
 
+def yahoo_chart(ticker: str, start: str) -> pd.DataFrame | None:
+    """Tageskurse (dividendenbereinigt) von Yahoo. Fehlt der Schlusskurs des letzten Tages, wird der offizielle
+    Boersenpreis aus dem Kopf der Antwort verwendet - aber nur, wenn die Boerse an diesem Tag schon geschlossen hat."""
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+    params = {"period1": int(pd.Timestamp(start).timestamp()), "period2": int(time.time()) + 86400,
+              "interval": "1d", "includeAdjustedClose": "true"}
+    r = requests.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
+    r.raise_for_status()
+    res = r.json()["chart"]["result"][0]
+    quote = res["indicators"]["quote"][0]
+    adj = res["indicators"].get("adjclose", [{}])[0].get("adjclose") or quote["close"]
+    rows = []
+    for ts, o, c, a in zip(res["timestamp"], quote["open"], quote["close"], adj):
+        day = pd.Timestamp(datetime.fromtimestamp(ts, timezone.utc).date())
+        rows.append({"date": day, "open": o, "close": c, "adj": a})
+    df = pd.DataFrame(rows).set_index("date")
+    meta = res.get("meta", {})
+    last_price, last_time = meta.get("regularMarketPrice"), meta.get("regularMarketTime")
+    if last_price and last_time:
+        day = pd.Timestamp(datetime.fromtimestamp(last_time, timezone.utc).date())
+        closed = datetime.now(timezone.utc) > datetime.fromtimestamp(last_time, timezone.utc) + pd.Timedelta(minutes=20).to_pytimedelta()
+        if day in df.index and pd.isna(df.at[day, "close"]) and closed:
+            df.at[day, "close"] = last_price
+            df.at[day, "adj"] = last_price
+            print(f"{ticker}: Schlusskurs {day.date()} aus dem Boersenpreis der Schnittstelle ergaenzt ({last_price})")
+    factor = (df["adj"] / df["close"]).where(df["close"] > 0).ffill().fillna(1.0)
+    out = pd.DataFrame({"open": df["open"] * factor, "close": df["adj"]})
+    return out.dropna(subset=["close"])
+
+
 SOURCES: dict[str, str] = {}
 
 
@@ -91,14 +115,9 @@ def download(ticker: str, start: str, cache: pd.DataFrame | None = None, tries: 
     fetched = None
     for attempt in range(tries):
         try:
-            df = yf.Ticker(ticker).history(start=start, auto_adjust=True)
-            if len(df):
-                df.index = pd.to_datetime(df.index).tz_localize(None).normalize()
-                df = df[~df.index.duplicated(keep="last")]
-                unfinished = _today_unfinished()
-                if unfinished is not None:
-                    df = df[df.index < unfinished]          # laufenden, noch nicht abgeschlossenen Tag verwerfen
-                fetched = df[["Open", "Close"]].rename(columns={"Open": "open", "Close": "close"})
+            df = yahoo_chart(ticker, start)
+            if df is not None and len(df):
+                fetched = df[~df.index.duplicated(keep="last")].sort_index()
                 break
         except Exception as error:  # noqa: BLE001
             print(f"{ticker}: Versuch {attempt + 1} fehlgeschlagen: {error}")
