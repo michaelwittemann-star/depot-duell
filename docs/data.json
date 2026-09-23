@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-23T06:58+00:00",
+ "generated": "2026-09-23T09:14+00:00",
  "start": "2026-09-22",
  "capital": 100000.0,
  "weights": {
@@ -81,10 +81,19 @@
  "history": [
   {
    "date": "2026-09-22",
-   "msci": 100144.71,
+   "msci": 100144.7,
    "plan": 100272.8,
    "msci_after_tax": 100127.23,
-   "plan_after_tax": 100231.23,
+   "plan_after_tax": 100231.22,
+   "B": 1,
+   "A": 1
+  },
+  {
+   "date": "2026-09-23",
+   "msci": 100603.16,
+   "plan": 100794.7,
+   "msci_after_tax": 100501.09,
+   "plan_after_tax": 100615.61,
    "B": 1,
    "A": 1
   }
@@ -96,7 +105,7 @@
    "action": "Kauf",
    "sleeve": "M",
    "product": "MSCI",
-   "units": 7163.4268,
+   "units": 7163.4266,
    "price": 13.959,
    "value": 100000.0,
    "fee": 5.9,
@@ -148,33 +157,33 @@
    "depot": "MSCI World SRI",
    "sleeve": "M",
    "product": "MSCI",
-   "units": 7163.4268,
-   "price": 13.98,
-   "value": 100144.71
+   "units": 7163.4266,
+   "price": 14.044,
+   "value": 100603.16
   },
   {
    "depot": "Masterplan",
    "sleeve": "B",
    "product": "SP3X",
    "units": 297.1087,
-   "price": 167.84,
-   "value": 49866.72
+   "price": 168.86,
+   "value": 50169.77
   },
   {
    "depot": "Masterplan",
    "sleeve": "A",
    "product": "NDX2X",
    "units": 2929.9959,
-   "price": 10.352,
-   "value": 30331.32
+   "price": 10.438,
+   "value": 30583.3
   },
   {
    "depot": "Masterplan",
    "sleeve": "G",
    "product": "GOLD",
    "units": 164.831,
-   "price": 121.79,
-   "value": 20074.77
+   "price": 121.59,
+   "value": 20041.8
   }
  ],
  "totals": {
@@ -184,7 +193,7 @@
    "loss_pot": 0.0
   },
   "Masterplan": {
-   "fees": 21.7,
+   "fees": 21.87,
    "taxes": 0.0,
    "loss_pot": 0.0
   }

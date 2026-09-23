@@ -33,7 +33,9 @@ MY_DEPOT = float(os.environ.get("MY_DEPOT", "15000"))   # echtes Plan-Depot fuer
 WARN = 0.20                                              # Vorwarnung ab 20 % Wechselwahrscheinlichkeit in 5 Handelstagen
 SITE = "https://michaelwittemann-star.github.io/depot-duell/"
 OUT = Path(__file__).parent / "docs" / "data.json"
-CACHE = Path(__file__).parent / "docs" / "prices.csv"    # Kursarchiv: einmal geholte Kurse bleiben erhalten (Luecken bei Yahoo)
+CACHE = Path(__file__).parent / "docs" / "prices.csv"
+TRACK = Path(__file__).parent / "docs" / "masterfonds.csv"      # taeglicher Gesamtwert des Masterplans ("Masterfonds")
+PARQET = Path(__file__).parent / "docs" / "parqet_aktivitaeten.csv"   # Importdatei fuer Parqet (date;price;shares;tax;fee;type;assetType;identifier)    # Kursarchiv: einmal geholte Kurse bleiben erhalten (Luecken bei Yahoo)
 NOTIFY = Path(__file__).parent / "notify"
 
 PRODUCTS = {
@@ -515,6 +517,8 @@ def main():
             "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt).",
         },
     }
+    write_tracking(history)
+    write_parqet(plan.trades)
     stale = sorted(k for k, v in SOURCES.items() if v == "Archiv")
     data["stale"] = stale
     if OUT.exists():
@@ -530,6 +534,27 @@ def main():
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     write_notification(data, state)
     print(f"{len(history)} Handelstage, {len(data['trades'])} Buchungen, morgen: {[t['text'] for t in tomorrow]}")
+
+
+def write_tracking(history: list) -> None:
+    """Taeglicher Gesamtwert beider Depots als CSV - der Masterplan als 'Masterfonds' mit Anteilswert (Start 100)."""
+    rows = ["datum;masterfonds_wert;masterfonds_anteilswert;masterfonds_tagesrendite;msci_wert;msci_anteilswert"]
+    prev = None
+    for h in history:
+        idx_plan = h["plan"] / CAPITAL * 100
+        day = "" if prev is None else f"{h['plan'] / prev - 1:.6f}"
+        rows.append(f"{h['date']};{h['plan']:.2f};{idx_plan:.4f};{day};{h['msci']:.2f};{h['msci'] / CAPITAL * 100:.4f}")
+        prev = h["plan"]
+    TRACK.write_text(chr(10).join(rows) + chr(10), encoding="utf-8")
+
+
+def write_parqet(trades: list) -> None:
+    """Alle Orders des Masterplans im Parqet-Importformat (Semikolon, ISO-Datum, Punkt als Dezimaltrennzeichen)."""
+    rows = ["date;price;shares;tax;fee;type;assetType;identifier"]
+    for tr in trades:
+        rows.append(f"{tr['date']};{tr['price']:.4f};{tr['units']:.6f};{tr['tax']:.2f};{tr['fee']:.2f};"
+                    f"{'Buy' if tr['action'] == 'Kauf' else 'Sell'};Security;{PRODUCTS[tr['product']]['isin']}")
+    PARQET.write_text(chr(10).join(rows) + chr(10), encoding="utf-8")
 
 
 def _eur(x: float) -> str:

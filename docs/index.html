@@ -82,7 +82,8 @@ tr:last-child td{border-bottom:0}
 details summary{cursor:pointer;font-weight:600}
 dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:10px 0 0;font-size:13px}
 dt{color:var(--muted)} dd{margin:0}
-footer{color:var(--muted);font-size:12px}
+footer{color:var(--muted);font-size:12px;line-height:1.8}
+footer a{color:var(--plan)}
 .mine{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
 .mine input{width:110px;font:500 14px var(--font-mono);color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:5px 8px;text-align:right}
 .mine input:focus-visible{outline:2px solid var(--plan);outline-offset:1px}
@@ -162,7 +163,10 @@ footer{color:var(--muted);font-size:12px}
     </details>
   </section>
 
-  <footer id="foot">Papierdepots zur Beobachtung, keine Anlageberatung. Kurse: Yahoo Finance, Aktualisierung werktags nach US-Börsenschluss.</footer>
+  <footer id="foot">Zum Mitverfolgen, keine Anlageberatung. Kurse: Yahoo Finance, Aktualisierung werktags nach US-Börsenschluss.<br>
+    Dateien zum Herunterladen: <a href="masterfonds.csv">Tageswerte des Masterfonds (CSV)</a> ·
+    <a href="parqet_aktivitaeten.csv">Orders im Parqet-Importformat (CSV)</a> ·
+    <a href="data.json">Rohdaten (JSON)</a></footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -356,6 +360,7 @@ function render() {
 (() => {
   const input = document.getElementById("my-depot");
   try { const saved = localStorage.getItem("myDepot"); if (saved) input.value = saved; } catch (e) {}
+  document.addEventListener("daten-geladen", () => { try { if (!localStorage.getItem("myDepot")) input.value = DATA.capital; } catch (e) { input.value = DATA.capital; } });
   input.addEventListener("input", () => {
     try { localStorage.setItem("myDepot", input.value); } catch (e) {}
     if (DATA) { renderTodo(); renderTables(); }
@@ -368,7 +373,7 @@ function render() {
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (chart) { chart.destroy(); chart = null; } if (DATA) renderChart(); });
 
 fetch("data.json?" + Date.now()).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(d => { DATA = d; render(); })
+  .then(d => { DATA = d; document.dispatchEvent(new Event("daten-geladen")); render(); })
   .catch(e => { document.getElementById("stand").textContent = "Daten konnten nicht geladen werden (" + e.message + "). Bitte später neu laden."; });
 </script>
 </body>
