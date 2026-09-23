@@ -619,6 +619,17 @@ def write_notification(data: dict, state) -> None:
                   "bei ruhigem Markt reicht das meist für eine Ausführung in der Eröffnungsauktion. Beträge und Stückzahlen für "
                   + _eur(MY_DEPOT) + " Depotwert._", ""]
 
+    letzte = [tr for tr in data["trades"] if tr["depot"] == "Masterplan" and last and tr["date"] == last["date"]]
+    if letzte and not handeln:
+        tag = date.fromisoformat(last["date"]).strftime("%d.%m.%Y")
+        lines += [f"## Kontrolle: am {tag} war umzuschichten", "",
+                  "Falls deine Order nicht ausgeführt wurde (Limit nicht erreicht, Teilausführung), bitte heute nachholen:"]
+        for tr in letzte:
+            art = "Verkauf" if tr["action"] == "Verkauf" else "Kauf"
+            stk = f"{tr['units'] * scale:,.3f}".replace(",", "X").replace(".", ",").replace("X", ".")
+            lines.append(f"- {art}: {PRODUCTS[tr['product']]['name']} ({PRODUCTS[tr['product']]['venue']}), rund {stk} Stück")
+        lines += ["", "_Bei einem Verkauf, der zweimal nicht durchgeht: billigst bzw. bestens ausführen. "
+                  "Ein paar Zehntelprozent Kurs kosten weniger als mehrere Tage in der falschen Position._", ""]
     soll = [h for h in data["holdings"] if h["depot"] == "Masterplan" and h["product"] != "CASH"]
     if soll and last:
         gesamt = sum(h["value"] for h in soll)
