@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-23T09:28+00:00",
+ "generated": "2026-09-23T09:29+00:00",
  "start": "2026-09-22",
  "capital": 100000.0,
  "weights": {
@@ -91,9 +91,9 @@
   {
    "date": "2026-09-23",
    "msci": 100617.49,
-   "plan": 100835.03,
+   "plan": 100826.28,
    "msci_after_tax": 100512.77,
-   "plan_after_tax": 100645.32,
+   "plan_after_tax": 100638.87,
    "B": 1,
    "A": 1
   }
@@ -166,24 +166,24 @@
    "sleeve": "B",
    "product": "SP3X",
    "units": 297.1087,
-   "price": 168.96,
-   "value": 50199.48
+   "price": 168.88,
+   "value": 50175.71
   },
   {
    "depot": "Masterplan",
    "sleeve": "A",
    "product": "NDX2X",
    "units": 2929.9959,
-   "price": 10.436,
-   "value": 30577.44
+   "price": 10.44,
+   "value": 30589.16
   },
   {
    "depot": "Masterplan",
    "sleeve": "G",
    "product": "GOLD",
    "units": 164.831,
-   "price": 121.69,
-   "value": 20058.28
+   "price": 121.71,
+   "value": 20061.58
   }
  ],
  "totals": {
