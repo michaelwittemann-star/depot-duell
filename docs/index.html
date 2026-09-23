@@ -91,6 +91,8 @@ footer{color:var(--muted);font-size:12px}
 .prob span{font-size:12px;color:var(--muted)}
 .prob .hot{color:var(--warn)}
 .cond{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--muted);display:grid;gap:3px}
+.warnbox{border-left:4px solid var(--warn);font-size:14px}
+.warnbox b{color:var(--warn)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -103,6 +105,8 @@ footer{color:var(--muted);font-size:12px}
     </div>
     <div class="stand" id="startinfo"></div>
   </header>
+
+  <section class="panel warnbox" id="stale" hidden></section>
 
   <section class="duo" id="duo" aria-label="Depotstände"></section>
 
@@ -336,6 +340,16 @@ function render() {
   const stand = document.getElementById("stand"); stand.replaceChildren();
   stand.append(document.createTextNode("Start "), el("b", {}, dDE(DATA.start)), document.createTextNode(` mit je ${eur(DATA.capital)} · aktualisiert `),
     el("b", {}, gen.toLocaleString("de-DE", {dateStyle: "medium", timeStyle: "short"})), document.createTextNode(` · ${DATA.history.length} Handelstage`));
+  const box = document.getElementById("stale"), stale = DATA.stale || [];
+  box.replaceChildren();
+  if (DATA.waiting) {
+    box.append(el("b", {}, "Start steht noch aus. "), document.createTextNode(
+      `Für den Starttag ${dDE(DATA.start)} liegen bei Yahoo Finance noch keine Schlusskurse vor. Sobald sie da sind, erscheinen die Startkäufe und die Kurven. Letzter verfügbarer US-Schluss: ${dDE(DATA.signal.us_date)}.`));
+  } else if (stale.length) {
+    box.append(el("b", {}, "Kurse unvollständig. "), document.createTextNode(
+      `Für ${stale.join(", ")} hat Yahoo Finance zuletzt keine Kurse geliefert; hier stehen archivierte Werte. Signalstand: ${dDE(DATA.signal.us_date)}.`));
+  }
+  box.hidden = !stale.length && !DATA.waiting;
   renderDuo(); renderTodo(); renderForecast(); renderSignals(); renderChart(); renderTables();
 }
 

@@ -33,6 +33,7 @@ MY_DEPOT = float(os.environ.get("MY_DEPOT", "15000"))   # echtes Plan-Depot fuer
 WARN = 0.20                                              # Vorwarnung ab 20 % Wechselwahrscheinlichkeit in 5 Handelstagen
 SITE = "https://michaelwittemann-star.github.io/depot-duell/"
 OUT = Path(__file__).parent / "docs" / "data.json"
+CACHE = Path(__file__).parent / "docs" / "prices.csv"    # Kursarchiv: einmal geholte Kurse bleiben erhalten (Luecken bei Yahoo)
 NOTIFY = Path(__file__).parent / "notify"
 
 PRODUCTS = {
@@ -52,6 +53,7 @@ PRODUCTS = {
 FEE_FLAT, FEE_FOREIGN = 5.90, 2.00      # flatex: 5,90 EUR je Order, an Auslandsboersen (Paris, Mailand) zzgl. ca. 2 EUR Fremdkosten
 TAX = 0.26375                            # Abgeltungsteuer + Soli, ohne Kirchensteuer, ohne Sparer-Pauschbetrag
 WEIGHTS = {"B": 0.5, "A": 0.3, "G": 0.2}
+SIGNAL_TICKERS = ("QQQ", "SPY")
 RULE_TEXT = {"B": ("Regel B an: QQQ-Trend, Vola und Momentum erfüllt", "Regel B aus: QQQ-Trend, Vola oder Momentum verletzt"),
              "A": ("Regel A an: SPY über 200-Tage-Schnitt (+5 %)", "Regel A aus: SPY unter 200-Tage-Schnitt (-5 %)")}
 
@@ -62,17 +64,59 @@ def fee(value: float, prod: str) -> float:
     return FEE_FLAT + (0.0 if PRODUCTS[prod]["venue"] == "Xetra" else FEE_FOREIGN)
 
 
-def download(ticker: str, start: str, tries: int = 4) -> pd.DataFrame:
+def _today_unfinished() -> pd.Timestamp | None:
+    """Der heutige Handelstag ist erst nach US-Boersenschluss (22:00 UTC) vollstaendig - vorher ignorieren."""
+    now = datetime.now(timezone.utc)
+    return pd.Timestamp(now.date()) if now.hour < 22 else None
+
+
+def load_cache() -> pd.DataFrame:
+    if CACHE.exists():
+        df = pd.read_csv(CACHE, parse_dates=["date"])
+        return df.set_index(["ticker", "date"]).sort_index()
+    return pd.DataFrame(columns=["open", "close"], index=pd.MultiIndex.from_arrays([[], []], names=["ticker", "date"]))
+
+
+def save_cache(cache: pd.DataFrame) -> None:
+    cache = cache.dropna(subset=["close"])                # unfertige/leere Tage nicht archivieren
+    keep = cache[cache.index.get_level_values("date") >= pd.Timestamp(START) - pd.Timedelta(days=500)]
+    keep.round(6).reset_index().sort_values(["ticker", "date"]).to_csv(CACHE, index=False)
+
+
+SOURCES: dict[str, str] = {}
+
+
+def download(ticker: str, start: str, cache: pd.DataFrame | None = None, tries: int = 5) -> pd.DataFrame:
+    """Kurse von Yahoo, angereichert um das Archiv: neue Werte gewinnen, fehlende Tage kommen aus dem Archiv."""
+    fetched = None
     for attempt in range(tries):
         try:
             df = yf.Ticker(ticker).history(start=start, auto_adjust=True)
             if len(df):
                 df.index = pd.to_datetime(df.index).tz_localize(None).normalize()
-                return df[~df.index.duplicated(keep="last")]
+                df = df[~df.index.duplicated(keep="last")]
+                unfinished = _today_unfinished()
+                if unfinished is not None:
+                    df = df[df.index < unfinished]          # laufenden, noch nicht abgeschlossenen Tag verwerfen
+                fetched = df[["Open", "Close"]].rename(columns={"Open": "open", "Close": "close"})
+                break
         except Exception as error:  # noqa: BLE001
             print(f"{ticker}: Versuch {attempt + 1} fehlgeschlagen: {error}")
-        time.sleep(5 * (attempt + 1))
-    raise RuntimeError(f"Keine Kurse fuer {ticker}")
+        time.sleep(15 * (attempt + 1))
+    stored = cache.loc[ticker] if (cache is not None and ticker in cache.index.get_level_values("ticker")) else None
+    if fetched is None and stored is None:
+        raise RuntimeError(f"Keine Kurse fuer {ticker} (weder von Yahoo noch im Archiv)")
+    if fetched is None:
+        print(f"{ticker}: Yahoo liefert nichts - Archiv wird verwendet")
+        SOURCES[ticker] = "Archiv"
+        return stored.sort_index()
+    if stored is not None:
+        missing = stored.index.difference(fetched.index)
+        if len(missing):
+            print(f"{ticker}: {len(missing)} Tag(e) fehlen bei Yahoo, aus dem Archiv ergaenzt: {[str(d.date()) for d in missing][-5:]}")
+        fetched = fetched.combine_first(stored)             # geholte Werte gewinnen, Archiv fuellt Luecken
+    SOURCES[ticker] = "Yahoo"
+    return fetched.sort_index()
 
 
 # --- Signale ---------------------------------------------------------------------------------------
@@ -90,9 +134,10 @@ def hysteresis(close: pd.Series, n: int = 200, band: float = 0.05) -> pd.Series:
     return pd.Series(state, index=close.index)
 
 
-def signals() -> tuple[pd.DataFrame, dict]:
-    q = download("QQQ", "2012-01-01")["Close"].dropna()
-    s = download("SPY", "2012-01-01")["Close"].dropna()
+def signals(cache: pd.DataFrame) -> tuple[pd.DataFrame, dict, dict]:
+    got = {t: download(t, "2012-01-01", cache) for t in SIGNAL_TICKERS}
+    q = got["QQQ"]["close"].dropna()
+    s = got["SPY"]["close"].dropna()
     idx = q.index.intersection(s.index)
     q, s = q.loc[idx], s.loc[idx]
     vol = q.pct_change().rolling(20).std() * np.sqrt(252)
@@ -112,7 +157,7 @@ def signals() -> tuple[pd.DataFrame, dict]:
         "spy_close": round(float(s.iloc[-1]), 2), "spy_ma200": round(float(s.rolling(200).mean().iloc[-1]), 2),
         "B": int(b.iloc[-1]), "A": int(a.iloc[-1]),
     }
-    return pd.DataFrame({"B": b, "A": a}), detail
+    return pd.DataFrame({"B": b, "A": a}), detail, got
 
 
 def target_assets(b_on: int, a_on: int) -> dict:
@@ -318,13 +363,16 @@ class Depot:
 # --- Simulation ------------------------------------------------------------------------------------
 
 def main():
-    sig, detail = signals()
+    cache = load_cache()
+    sig, detail, sig_raw = signals(cache)
     first = (pd.Timestamp(START) - pd.Timedelta(days=10)).date().isoformat()
-    raw = {k: download(p["ticker"], first) for k, p in PRODUCTS.items()}
-    opens = pd.DataFrame({k: v["Open"].where(v["Open"] > 0) for k, v in raw.items()}).sort_index()
-    closes = pd.DataFrame({k: v["Close"].where(v["Close"] > 0) for k, v in raw.items()}).sort_index().ffill()
+    raw = {k: download(p["ticker"], first, cache) for k, p in PRODUCTS.items()}
+    fresh = pd.concat({**{PRODUCTS[k]["ticker"]: v for k, v in raw.items()}, **sig_raw}, names=["ticker", "date"])
+    save_cache(fresh.combine_first(cache))
+    opens = pd.DataFrame({k: v["open"].where(v["open"] > 0) for k, v in raw.items()}).sort_index()
+    closes = pd.DataFrame({k: v["close"].where(v["close"] > 0) for k, v in raw.items()}).sort_index().ffill()
     opens = opens.fillna(closes.shift(1)).fillna(closes)          # fehlende Eroeffnung: Vortagesschluss
-    eu_days = [d for d in raw["MSCI"].dropna(subset=["Close"]).index if d.date() >= START]
+    eu_days = [d for d in raw["MSCI"]["close"].dropna().index if d.date() >= START]
 
     msci, plan = Depot("MSCI World SRI"), Depot("Masterplan")
     state, history, last_day = None, [], None
@@ -436,6 +484,7 @@ def main():
         "generated": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "start": START.isoformat(), "capital": CAPITAL, "weights": WEIGHTS,
         "signal": detail, "tomorrow": tomorrow, "orders": orders, "state": state, "my_depot": MY_DEPOT, "warn": WARN,
+        "waiting": bool(state is None and START <= date.today()),   # Start liegt an, Kurse fehlen noch
         "history": history, "trades": msci.trades + plan.trades, "holdings": holdings,
         "totals": {d.name: {"fees": round(d.fees_paid, 2), "taxes": round(d.taxes_paid, 2), "loss_pot": round(d.loss_pot, 2)} for d in (msci, plan)},
         "products": PRODUCTS,
@@ -447,6 +496,17 @@ def main():
             "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt).",
         },
     }
+    stale = sorted(k for k, v in SOURCES.items() if v == "Archiv")
+    data["stale"] = stale
+    if OUT.exists():
+        try:
+            old = json.loads(OUT.read_text(encoding="utf-8"))
+        except ValueError:
+            old = {}
+        if old.get("start") == data["start"] and len(old.get("history", [])) > len(history):
+            raise RuntimeError(
+                f"Abbruch: nur {len(history)} statt bisher {len(old['history'])} Handelstage berechnet - "
+                f"Kursquelle unvollstaendig ({SOURCES}). Die veroeffentlichten Daten bleiben unveraendert.")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     write_notification(data, state)
