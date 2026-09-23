@@ -55,7 +55,5 @@ jobs:
           if gh issue view "$issue" --json comments --jq '.comments[-3:][].body' | grep -Fq "$marker"; then
             echo "Meldung fuer $marker schon vorhanden"
           else
-            title="$(cat notify/title.txt)"
-            { echo "## $title"; echo; cat notify/body.md; } > /tmp/comment.md
-            gh issue comment "$issue" --body-file /tmp/comment.md
+            gh issue comment "$issue" --body-file notify/body.md
           fi
