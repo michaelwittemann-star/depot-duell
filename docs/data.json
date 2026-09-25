@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-24T10:25+00:00",
+ "generated": "2026-09-25T00:00+00:00",
  "start": "2026-09-22",
  "capital": 100000.0,
  "weights": {
@@ -15,23 +15,23 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 629.82,
-      "move": -0.1503,
-      "text": "kippt auf aus bei Schluss unter 629.82 $"
+      "trigger_price": 630.4,
+      "move": -0.1494,
+      "text": "kippt auf aus bei Schluss unter 630.40 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": true,
-      "trigger_price": 586.56,
-      "move": -0.2086,
-      "text": "morgen positiv, solange Schluss über 586.56 $"
+      "trigger_price": 572.56,
+      "move": -0.2274,
+      "text": "morgen positiv, solange Schluss über 572.56 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": true,
-      "value": 0.1641,
-      "move": 0.0714,
-      "text": "jetzt 16 %, über 30 % bei einer Tagesbewegung von mehr als 7.1 %"
+      "value": 0.1643,
+      "move": 0.073,
+      "text": "jetzt 16 %, über 30 % bei einer Tagesbewegung von mehr als 7.3 %"
      }
     ],
     "p1": 0.0,
@@ -44,9 +44,9 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 678.22,
-      "move": -0.1167,
-      "text": "kippt auf aus bei Schluss unter 678.22 $"
+      "trigger_price": 678.66,
+      "move": -0.1154,
+      "text": "kippt auf aus bei Schluss unter 678.66 $"
      }
     ],
     "p1": 0.0,
@@ -58,14 +58,14 @@
    "B": 0.0,
    "A": 0.0
   },
-  "us_date": "2026-09-23",
-  "qqq_close": 741.21,
-  "qqq_ma200": 662.94,
-  "qqq_vol20": 0.1651,
-  "qqq_mom126": 0.272,
+  "us_date": "2026-09-24",
+  "qqq_close": 741.1,
+  "qqq_ma200": 663.53,
+  "qqq_vol20": 0.1652,
+  "qqq_mom126": 0.2635,
   "qqq_trend_on": 1,
-  "spy_close": 767.81,
-  "spy_ma200": 713.92,
+  "spy_close": 767.18,
+  "spy_ma200": 714.36,
   "B": 1,
   "A": 1
  },
@@ -90,19 +90,19 @@
   },
   {
    "date": "2026-09-23",
-   "msci": 100588.84,
-   "plan": 100814.01,
-   "msci_after_tax": 100489.41,
-   "plan_after_tax": 100629.84,
+   "msci": 100416.91,
+   "plan": 99342.21,
+   "msci_after_tax": 100349.21,
+   "plan_after_tax": 99342.21,
    "B": 1,
    "A": 1
   },
   {
    "date": "2026-09-24",
-   "msci": 99729.23,
-   "plan": 97547.46,
-   "msci_after_tax": 99729.23,
-   "plan_after_tax": 97547.46,
+   "msci": 99686.25,
+   "plan": 97911.94,
+   "msci_after_tax": 99686.25,
+   "plan_after_tax": 97911.94,
    "B": 1,
    "A": 1
   }
@@ -167,32 +167,32 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 7163.4268,
-   "price": 13.922,
-   "value": 99729.23
+   "price": 13.916,
+   "value": 99686.25
   },
   {
    "depot": "Masterplan",
    "sleeve": "B",
    "product": "SP3X",
    "units": 297.1087,
-   "price": 162.16,
-   "value": 48179.14
+   "price": 162.71,
+   "value": 48342.55
   },
   {
    "depot": "Masterplan",
    "sleeve": "A",
    "product": "NDX2X",
    "units": 2929.9959,
-   "price": 10.084,
-   "value": 29546.08
+   "price": 10.156,
+   "value": 29757.04
   },
   {
    "depot": "Masterplan",
    "sleeve": "G",
    "product": "GOLD",
    "units": 164.831,
-   "price": 120.26,
-   "value": 19822.57
+   "price": 120.2,
+   "value": 19812.68
   }
  ],
  "totals": {
