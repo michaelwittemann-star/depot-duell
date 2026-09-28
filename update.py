@@ -99,7 +99,10 @@ def yahoo_chart(ticker: str, start: str) -> pd.DataFrame | None:
     if last_price and last_time:
         day = pd.Timestamp(datetime.fromtimestamp(last_time, timezone.utc).date())
         closed = datetime.now(timezone.utc) > datetime.fromtimestamp(last_time, timezone.utc) + pd.Timedelta(minutes=20).to_pytimedelta()
-        if day in df.index and pd.isna(df.at[day, "close"]) and closed:
+        if day in df.index and not closed:
+            df = df.drop(index=day)          # Sitzung laeuft noch: Tageszeile ist vorlaeufig und wird verworfen
+            print(f"{ticker}: {day.date()} laeuft noch, Tageszeile verworfen")
+        elif day in df.index and pd.isna(df.at[day, "close"]) and closed:
             df.at[day, "close"] = last_price
             df.at[day, "adj"] = last_price
             print(f"{ticker}: Schlusskurs {day.date()} aus dem Boersenpreis der Schnittstelle ergaenzt ({last_price})")
