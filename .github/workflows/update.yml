@@ -2,8 +2,14 @@ name: Depots aktualisieren
 
 on:
   schedule:
-    - cron: "45 21 * * 1-5"   # werktags kurz nach US-Boersenschluss (21:45 UTC = 23:45 Sommer / 22:45 Winter)
-    - cron: "30 5 * * 2-6"    # Sicherheitslauf frueh morgens, falls die Kurse abends noch fehlten
+    # GitHub startet geplante Laeufe oft mit Verspaetung. Deshalb mehrere Anlaeufe: Der erste erfolgreiche
+    # Lauf schreibt die Meldung, die spaeteren erkennen sie am Marker und schicken keine zweite Mail.
+    - cron: "40 21 * * 1-5"   # kurz nach US-Schluss (23:40 Sommer / 22:40 Winter)
+    - cron: "10 22 * * 1-5"
+    - cron: "40 22 * * 1-5"
+    - cron: "20 23 * * 1-5"
+    - cron: "30 5 * * 1-6"    # Reservelauf morgens (auch montags)
+    - cron: "30 7 * * 1-6"
   workflow_dispatch:
     inputs:
       test_benachrichtigung:
