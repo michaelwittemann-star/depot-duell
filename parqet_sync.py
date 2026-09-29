@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 import requests
+from datetime import datetime, timedelta, timezone
 
 BASE = "https://connect.parqet.com"
 TOKEN_URL = f"{BASE}/oauth2/token"
@@ -26,6 +27,13 @@ HOLDING_ID = os.environ.get("PARQET_HOLDING_ID", "")       # feste Kennung: blei
 EXTERNAL_ID = "masterplan-depot-duell"
 PORTFOLIO_ID = os.environ.get("PARQET_PORTFOLIO_ID", "")   # bestehendes Parqet-Depot (Basis-Tarif erlaubt nur eines)
 BASE_QUOTE = 100.0                      # Anteilswert am Starttag
+
+
+def zeitpunkt(tag: str) -> str:
+    """Boersenschluss des Tages, aber nie in der Zukunft (Parqet ignoriert kuenftige Kurse)."""
+    ts = datetime.fromisoformat(tag).replace(hour=20, tzinfo=timezone.utc)
+    jetzt = datetime.now(timezone.utc) - timedelta(minutes=10)
+    return min(ts, jetzt).strftime("%Y-%m-%dT%H:%M:00.000Z")
 
 
 def token() -> str:
@@ -97,7 +105,7 @@ def main() -> None:
     if hold is None:
         hold = api("POST", f"/portfolios/{pid}/holdings/custom", tok,
                    json={"name": HOLDING_NAME, "assetProduct": "other", "externalId": EXTERNAL_ID,
-                         "quotes": [{"currency": "EUR", "datetime": f"{rows[0]['datum']}T20:00:00.000Z",
+                         "quotes": [{"currency": "EUR", "datetime": zeitpunkt(rows[0]["datum"]),
                                      "price": BASE_QUOTE}]})
         print("Position in Parqet angelegt:", hold.get("id"))
     hid = hold.get("id")
@@ -109,12 +117,12 @@ def main() -> None:
     if not schon:
         anteile = round(float(rows[0]["masterfonds_wert"]) / BASE_QUOTE, 6)
         api("POST", f"/portfolios/{pid}/activities", tok, json={"activities": [{
-            "currency": "EUR", "datetime": f"{rows[0]['datum']}T20:00:00.000Z", "shares": anteile,
+            "currency": "EUR", "datetime": zeitpunkt(rows[0]["datum"]), "shares": anteile,
             "price": BASE_QUOTE, "type": "buy", "assetIdentifierType": "custom_asset", "holding_id": hid,
             "description": "Start des Masterplans", "externalId": f"{EXTERNAL_ID}-start"}]})
         print(f"Kauf gebucht: {anteile} Anteile zu {BASE_QUOTE} EUR")
 
-    quotes = [{"currency": "EUR", "datetime": f"{r['datum']}T20:00:00.000Z",
+    quotes = [{"currency": "EUR", "datetime": zeitpunkt(r["datum"]),
                "price": round(float(r["masterfonds_anteilswert"]), 4)} for r in rows][-500:]
     api("POST", f"/portfolios/{pid}/quotes/user-managed", tok,
         json={"identifier": {"type": "holdingId", "value": hid}, "quotes": quotes})
