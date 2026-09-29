@@ -27,9 +27,11 @@ import numpy as np
 import pandas as pd
 import requests
 
-START = date.fromisoformat(os.environ.get("DEPOT_START", "2026-09-22"))
-CAPITAL = 100_000.0
-MY_DEPOT = float(os.environ.get("MY_DEPOT", "15000"))   # echtes Plan-Depot fuer E-Mail-Betraege (Seite: frei einstellbar)
+START = date.fromisoformat(os.environ.get("DEPOT_START", "2026-09-29"))
+CAPITAL = 16_500.0                                       # echtes eingesetztes Kapital
+MY_DEPOT = CAPITAL                                       # Betraege in der Mail = echtes Depot
+# Tatsaechliche Ausfuehrungen vom Starttag (flatex): Topf:Produkt -> (Stueck, gebuchter Betrag inkl. Gebuehr)
+REAL_START = {"B:SP3X": (49.0, 8089.90), "A:NDX2X": (479.0, 4926.04), "G:GOLD": (28.0, 3295.04)}
 WARN = 0.20                                              # Vorwarnung ab 20 % Wechselwahrscheinlichkeit in 5 Handelstagen
 SITE = "https://michaelwittemann-star.github.io/depot-duell/"
 OUT = Path(__file__).parent / "docs" / "data.json"
@@ -411,11 +413,24 @@ def main():
         tgt = target_assets(b_on, a_on)
 
         if state is None:                                          # Start
-            msci.buy("M:MSCI", msci.cash, po["MSCI"], day, "Start: 100 % MSCI World SRI")
-            for sleeve, w in WEIGHTS.items():
-                note = {"B": " – " + RULE_TEXT["B"][0 if b_on else 1], "A": " – " + RULE_TEXT["A"][0 if a_on else 1], "G": ""}[sleeve]
-                for prod, share in tgt[sleeve].items():
-                    plan.buy(f"{sleeve}:{prod}", CAPITAL * w * share, po[prod], day, f"Start: Topf {sleeve} ({int(w * 100)} %){note}")
+            if REAL_START and day == START:                        # echte Ausfuehrungen uebernehmen
+                pc0 = {k: float(closes.loc[day_ts, k]) for k in PRODUCTS}
+                msci.buy("M:MSCI", msci.cash, pc0["MSCI"], day, "Start: 100 % MSCI World SRI (Schlusskurs des Starttags)")
+                for key, (units, cost) in REAL_START.items():
+                    prod = key.split(":")[1]
+                    plan.lots.setdefault(key, []).append(Lot(units, cost, day))
+                    plan.cash -= cost
+                    plan.fees_paid += fee(cost, prod)
+                    plan.trades.append({"date": day.isoformat(), "depot": plan.name, "action": "Kauf", "sleeve": key.split(":")[0],
+                                        "product": prod, "units": units, "price": round(cost / units, 4), "value": round(cost, 2),
+                                        "fee": round(fee(cost, prod), 2), "tax": 0.0,
+                                        "reason": f"Start: tatsaechliche Ausfuehrung bei flatex am {day.strftime('%d.%m.%Y')}"})
+            else:
+                msci.buy("M:MSCI", msci.cash, po["MSCI"], day, "Start: 100 % MSCI World SRI")
+                for sleeve, w in WEIGHTS.items():
+                    note = {"B": " – " + RULE_TEXT["B"][0 if b_on else 1], "A": " – " + RULE_TEXT["A"][0 if a_on else 1], "G": ""}[sleeve]
+                    for prod, share in tgt[sleeve].items():
+                        plan.buy(f"{sleeve}:{prod}", CAPITAL * w * share, po[prod], day, f"Start: Topf {sleeve} ({int(w * 100)} %){note}")
             state = {"B": b_on, "A": a_on}
         else:
             for sleeve, now in (("B", b_on), ("A", a_on)):
@@ -456,7 +471,7 @@ def main():
     tgt_now = target_assets(b_now, a_now)
     tomorrow = []
     if state is None:
-        tomorrow.append({"depot": "MSCI World SRI", "text": f"100.000 EUR in {PRODUCTS['MSCI']['name']} ({PRODUCTS['MSCI']['venue']}) kaufen"})
+        tomorrow.append({"depot": "MSCI World SRI", "text": f"{_eur(CAPITAL)} in {PRODUCTS['MSCI']['name']} ({PRODUCTS['MSCI']['venue']}) kaufen"})
         for sleeve, w in WEIGHTS.items():
             for prod, share in tgt_now[sleeve].items():
                 amount = f"{CAPITAL * w * share:,.0f}".replace(",", ".")
