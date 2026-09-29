@@ -76,6 +76,8 @@ def load_cache() -> pd.DataFrame:
 
 def save_cache(cache: pd.DataFrame) -> None:
     cache = cache.dropna(subset=["close"])                # unfertige/leere Tage nicht archivieren
+    if UNFINISHED:                                        # heute noch laufende Sitzungen nie archivieren
+        cache = cache.drop(index=[k for k in UNFINISHED if k in cache.index], errors="ignore")
     keep = cache[cache.index.get_level_values("date") >= pd.Timestamp(START) - pd.Timedelta(days=500)]
     keep.round(6).reset_index().sort_values(["ticker", "date"]).to_csv(CACHE, index=False)
 
@@ -98,10 +100,19 @@ def yahoo_chart(ticker: str, start: str) -> pd.DataFrame | None:
     df = pd.DataFrame(rows).set_index("date")
     meta = res.get("meta", {})
     last_price, last_time = meta.get("regularMarketPrice"), meta.get("regularMarketTime")
+    period = (meta.get("currentTradingPeriod") or {}).get("regular") or {}
+    now = datetime.now(timezone.utc)
+    if period.get("end"):                                   # offizielles Sitzungsende dieser Boerse
+        end = datetime.fromtimestamp(period["end"], timezone.utc)
+        session_day = pd.Timestamp(end.date())
+        if session_day in df.index and now < end + pd.Timedelta(minutes=15).to_pytimedelta():
+            df = df.drop(index=session_day)                 # Sitzung laeuft noch -> vorlaeufige Zeile verwerfen
+            UNFINISHED.add((ticker, session_day))
+            print(f"{ticker}: {session_day.date()} laeuft noch (Schluss {end:%H:%M} UTC), Tageszeile verworfen")
     if last_price and last_time:
         day = pd.Timestamp(datetime.fromtimestamp(last_time, timezone.utc).date())
-        closed = datetime.now(timezone.utc) > datetime.fromtimestamp(last_time, timezone.utc) + pd.Timedelta(minutes=20).to_pytimedelta()
-        if day in df.index and not closed:
+        closed = not period.get("end") or now > datetime.fromtimestamp(period["end"], timezone.utc) + pd.Timedelta(minutes=15).to_pytimedelta()
+        if False:
             df = df.drop(index=day)          # Sitzung laeuft noch: Tageszeile ist vorlaeufig und wird verworfen
             print(f"{ticker}: {day.date()} laeuft noch, Tageszeile verworfen")
         elif day in df.index and pd.isna(df.at[day, "close"]) and closed:
@@ -114,6 +125,7 @@ def yahoo_chart(ticker: str, start: str) -> pd.DataFrame | None:
 
 
 SOURCES: dict[str, str] = {}
+UNFINISHED: set[tuple[str, pd.Timestamp]] = set()     # (Ticker, Tag) laufender Sitzungen - nie ins Archiv
 
 
 def download(ticker: str, start: str, cache: pd.DataFrame | None = None, tries: int = 5) -> pd.DataFrame:
