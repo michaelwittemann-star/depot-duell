@@ -525,6 +525,8 @@ def main():
         "start": START.isoformat(), "capital": CAPITAL, "weights": WEIGHTS,
         "signal": detail, "tomorrow": tomorrow, "orders": orders, "state": state, "my_depot": MY_DEPOT, "warn": WARN,
         "waiting": bool(state is None and START <= date.today()),   # Start liegt an, Kurse fehlen noch
+        "waiting_text": ("Deine Käufe vom " + START.strftime("%d.%m.%Y") + " sind erfasst. Die erste Bewertung erscheint, "
+                         "sobald der Schlusskurs des Starttags vorliegt (nach 17:35 Uhr).") if REAL_START else "",
         "history": history, "trades": msci.trades + plan.trades, "holdings": holdings,
         "totals": {d.name: {"fees": round(d.fees_paid, 2), "taxes": round(d.taxes_paid, 2), "loss_pot": round(d.loss_pot, 2)} for d in (msci, plan)},
         "products": PRODUCTS,
