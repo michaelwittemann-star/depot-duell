@@ -28,7 +28,7 @@ import pandas as pd
 import requests
 
 START = date.fromisoformat(os.environ.get("DEPOT_START", "2026-09-29"))
-CAPITAL = 16_500.0                                       # echtes eingesetztes Kapital
+CAPITAL = 16_310.98                                      # tatsaechlich investiert (Summe der drei Kaeufe)
 MY_DEPOT = CAPITAL                                       # Betraege in der Mail = echtes Depot
 # Tatsaechliche Ausfuehrungen vom Starttag (flatex): Topf:Produkt -> (Stueck, gebuchter Betrag inkl. Gebuehr)
 REAL_START = {"B:SP3X": (49.0, 8089.90), "A:NDX2X": (479.0, 4926.04), "G:GOLD": (28.0, 3295.04)}
@@ -102,7 +102,7 @@ def yahoo_chart(ticker: str, start: str) -> pd.DataFrame | None:
     last_price, last_time = meta.get("regularMarketPrice"), meta.get("regularMarketTime")
     period = (meta.get("currentTradingPeriod") or {}).get("regular") or {}
     now = datetime.now(timezone.utc)
-    if period.get("end"):                                   # offizielles Sitzungsende dieser Boerse
+    if period.get("end") and os.environ.get("ASSUME_CLOSED") != "1":   # offizielles Sitzungsende dieser Boerse
         end = datetime.fromtimestamp(period["end"], timezone.utc)
         session_day = pd.Timestamp(end.date())
         if session_day in df.index and now < end + pd.Timedelta(minutes=15).to_pytimedelta():
@@ -432,10 +432,9 @@ def main():
                     prod = key.split(":")[1]
                     plan.lots.setdefault(key, []).append(Lot(units, cost, day))
                     plan.cash -= cost
-                    plan.fees_paid += fee(cost, prod)
                     plan.trades.append({"date": day.isoformat(), "depot": plan.name, "action": "Kauf", "sleeve": key.split(":")[0],
                                         "product": prod, "units": units, "price": round(cost / units, 4), "value": round(cost, 2),
-                                        "fee": round(fee(cost, prod), 2), "tax": 0.0,
+                                        "fee": 0.0, "tax": 0.0,
                                         "reason": f"Start: tatsaechliche Ausfuehrung bei flatex am {day.strftime('%d.%m.%Y')}"})
             else:
                 msci.buy("M:MSCI", msci.cash, po["MSCI"], day, "Start: 100 % MSCI World SRI")
