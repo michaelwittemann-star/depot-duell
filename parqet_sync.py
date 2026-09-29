@@ -21,8 +21,9 @@ BASE = "https://connect.parqet.com"
 TOKEN_URL = f"{BASE}/oauth2/token"
 TRACK = Path(__file__).parent / "docs" / "masterfonds.csv"
 TOKENFILE = Path(__file__).parent / ".parqet_token"      # zuletzt gueltiger Refresh Token (nicht im Repo)
-PORTFOLIO_NAME = "Masterfonds"
+HOLDING_NAME = "Masterfonds"
 EXTERNAL_ID = "masterplan-depot-duell"
+PORTFOLIO_ID = os.environ.get("PARQET_PORTFOLIO_ID", "")   # bestehendes Parqet-Depot (Basis-Tarif erlaubt nur eines)
 BASE_QUOTE = 100.0                      # Anteilswert am Starttag
 
 
@@ -79,18 +80,20 @@ def main() -> None:
     tok = token()
 
     portfolios = api("GET", "/portfolios", tok).get("items", [])
-    pf = next((p for p in portfolios if p.get("name") == PORTFOLIO_NAME), None)
-    if pf is None:
-        pf = api("POST", "/portfolios", tok, json={"name": PORTFOLIO_NAME})
-        print("Depot in Parqet angelegt:", pf.get("id"))
-    pid = pf.get("id")
+    if PORTFOLIO_ID:
+        pid = PORTFOLIO_ID
+    elif portfolios:                                   # sonst das aelteste (Haupt-)Depot verwenden
+        pid = sorted(portfolios, key=lambda p: p.get("createdAt", ""))[0]["id"]
+    else:
+        pid = api("POST", "/portfolios", tok, json={"name": HOLDING_NAME})["id"]
+        print("Depot in Parqet angelegt:", pid)
 
     holdings = api("GET", f"/portfolios/{pid}/holdings", tok).get("items", [])
-    hold = next((h for h in holdings if EXTERNAL_ID in (h.get("externalId"), h.get("id"))
-                 or PORTFOLIO_NAME in (h.get("nickname"), h.get("name"))), None)
+    hold = next((h for h in holdings if HOLDING_NAME in (h.get("nickname"), h.get("name"))
+                 and (h.get("asset") or {}).get("type") == "custom"), None)
     if hold is None:
         hold = api("POST", f"/portfolios/{pid}/holdings/custom", tok,
-                   json={"name": PORTFOLIO_NAME, "assetProduct": "other", "externalId": EXTERNAL_ID,
+                   json={"name": HOLDING_NAME, "assetProduct": "other", "externalId": EXTERNAL_ID,
                          "quotes": [{"currency": "EUR", "datetime": f"{rows[0]['datum']}T20:00:00.000Z",
                                      "price": BASE_QUOTE}]})
         print("Position in Parqet angelegt:", hold.get("id"))
@@ -98,7 +101,9 @@ def main() -> None:
 
     antwort = api("GET", f"/portfolios/{pid}/activities", tok)
     activities = antwort.get("activities") or antwort.get("items") or []
-    if not activities:
+    schon = any((a.get("holding") or a.get("holdingId") or a.get("holding_id")) == hid
+                or a.get("externalId") == f"{EXTERNAL_ID}-start" for a in activities)
+    if not schon:
         anteile = round(float(rows[0]["masterfonds_wert"]) / BASE_QUOTE, 6)
         api("POST", f"/portfolios/{pid}/activities", tok, json={"activities": [{
             "currency": "EUR", "datetime": f"{rows[0]['datum']}T20:00:00.000Z", "shares": anteile,
