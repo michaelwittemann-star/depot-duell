@@ -1,7 +1,7 @@
 {
- "generated": "2026-09-29T12:31+00:00",
+ "generated": "2026-09-29T12:39+00:00",
  "start": "2026-09-29",
- "capital": 16500.0,
+ "capital": 16310.98,
  "weights": {
   "B": 0.5,
   "A": 0.3,
@@ -69,113 +69,77 @@
   "B": 1,
   "A": 1
  },
- "tomorrow": [],
- "orders": [],
- "state": {
-  "B": 1,
-  "A": 1
- },
- "my_depot": 16500.0,
- "warn": 0.2,
- "waiting": false,
- "waiting_text": "Deine Käufe vom 29.09.2026 sind erfasst. Die erste Bewertung erscheint, sobald der Schlusskurs des Starttags vorliegt (nach 17:35 Uhr).",
- "history": [
+ "tomorrow": [
   {
-   "date": "2026-09-29",
-   "msci": 16485.86,
-   "plan": 16610.11,
-   "msci_after_tax": 16485.86,
-   "plan_after_tax": 16586.02,
-   "B": 1,
-   "A": 1
+   "depot": "MSCI World SRI",
+   "text": "16.311 EUR in iShares MSCI World SRI UCITS ETF (Acc) (Xetra) kaufen"
+  },
+  {
+   "depot": "Masterplan",
+   "text": "Topf B: 8.155 EUR in WisdomTree S&P 500 3x Daily Leveraged (Borsa Italiana, IE00B7Y34M31) kaufen"
+  },
+  {
+   "depot": "Masterplan",
+   "text": "Topf A: 4.893 EUR in Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF (Euronext Paris, FR0010342592) kaufen"
+  },
+  {
+   "depot": "Masterplan",
+   "text": "Topf G: 3.262 EUR in Xetra-Gold (Xetra, DE000A0S9GB0) kaufen"
   }
  ],
- "trades": [
+ "orders": [
   {
-   "date": "2026-09-29",
    "depot": "MSCI World SRI",
    "action": "Kauf",
-   "sleeve": "M",
    "product": "MSCI",
-   "units": 1171.8693,
-   "price": 14.075,
-   "value": 16500.0,
-   "fee": 5.9,
-   "tax": 0.0,
-   "reason": "Start: 100 % MSCI World SRI (Schlusskurs des Starttags)"
+   "sleeve": "M",
+   "amount": 16310.98,
+   "units": null,
+   "price": 13.964
   },
   {
-   "date": "2026-09-29",
    "depot": "Masterplan",
    "action": "Kauf",
-   "sleeve": "B",
    "product": "SP3X",
-   "units": 49.0,
-   "price": 165.1,
-   "value": 8089.9,
-   "fee": 7.9,
-   "tax": 0.0,
-   "reason": "Start: tatsaechliche Ausfuehrung bei flatex am 29.09.2026"
+   "sleeve": "B",
+   "amount": 8155.49,
+   "units": null,
+   "price": 165.41
   },
   {
-   "date": "2026-09-29",
    "depot": "Masterplan",
    "action": "Kauf",
-   "sleeve": "A",
    "product": "NDX2X",
-   "units": 479.0,
-   "price": 10.284,
-   "value": 4926.04,
-   "fee": 7.9,
-   "tax": 0.0,
-   "reason": "Start: tatsaechliche Ausfuehrung bei flatex am 29.09.2026"
+   "sleeve": "A",
+   "amount": 4893.29,
+   "units": null,
+   "price": 10.328
   },
   {
-   "date": "2026-09-29",
    "depot": "Masterplan",
    "action": "Kauf",
-   "sleeve": "G",
    "product": "GOLD",
-   "units": 28.0,
-   "price": 117.68,
-   "value": 3295.04,
-   "fee": 5.9,
-   "tax": 0.0,
-   "reason": "Start: tatsaechliche Ausfuehrung bei flatex am 29.09.2026"
+   "sleeve": "G",
+   "amount": 3262.2,
+   "units": null,
+   "price": 120.86
   }
  ],
+ "state": null,
+ "my_depot": 16310.98,
+ "warn": 0.2,
+ "waiting": true,
+ "waiting_text": "Deine Käufe vom 29.09.2026 sind erfasst. Die erste Bewertung erscheint, sobald der Schlusskurs des Starttags vorliegt (nach 17:35 Uhr).",
+ "history": [],
+ "trades": [],
  "holdings": [
   {
    "depot": "MSCI World SRI",
-   "sleeve": "M",
-   "product": "MSCI",
-   "units": 1171.8693,
-   "price": 14.068,
-   "value": 16485.86
-  },
-  {
-   "depot": "Masterplan",
-   "sleeve": "B",
-   "product": "SP3X",
-   "units": 49.0,
-   "price": 165.1,
-   "value": 8089.9
-  },
-  {
-   "depot": "Masterplan",
-   "sleeve": "A",
-   "product": "NDX2X",
-   "units": 479.0,
-   "price": 10.328,
-   "value": 4947.11
-  },
-  {
-   "depot": "Masterplan",
-   "sleeve": "G",
-   "product": "GOLD",
-   "units": 28.0,
-   "price": 120.86,
-   "value": 3384.08
+   "sleeve": "",
+   "product": "CASH",
+   "units": null,
+   "price": null,
+   "value": 16310.98
   },
   {
    "depot": "Masterplan",
@@ -183,17 +147,17 @@
    "product": "CASH",
    "units": null,
    "price": null,
-   "value": 189.02
+   "value": 16310.98
   }
  ],
  "totals": {
   "MSCI World SRI": {
-   "fees": 5.9,
+   "fees": 0.0,
    "taxes": 0.0,
    "loss_pot": 0.0
   },
   "Masterplan": {
-   "fees": 21.7,
+   "fees": 0.0,
    "taxes": 0.0,
    "loss_pot": 0.0
   }
