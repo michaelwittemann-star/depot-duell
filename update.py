@@ -557,10 +557,14 @@ def main():
             old = json.loads(OUT.read_text(encoding="utf-8"))
         except ValueError:
             old = {}
-        if old.get("start") == data["start"] and len(old.get("history", [])) > len(history):
-            raise RuntimeError(
-                f"Abbruch: nur {len(history)} statt bisher {len(old['history'])} Handelstage berechnet - "
-                f"Kursquelle unvollstaendig ({SOURCES}). Die veroeffentlichten Daten bleiben unveraendert.")
+        if old.get("start") == data["start"]:
+            neu = {h["date"] for h in history}
+            verloren = sorted(d for d in ({h["date"] for h in old.get("history", [])} - neu)
+                              if date.fromisoformat(d) < date.today())     # heutiger Tag darf fehlen (Sitzung laeuft)
+            if verloren:
+                raise RuntimeError(
+                    f"Abbruch: die bereits berechneten Handelstage {', '.join(verloren)} fehlen jetzt - "
+                    f"Kursquelle unvollstaendig ({SOURCES}). Die veroeffentlichten Daten bleiben unveraendert.")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     write_notification(data, state)
