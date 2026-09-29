@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-28T18:56+00:00",
+ "generated": "2026-09-29T01:14+00:00",
  "start": "2026-09-22",
  "capital": 100000.0,
  "weights": {
@@ -10,27 +10,27 @@
  "signal": {
   "forecast": {
    "B": {
-    "sigma_day": 0.01,
+    "sigma_day": 0.0102,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 630.98,
-      "move": -0.1525,
-      "text": "kippt auf aus bei Schluss unter 630.98 $"
+      "trigger_price": 631.51,
+      "move": -0.1426,
+      "text": "kippt auf aus bei Schluss unter 631.51 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": true,
-      "trigger_price": 561.38,
-      "move": -0.246,
-      "text": "morgen positiv, solange Schluss über 561.38 $"
+      "trigger_price": 557.09,
+      "move": -0.2436,
+      "text": "morgen positiv, solange Schluss über 557.09 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": true,
-      "value": 0.1589,
-      "move": 0.073,
+      "value": 0.1625,
+      "move": 0.0725,
       "text": "jetzt 16 %, über 30 % bei einer Tagesbewegung von mehr als 7.3 %"
      }
     ],
@@ -39,14 +39,14 @@
     "flat": []
    },
    "A": {
-    "sigma_day": 0.0068,
+    "sigma_day": 0.007,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 679.11,
-      "move": -0.1196,
-      "text": "kippt auf aus bei Schluss unter 679.11 $"
+      "trigger_price": 679.52,
+      "move": -0.1124,
+      "text": "kippt auf aus bei Schluss unter 679.52 $"
      }
     ],
     "p1": 0.0,
@@ -58,14 +58,14 @@
    "B": 0.0,
    "A": 0.0
   },
-  "us_date": "2026-09-25",
-  "qqq_close": 744.5,
-  "qqq_ma200": 664.14,
-  "qqq_vol20": 0.1599,
-  "qqq_mom126": 0.3003,
+  "us_date": "2026-09-28",
+  "qqq_close": 736.53,
+  "qqq_ma200": 664.72,
+  "qqq_vol20": 0.1634,
+  "qqq_mom126": 0.312,
   "qqq_trend_on": 1,
-  "spy_close": 771.35,
-  "spy_ma200": 714.84,
+  "spy_close": 765.61,
+  "spy_ma200": 715.29,
   "B": 1,
   "A": 1
  },
