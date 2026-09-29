@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import csv
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -19,23 +20,40 @@ import requests
 BASE = "https://connect.parqet.com"
 TOKEN_URL = f"{BASE}/oauth2/token"
 TRACK = Path(__file__).parent / "docs" / "masterfonds.csv"
-STATE = Path(__file__).parent / "docs" / "parqet_state.json"
+TOKENFILE = Path(__file__).parent / ".parqet_token"      # zuletzt gueltiger Refresh Token (nicht im Repo)
 PORTFOLIO_NAME = "Masterfonds"
 EXTERNAL_ID = "masterplan-depot-duell"
 BASE_QUOTE = 100.0                      # Anteilswert am Starttag
 
 
 def token() -> str:
+    """Access Token holen. Parqet gibt dabei jedes Mal einen neuen Refresh Token aus, der gesichert werden muss."""
+    alt = TOKENFILE.read_text(encoding="utf-8").strip() if TOKENFILE.exists() else os.environ["PARQET_REFRESH_TOKEN"]
     r = requests.post(TOKEN_URL, data={"grant_type": "refresh_token", "client_id": os.environ["PARQET_CLIENT_ID"],
-                                       "refresh_token": os.environ["PARQET_REFRESH_TOKEN"]}, timeout=30)
+                                       "refresh_token": alt}, timeout=30)
+    if not r.ok and alt != os.environ["PARQET_REFRESH_TOKEN"]:          # gemerkter Token abgelaufen -> Secret probieren
+        alt = os.environ["PARQET_REFRESH_TOKEN"]
+        r = requests.post(TOKEN_URL, data={"grant_type": "refresh_token", "client_id": os.environ["PARQET_CLIENT_ID"],
+                                           "refresh_token": alt}, timeout=30)
     if not r.ok:
         raise SystemExit(f"Anmeldung bei Parqet fehlgeschlagen ({r.status_code}): {r.text[:300]}")
     data = r.json()
     neu = data.get("refresh_token")
-    if neu and neu != os.environ["PARQET_REFRESH_TOKEN"]:
-        print("ACHTUNG: Parqet hat einen neuen Refresh Token ausgegeben. Bitte GitHub-Secret PARQET_REFRESH_TOKEN aktualisieren:")
-        print(neu)
+    if neu and neu != alt:
+        TOKENFILE.write_text(neu, encoding="utf-8")
+        save_secret(neu)
     return data["access_token"]
+
+
+def save_secret(neu: str) -> None:
+    """Neuen Refresh Token als GitHub-Secret sichern (braucht PARQET_TOKEN_PAT mit Secrets-Schreibrecht)."""
+    pat, repo = os.environ.get("PARQET_TOKEN_PAT"), os.environ.get("GITHUB_REPOSITORY")
+    if not pat or not repo:
+        print("Neuer Refresh Token liegt in .parqet_token; ohne PARQET_TOKEN_PAT bitte das GitHub-Secret von Hand setzen.")
+        return
+    res = subprocess.run(["gh", "secret", "set", "PARQET_REFRESH_TOKEN", "--repo", repo, "--body", neu],
+                         env={**os.environ, "GH_TOKEN": pat}, capture_output=True, text=True)
+    print("Refresh Token im Secret aktualisiert" if res.returncode == 0 else f"Secret-Update fehlgeschlagen: {res.stderr[:200]}")
 
 
 def api(method: str, path: str, tok: str, **kw):
@@ -68,7 +86,8 @@ def main() -> None:
     pid = pf.get("id")
 
     holdings = api("GET", f"/portfolios/{pid}/holdings", tok).get("items", [])
-    hold = next((h for h in holdings if h.get("externalId") == EXTERNAL_ID or h.get("name") == PORTFOLIO_NAME), None)
+    hold = next((h for h in holdings if EXTERNAL_ID in (h.get("externalId"), h.get("id"))
+                 or PORTFOLIO_NAME in (h.get("nickname"), h.get("name"))), None)
     if hold is None:
         hold = api("POST", f"/portfolios/{pid}/holdings/custom", tok,
                    json={"name": PORTFOLIO_NAME, "assetProduct": "other", "externalId": EXTERNAL_ID,
@@ -77,12 +96,13 @@ def main() -> None:
         print("Position in Parqet angelegt:", hold.get("id"))
     hid = hold.get("id")
 
-    activities = api("GET", f"/portfolios/{pid}/activities", tok).get("items", [])
+    antwort = api("GET", f"/portfolios/{pid}/activities", tok)
+    activities = antwort.get("activities") or antwort.get("items") or []
     if not activities:
         anteile = round(float(rows[0]["masterfonds_wert"]) / BASE_QUOTE, 6)
         api("POST", f"/portfolios/{pid}/activities", tok, json={"activities": [{
             "currency": "EUR", "datetime": f"{rows[0]['datum']}T20:00:00.000Z", "shares": anteile,
-            "price": BASE_QUOTE, "type": "Buy", "assetIdentifierType": "holding_id", "holding_id": hid,
+            "price": BASE_QUOTE, "type": "buy", "assetIdentifierType": "custom_asset", "holding_id": hid,
             "description": "Start des Masterplans", "externalId": f"{EXTERNAL_ID}-start"}]})
         print(f"Kauf gebucht: {anteile} Anteile zu {BASE_QUOTE} EUR")
 

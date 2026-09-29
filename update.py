@@ -603,6 +603,9 @@ def write_notification(data: dict, state) -> None:
         f.unlink()
     sig, fc = data["signal"], data["signal"]["forecast"]
     now = datetime.now(timezone.utc)
+    if data.get("waiting"):                       # Start erfasst, erste Bewertung fehlt noch -> keine Meldung
+        print("Erste Bewertung steht aus - keine Meldung")
+        return
     if now.hour >= 20 and date.fromisoformat(sig["us_date"]) < last_us_session(now):
         print("Abendlauf ohne frischen US-Schluss - keine Meldung, der Morgenlauf uebernimmt")
         return
