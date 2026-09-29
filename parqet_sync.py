@@ -1,0 +1,102 @@
+"""Schiebt den taeglichen Wert des Masterplans als eigene Position "Masterfonds" nach Parqet.
+
+Der Masterplan wird dort wie ein Fonds gefuehrt: Anteilswert startet bei 100 EUR, die Stueckzahl ergibt sich
+aus dem eingesetzten Kapital (16.500 EUR -> 165 Anteile). Eine einzige Kauf-Buchung am Starttag, danach nur noch
+taegliche Kurse. So sieht man in Parqet eine geschlossene, langlaufende Position mit der Rendite des Plans.
+
+Braucht die Umgebungsvariablen PARQET_CLIENT_ID und PARQET_REFRESH_TOKEN (GitHub-Secrets); ohne sie passiert nichts.
+Anmeldung einmalig mit parqet_auth.py erzeugen.
+"""
+from __future__ import annotations
+
+import csv
+import os
+import sys
+from pathlib import Path
+
+import requests
+
+BASE = "https://connect.parqet.com"
+TOKEN_URL = f"{BASE}/oauth2/token"
+TRACK = Path(__file__).parent / "docs" / "masterfonds.csv"
+STATE = Path(__file__).parent / "docs" / "parqet_state.json"
+PORTFOLIO_NAME = "Masterfonds"
+EXTERNAL_ID = "masterplan-depot-duell"
+BASE_QUOTE = 100.0                      # Anteilswert am Starttag
+
+
+def token() -> str:
+    r = requests.post(TOKEN_URL, data={"grant_type": "refresh_token", "client_id": os.environ["PARQET_CLIENT_ID"],
+                                       "refresh_token": os.environ["PARQET_REFRESH_TOKEN"]}, timeout=30)
+    if not r.ok:
+        raise SystemExit(f"Anmeldung bei Parqet fehlgeschlagen ({r.status_code}): {r.text[:300]}")
+    data = r.json()
+    neu = data.get("refresh_token")
+    if neu and neu != os.environ["PARQET_REFRESH_TOKEN"]:
+        print("ACHTUNG: Parqet hat einen neuen Refresh Token ausgegeben. Bitte GitHub-Secret PARQET_REFRESH_TOKEN aktualisieren:")
+        print(neu)
+    return data["access_token"]
+
+
+def api(method: str, path: str, tok: str, **kw):
+    r = requests.request(method, BASE + path, headers={"Authorization": f"Bearer {tok}"}, timeout=30, **kw)
+    if not r.ok:
+        raise SystemExit(f"{method} {path} fehlgeschlagen ({r.status_code}): {r.text[:400]}")
+    return r.json() if r.content else {}
+
+
+def read_track() -> list[dict]:
+    with TRACK.open(encoding="utf-8") as f:
+        return list(csv.DictReader(f, delimiter=";"))
+
+
+def main() -> None:
+    if not os.environ.get("PARQET_CLIENT_ID") or not os.environ.get("PARQET_REFRESH_TOKEN"):
+        print("Parqet: keine Zugangsdaten hinterlegt - uebersprungen")
+        return
+    rows = read_track()
+    if not rows:
+        print("Parqet: noch keine Tageswerte")
+        return
+    tok = token()
+
+    portfolios = api("GET", "/portfolios", tok).get("items", [])
+    pf = next((p for p in portfolios if p.get("name") == PORTFOLIO_NAME), None)
+    if pf is None:
+        pf = api("POST", "/portfolios", tok, json={"name": PORTFOLIO_NAME})
+        print("Depot in Parqet angelegt:", pf.get("id"))
+    pid = pf.get("id")
+
+    holdings = api("GET", f"/portfolios/{pid}/holdings", tok).get("items", [])
+    hold = next((h for h in holdings if h.get("externalId") == EXTERNAL_ID or h.get("name") == PORTFOLIO_NAME), None)
+    if hold is None:
+        hold = api("POST", f"/portfolios/{pid}/holdings/custom", tok,
+                   json={"name": PORTFOLIO_NAME, "assetProduct": "other", "externalId": EXTERNAL_ID,
+                         "quotes": [{"currency": "EUR", "datetime": f"{rows[0]['datum']}T20:00:00.000Z",
+                                     "price": BASE_QUOTE}]})
+        print("Position in Parqet angelegt:", hold.get("id"))
+    hid = hold.get("id")
+
+    activities = api("GET", f"/portfolios/{pid}/activities", tok).get("items", [])
+    if not activities:
+        anteile = round(float(rows[0]["masterfonds_wert"]) / BASE_QUOTE, 6)
+        api("POST", f"/portfolios/{pid}/activities", tok, json={"activities": [{
+            "currency": "EUR", "datetime": f"{rows[0]['datum']}T20:00:00.000Z", "shares": anteile,
+            "price": BASE_QUOTE, "type": "Buy", "assetIdentifierType": "holding_id", "holding_id": hid,
+            "description": "Start des Masterplans", "externalId": f"{EXTERNAL_ID}-start"}]})
+        print(f"Kauf gebucht: {anteile} Anteile zu {BASE_QUOTE} EUR")
+
+    quotes = [{"currency": "EUR", "datetime": f"{r['datum']}T20:00:00.000Z",
+               "price": round(float(r["masterfonds_anteilswert"]), 4)} for r in rows][-500:]
+    api("POST", f"/portfolios/{pid}/quotes/user-managed", tok,
+        json={"identifier": {"type": "holdingId", "value": hid}, "quotes": quotes})
+    print(f"Parqet aktualisiert: {len(quotes)} Kurse, zuletzt {quotes[-1]['datetime'][:10]} = {quotes[-1]['price']} EUR "
+          f"(Depotwert {rows[-1]['masterfonds_wert']} EUR)")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except SystemExit as e:
+        print(e)
+        sys.exit(0)          # Parqet-Fehler duerfen den taeglichen Lauf nicht abbrechen

@@ -45,6 +45,11 @@ jobs:
           git add docs/data.json docs/prices.csv docs/masterfonds.csv
           git diff --cached --quiet || git commit -m "Depots aktualisiert $(date -u +%Y-%m-%d)"
           git push
+      - name: Parqet aktualisieren (nur wenn Zugangsdaten hinterlegt)
+        env:
+          PARQET_CLIENT_ID: ${{ secrets.PARQET_CLIENT_ID }}
+          PARQET_REFRESH_TOKEN: ${{ secrets.PARQET_REFRESH_TOKEN }}
+        run: python parqet_sync.py
       - name: Tagesmeldung als Kommentar (eine Mail pro Tag)
         if: hashFiles('notify/body.md') != ''
         env:
