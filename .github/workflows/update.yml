@@ -51,6 +51,7 @@ jobs:
           PARQET_REFRESH_TOKEN: ${{ secrets.PARQET_REFRESH_TOKEN }}
           PARQET_TOKEN_PAT: ${{ secrets.PARQET_TOKEN_PAT }}
           PARQET_PORTFOLIO_ID: ${{ secrets.PARQET_PORTFOLIO_ID }}
+          PARQET_HOLDING_ID: ${{ secrets.PARQET_HOLDING_ID }}
         run: python parqet_sync.py
       - name: Tagesmeldung als Kommentar (eine Mail pro Tag)
         if: hashFiles('notify/body.md') != ''

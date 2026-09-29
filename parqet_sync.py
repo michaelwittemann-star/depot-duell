@@ -21,7 +21,8 @@ BASE = "https://connect.parqet.com"
 TOKEN_URL = f"{BASE}/oauth2/token"
 TRACK = Path(__file__).parent / "docs" / "masterfonds.csv"
 TOKENFILE = Path(__file__).parent / ".parqet_token"      # zuletzt gueltiger Refresh Token (nicht im Repo)
-HOLDING_NAME = "Masterfonds"
+HOLDING_NAME = "Michael Wittemann Premium Fonds"
+HOLDING_ID = os.environ.get("PARQET_HOLDING_ID", "")       # feste Kennung: bleibt gueltig, auch wenn du umbenennst
 EXTERNAL_ID = "masterplan-depot-duell"
 PORTFOLIO_ID = os.environ.get("PARQET_PORTFOLIO_ID", "")   # bestehendes Parqet-Depot (Basis-Tarif erlaubt nur eines)
 BASE_QUOTE = 100.0                      # Anteilswert am Starttag
@@ -89,8 +90,10 @@ def main() -> None:
         print("Depot in Parqet angelegt:", pid)
 
     holdings = api("GET", f"/portfolios/{pid}/holdings", tok).get("items", [])
-    hold = next((h for h in holdings if HOLDING_NAME in (h.get("nickname"), h.get("name"))
-                 and (h.get("asset") or {}).get("type") == "custom"), None)
+    hold = next((h for h in holdings if h.get("id") == HOLDING_ID), None) if HOLDING_ID else None
+    if hold is None:
+        hold = next((h for h in holdings if HOLDING_NAME in (h.get("nickname"), h.get("name"))
+                     and (h.get("asset") or {}).get("type") == "custom"), None)
     if hold is None:
         hold = api("POST", f"/portfolios/{pid}/holdings/custom", tok,
                    json={"name": HOLDING_NAME, "assetProduct": "other", "externalId": EXTERNAL_ID,
