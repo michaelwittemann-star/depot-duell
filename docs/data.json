@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-29T14:12+00:00",
+ "generated": "2026-09-30T00:45+00:00",
  "start": "2026-09-29",
  "capital": 16310.98,
  "weights": {
@@ -15,22 +15,22 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 631.51,
-      "move": -0.1426,
-      "text": "kippt auf aus bei Schluss unter 631.51 $"
+      "trigger_price": 632.06,
+      "move": -0.1435,
+      "text": "kippt auf aus bei Schluss unter 632.06 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": true,
-      "trigger_price": 557.09,
-      "move": -0.2436,
-      "text": "morgen positiv, solange Schluss über 557.09 $"
+      "trigger_price": 575.95,
+      "move": -0.2195,
+      "text": "morgen positiv, solange Schluss über 575.95 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": true,
       "value": 0.1625,
-      "move": 0.0725,
+      "move": 0.073,
       "text": "jetzt 16 %, über 30 % bei einer Tagesbewegung von mehr als 7.3 %"
      }
     ],
@@ -44,9 +44,9 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 679.52,
-      "move": -0.1124,
-      "text": "kippt auf aus bei Schluss unter 679.52 $"
+      "trigger_price": 679.91,
+      "move": -0.1103,
+      "text": "kippt auf aus bei Schluss unter 679.91 $"
      }
     ],
     "p1": 0.0,
@@ -58,14 +58,14 @@
    "B": 0.0,
    "A": 0.0
   },
-  "us_date": "2026-09-28",
-  "qqq_close": 736.53,
-  "qqq_ma200": 664.72,
+  "us_date": "2026-09-29",
+  "qqq_close": 737.93,
+  "qqq_ma200": 665.28,
   "qqq_vol20": 0.1634,
-  "qqq_mom126": 0.312,
+  "qqq_mom126": 0.3246,
   "qqq_trend_on": 1,
-  "spy_close": 765.61,
-  "spy_ma200": 715.29,
+  "spy_close": 764.2,
+  "spy_ma200": 715.71,
   "B": 1,
   "A": 1
  },
@@ -95,7 +95,7 @@
    "sleeve": "M",
    "amount": 16310.98,
    "units": null,
-   "price": 13.964
+   "price": 13.972
   },
   {
    "depot": "Masterplan",
@@ -104,7 +104,7 @@
    "sleeve": "B",
    "amount": 8155.49,
    "units": null,
-   "price": 165.41
+   "price": 163.29
   },
   {
    "depot": "Masterplan",
@@ -113,7 +113,7 @@
    "sleeve": "A",
    "amount": 4893.29,
    "units": null,
-   "price": 10.328
+   "price": 10.134
   },
   {
    "depot": "Masterplan",
@@ -122,7 +122,7 @@
    "sleeve": "G",
    "amount": 3262.2,
    "units": null,
-   "price": 120.86
+   "price": 116.62
   }
  ],
  "state": null,
