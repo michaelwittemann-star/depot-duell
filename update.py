@@ -82,6 +82,20 @@ def save_cache(cache: pd.DataFrame) -> None:
     keep.round(6).reset_index().sort_values(["ticker", "date"]).to_csv(CACHE, index=False)
 
 
+def stundenschluss(ticker: str) -> pd.Series:
+    """Letzter Stundenkurs je Handelstag - Ersatz, wenn Yahoo den Tagesschluss nicht liefert."""
+    r = requests.get(f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}",
+                     params={"range": "1mo", "interval": "1h"}, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
+    r.raise_for_status()
+    res = r.json()["chart"]["result"][0]
+    q = res["indicators"]["quote"][0]
+    werte = {}
+    for ts, c in zip(res["timestamp"], q["close"]):
+        if c is not None:
+            werte[pd.Timestamp(datetime.fromtimestamp(ts, timezone.utc).date())] = c
+    return pd.Series(werte)
+
+
 def yahoo_chart(ticker: str, start: str) -> pd.DataFrame | None:
     """Tageskurse (dividendenbereinigt) von Yahoo. Fehlt der Schlusskurs des letzten Tages, wird der offizielle
     Boersenpreis aus dem Kopf der Antwort verwendet - aber nur, wenn die Boerse an diesem Tag schon geschlossen hat."""
@@ -119,6 +133,18 @@ def yahoo_chart(ticker: str, start: str) -> pd.DataFrame | None:
             df.at[day, "close"] = last_price
             df.at[day, "adj"] = last_price
             print(f"{ticker}: Schlusskurs {day.date()} aus dem Boersenpreis der Schnittstelle ergaenzt ({last_price})")
+    fehlend = [d for d in df.index[-10:] if pd.isna(df.at[d, "close"])]
+    if fehlend:                                            # Tagesschluss fehlt -> aus den Stundenkursen ergaenzen
+        try:
+            stunden = stundenschluss(ticker)
+            f_letzt = float((df["adj"] / df["close"]).dropna().iloc[-1]) if df["close"].notna().any() else 1.0
+            for d in fehlend:
+                if d in stunden.index:
+                    df.at[d, "close"] = stunden[d]
+                    df.at[d, "adj"] = stunden[d] * f_letzt
+                    print(f"{ticker}: Schlusskurs {d.date()} aus dem letzten Stundenkurs ergaenzt ({stunden[d]:.4f})")
+        except Exception as error:  # noqa: BLE001
+            print(f"{ticker}: Stundenkurse nicht abrufbar ({error})")
     factor = (df["adj"] / df["close"]).where(df["close"] > 0).ffill().fillna(1.0)
     out = pd.DataFrame({"open": df["open"] * factor, "close": df["adj"]})
     return out.dropna(subset=["close"])
