@@ -10,7 +10,7 @@
 <style>
 :root{
   --ground:#F3F5F2; --surface:#FFFFFF; --ink:#16212B; --muted:#5E6B72; --line:#DCE2DE;
-  --msci:#4E8A6E; --plan:#3553C8; --gain:#1F7A4D; --loss:#B8433A; --warn:#A86A12;
+  --msci:#4E8A6E; --plan:#3553C8; --funds:#9A6B2F; --gain:#1F7A4D; --loss:#B8433A; --warn:#A86A12;
   --chip-on:#E3EEE7; --chip-off:#F6E6E3; --shadow:0 1px 2px rgba(22,33,43,.06),0 8px 24px rgba(22,33,43,.05);
   --font-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --font-body:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -19,13 +19,13 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --ground:#10171D; --surface:#172129; --ink:#E6ECEF; --muted:#94A3AB; --line:#26333C;
-    --msci:#7CC2A0; --plan:#8EA6FF; --gain:#5CC98F; --loss:#F08A7F; --warn:#E3AE52;
+    --msci:#7CC2A0; --plan:#8EA6FF; --funds:#D9A85F; --gain:#5CC98F; --loss:#F08A7F; --warn:#E3AE52;
     --chip-on:#1C3328; --chip-off:#3A2422; --shadow:none;
   }
 }
 :root[data-theme="dark"]{
   --ground:#10171D; --surface:#172129; --ink:#E6ECEF; --muted:#94A3AB; --line:#26333C;
-  --msci:#7CC2A0; --plan:#8EA6FF; --gain:#5CC98F; --loss:#F08A7F; --warn:#E3AE52;
+  --msci:#7CC2A0; --plan:#8EA6FF; --funds:#D9A85F; --gain:#5CC98F; --loss:#F08A7F; --warn:#E3AE52;
   --chip-on:#1C3328; --chip-off:#3A2422; --shadow:none;
 }
 *{box-sizing:border-box}
@@ -138,7 +138,7 @@ footer a{color:var(--plan)}
 
   <section class="panel" aria-labelledby="chart-h">
     <div class="charthead">
-      <h2 id="chart-h">Verlauf der beiden Depots</h2>
+      <h2 id="chart-h">Wertverlauf im Vergleich</h2>
       <div class="seg" role="group" aria-label="Ansicht">
         <button id="v-pre" aria-pressed="true">vor Steuer</button>
         <button id="v-post" aria-pressed="false">nach Steuer bei Verkauf</button>
@@ -184,41 +184,56 @@ let DATA, chart, view = "pre";
 function productName(key) { return key === "CASH" ? "Kasse (Gebühren, Rundung)" : (DATA.products[key]?.name || key); }
 const SLEEVE = {B: "Topf B · 50 %", A: "Topf A · 30 %", G: "Topf G · 20 %", M: "", "": ""};
 
+function basis(key) { return key === "funds" ? (DATA.funds_start || DATA.capital) : DATA.capital; }
+
 function renderDuo() {
-  const h = DATA.history, last = h[h.length - 1], box = document.getElementById("duo");
+  const h = DATA.history, last = h[h.length - 1], live = DATA.live, box = document.getElementById("duo");
   box.replaceChildren();
-  [["msci", "MSCI World SRI", "--msci", "iShares MSCI World SRI UCITS ETF"], ["plan", "Masterplan", "--plan", "50 % Regel B · 30 % Regel A · 20 % Gold"]].forEach(([k, name, color, desc]) => {
+  const karten = [
+    ["msci", "MSCI World SRI", "--msci", "iShares MSCI World SRI UCITS ETF"],
+    ["plan", "Masterplan", "--plan", "50 % Regel B · 30 % Regel A · 20 % Gold"],
+    ["funds", "Behaltene Fonds", "--funds", Object.values(DATA.funds || {}).map(f => f.name).join(" · ")],
+  ];
+  karten.forEach(([k, name, color, desc]) => {
+    if (k === "funds" && !DATA.funds_start) return;
     const card = el("div", {class: "panel depot", style: `--c: var(${color})`});
     const n = el("div", {class: "name"}); n.append(el("i"), document.createTextNode(name)); card.append(n);
-    const v = last ? last[k] : DATA.capital, va = last ? last[k + "_after_tax"] : DATA.capital;
-    card.append(el("div", {class: "big"}, eur(v)));
-    const ch = v / DATA.capital - 1;
-    const s = el("div", {class: "sub"}); const sp = el("span", {class: ch >= 0 ? "pos" : "neg"}, pct(ch)); s.append(sp, document.createTextNode(" seit Start · nach Steuer bei Verkauf " + eur(va)));
-    card.append(s);
-    const t = DATA.totals[name]; card.append(el("div", {class: "sub"}, `${desc} · Gebühren ${eur2(t.fees)} · gezahlte Steuer ${eur2(t.taxes)}`));
-    if (k === "plan" && last) {
+    const wert = live && live[k] != null ? live[k] : (last ? last[k] : basis(k));
+    card.append(el("div", {class: "big"}, eur(wert)));
+    const ch = wert / basis(k) - 1;
+    const s1 = el("div", {class: "sub"});
+    s1.append(el("span", {class: ch >= 0 ? "pos" : "neg"}, pct(ch)), document.createTextNode(" seit Start"));
+    if (live && live[k] != null) s1.append(document.createTextNode(` · Stand ${new Date(live.time).toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"})} Uhr`));
+    else if (last) s1.append(document.createTextNode(` · Schluss ${dDE(last.date)}`));
+    card.append(s1);
+    const t = DATA.totals[name === "Masterplan" ? "Masterplan" : name];
+    if (t) card.append(el("div", {class: "sub"}, `${desc} · Gebühren ${eur2(t.fees)} · gezahlte Steuer ${eur2(t.taxes)}`));
+    else card.append(el("div", {class: "sub"}, `${desc} · beim Verkauf am 24.09. fielen 612,70 € Steuer an`));
+    if (k === "plan" && (live || last)) {
       const row = el("div", {class: "sub parqet"});
-      const value = last.plan.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      const value = wert.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2});
       const btn = el("button", {type: "button", title: "Wert in die Zwischenablage kopieren"}, "kopieren");
       btn.addEventListener("click", async () => {
         try { await navigator.clipboard.writeText(value.replace(/\./g, "").replace(",", ".")); btn.textContent = "kopiert"; }
         catch (e) { btn.textContent = value; }
         setTimeout(() => { btn.textContent = "kopieren"; }, 2500);
       });
-      row.append(document.createTextNode(`Für Parqet („Masterfonds“, eigener Vermögenswert): ${value} € `), btn);
+      row.append(document.createTextNode(`Für Parqet („Masterfonds“): ${value} € `), btn);
       card.append(row);
     }
     box.append(card);
   });
-  if (last) {
-    const diff = last.plan - last.msci;
-    document.getElementById("startinfo").textContent = `Vorsprung Masterplan: ${diff >= 0 ? "+" : ""}${eur(diff)} (${pct(last.plan / last.msci - 1)})`;
+  const w = live && live.plan != null ? live : last;
+  if (w) {
+    const diff = w.plan - w.msci;
+    document.getElementById("startinfo").textContent =
+      `Masterplan gegen MSCI: ${diff >= 0 ? "+" : ""}${eur(diff)} (${pct(w.plan / basis("plan") - 1 - (w.msci / basis("msci") - 1))} Unterschied)`;
   }
 }
 
 function myScale() {
   const v = parseFloat(document.getElementById("my-depot").value);
-  return (isFinite(v) && v > 0 ? v : 15000) / DATA.capital;
+  return (isFinite(v) && v > 0 ? v : DATA.capital) / DATA.capital;
 }
 
 function renderTodo() {
@@ -304,13 +319,20 @@ function renderChart() {
   }
   canvas.hidden = false; empty.hidden = true;
   const labels = [dDE(DATA.start).slice(0, 6) + "Start", ...h.map(r => dDE(r.date))];
+  if (DATA.live) labels.push("jetzt");
   const k = view === "pre" ? "" : "_after_tax";
-  const series = key => [DATA.capital, ...h.map(r => r[key + k])];
+  const series = key => {
+    const reihe = [basis(key), ...h.map(r => r[key + k])];
+    if (DATA.live && DATA.live[key] != null) reihe.push(DATA.live[key]);
+    return reihe;
+  };
   const ink = css("--muted"), grid = css("--line");
   const ds = [
     {label: "MSCI World SRI", data: series("msci"), borderColor: css("--msci"), backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, tension: 0.15},
     {label: "Masterplan", data: series("plan"), borderColor: css("--plan"), backgroundColor: "transparent", borderWidth: 2.4, pointRadius: 0, tension: 0.15},
   ];
+  if (DATA.funds_start) ds.push({label: "Behaltene Fonds", data: [DATA.funds_start, ...h.map(r => r.funds)],
+    borderColor: css("--funds"), backgroundColor: "transparent", borderWidth: 2, borderDash: [5, 4], pointRadius: 0, tension: 0.15});
   if (chart) { chart.data.labels = labels; chart.data.datasets = ds; chart.update(); return; }
   chart = new Chart(canvas, {
     type: "line", data: {labels, datasets: ds},

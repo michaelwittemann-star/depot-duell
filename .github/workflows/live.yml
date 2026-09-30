@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: parqet-live
@@ -24,11 +24,19 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Zwischenstand an Parqet
+      - name: Zwischenstand berechnen, Seite und Parqet aktualisieren
         env:
           PARQET_CLIENT_ID: ${{ secrets.PARQET_CLIENT_ID }}
           PARQET_REFRESH_TOKEN: ${{ secrets.PARQET_REFRESH_TOKEN }}
           PARQET_TOKEN_PAT: ${{ secrets.PARQET_TOKEN_PAT }}
           PARQET_PORTFOLIO_ID: ${{ secrets.PARQET_PORTFOLIO_ID }}
           PARQET_HOLDING_ID: ${{ secrets.PARQET_HOLDING_ID }}
-        run: python parqet_live.py
+        run: python live_update.py
+      - name: Zwischenstand einchecken
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data.json
+          git diff --cached --quiet || git commit -m "Zwischenstand $(date -u +%H:%M)"
+          git pull --rebase --autostash -q || true
+          git push

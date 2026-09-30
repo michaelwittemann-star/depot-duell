@@ -53,6 +53,12 @@ PRODUCTS = {
     "GOLD": {"ticker": "4GLD.DE", "name": "Xetra-Gold", "isin": "DE000A0S9GB0", "venue": "Xetra",
              "costs": "0,30 % p.a. Verwahrentgelt (taeglich abgezogen)", "half_spread": 0.0005, "custody_pa": 0.003, "teilfreistellung": 0.0},
 }
+# Zum Finanzieren des Plans verkaufte Fondsanteile (24.09.2026) - dritte Vergleichslinie "haette ich behalten"
+SOLD_FUNDS = {
+    "0P00000G7B.F": {"name": "DWS Top Dividende LD", "isin": "DE0009848119", "units": 28.194, "sold": 4692.00},
+    "0P00000CT1.F": {"name": "DWS Deutschland", "isin": "DE0008490962", "units": 12.816, "sold": 4140.97},
+    "0P00019QIN.F": {"name": "Sparkasse Karlsruhe - Premium Fonds", "isin": "", "units": 56.805, "sold": 7613.07},
+}
 FEE_FLAT, FEE_FOREIGN = 5.90, 2.00      # flatex: 5,90 EUR je Order, an Auslandsboersen (Paris, Mailand) zzgl. ca. 2 EUR Fremdkosten
 TAX = 0.26375                            # Abgeltungsteuer + Soli, ohne Kirchensteuer, ohne Sparer-Pauschbetrag
 WEIGHTS = {"B": 0.5, "A": 0.3, "G": 0.2}
@@ -430,8 +436,10 @@ def main():
     sig, detail, sig_raw = signals(cache)
     first = (pd.Timestamp(START) - pd.Timedelta(days=10)).date().isoformat()
     raw = {k: download(p["ticker"], first, cache) for k, p in PRODUCTS.items()}
-    fresh = pd.concat({**{PRODUCTS[k]["ticker"]: v for k, v in raw.items()}, **sig_raw}, names=["ticker", "date"])
+    fonds = {tick: download(tick, first, cache) for tick in SOLD_FUNDS}
+    fresh = pd.concat({**{PRODUCTS[k]["ticker"]: v for k, v in raw.items()}, **sig_raw, **fonds}, names=["ticker", "date"])
     save_cache(fresh.combine_first(cache))
+    fonds_close = pd.DataFrame({t: v["close"] for t, v in fonds.items()}).sort_index().ffill()
     opens = pd.DataFrame({k: v["open"].where(v["open"] > 0) for k, v in raw.items()}).sort_index()
     closes = pd.DataFrame({k: v["close"].where(v["close"] > 0) for k, v in raw.items()}).sort_index().ffill()
     opens = opens.fillna(closes.shift(1)).fillna(closes)          # fehlende Eroeffnung: Vortagesschluss
@@ -498,7 +506,10 @@ def main():
                                      f"Jahres-Rebalancing: Topf {sleeve} zurück auf {int(WEIGHTS[sleeve] * 100)} %")
 
         pc = {k: float(closes.loc[day_ts, k]) for k in PRODUCTS}
-        history.append({"date": day.isoformat(), "msci": round(msci.value(pc), 2), "plan": round(plan.value(pc), 2),
+        fw = sum(f["units"] * float(fonds_close[t].asof(day_ts)) for t, f in SOLD_FUNDS.items()
+                 if t in fonds_close and pd.notna(fonds_close[t].asof(day_ts)))
+        history.append({"date": day.isoformat(), "funds": round(fw, 2),
+                        "msci": round(msci.value(pc), 2), "plan": round(plan.value(pc), 2),
                         "msci_after_tax": round(msci.value_after_tax(pc, day), 2), "plan_after_tax": round(plan.value_after_tax(pc, day), 2),
                         "B": b_on, "A": a_on})
         last_day = day
@@ -561,6 +572,9 @@ def main():
         "generated": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "start": START.isoformat(), "capital": CAPITAL, "weights": WEIGHTS,
         "signal": detail, "tomorrow": tomorrow, "orders": orders, "state": state, "my_depot": MY_DEPOT, "warn": WARN,
+        "funds": {t: {**f, "price": round(float(fonds_close[t].iloc[-1]), 4) if t in fonds_close else None}
+                  for t, f in SOLD_FUNDS.items()},
+        "funds_start": history[0]["funds"] if history else None,
         "waiting": bool(state is None and START <= date.today()),   # Start liegt an, Kurse fehlen noch
         "waiting_text": ("Deine Käufe vom " + START.strftime("%d.%m.%Y") + " sind erfasst. Die erste Bewertung erscheint, "
                          "sobald der Schlusskurs des Starttags vorliegt (nach 17:35 Uhr).") if REAL_START else "",
@@ -591,6 +605,13 @@ def main():
                 raise RuntimeError(
                     f"Abbruch: die bereits berechneten Handelstage {', '.join(verloren)} fehlen jetzt - "
                     f"Kursquelle unvollstaendig ({SOURCES}). Die veroeffentlichten Daten bleiben unveraendert.")
+    if OUT.exists():                                   # Zwischenstand des Tages nicht verlieren
+        try:
+            vorher = json.loads(OUT.read_text(encoding="utf-8")).get("live")
+        except ValueError:
+            vorher = None
+        if vorher and vorher.get("time", "")[:10] == date.today().isoformat():
+            data["live"] = vorher
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     write_notification(data, state)
