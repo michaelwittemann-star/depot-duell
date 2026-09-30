@@ -683,7 +683,8 @@ def write_notification(data: dict, state) -> None:
                   "bei ruhigem Markt reicht das meist für eine Ausführung in der Eröffnungsauktion. Beträge und Stückzahlen für "
                   + _eur(MY_DEPOT) + " Depotwert._", ""]
 
-    letzte = [tr for tr in data["trades"] if tr["depot"] == "Masterplan" and last and tr["date"] == last["date"]]
+    letzte = [tr for tr in data["trades"] if tr["depot"] == "Masterplan" and last and tr["date"] == last["date"]
+              and not tr["reason"].startswith("Start:")]        # Startkaeufe sind bereits ausgefuehrt
     if letzte and not handeln:
         tag = date.fromisoformat(last["date"]).strftime("%d.%m.%Y")
         lines += [f"## Kontrolle: am {tag} war umzuschichten", "",
