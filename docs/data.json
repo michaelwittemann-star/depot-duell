@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-01T02:12+00:00",
+ "generated": "2026-10-01T11:45+00:00",
  "start": "2026-09-29",
  "capital": 16310.98,
  "weights": {
@@ -117,10 +117,10 @@
   {
    "date": "2026-09-30",
    "funds": 16977.12,
-   "msci": 16317.84,
-   "plan": 16397.22,
-   "msci_after_tax": 16317.84,
-   "plan_after_tax": 16379.43,
+   "msci": 16331.78,
+   "plan": 16380.89,
+   "msci_after_tax": 16329.45,
+   "plan_after_tax": 16367.4,
    "B": 1,
    "A": 1
   }
@@ -185,8 +185,8 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 14.046,
-   "value": 16317.84
+   "price": 14.058,
+   "value": 16331.78
   },
   {
    "depot": "Masterplan",
@@ -201,16 +201,16 @@
    "sleeve": "A",
    "product": "NDX2X",
    "units": 479.0,
-   "price": 10.396,
-   "value": 4979.68
+   "price": 10.366,
+   "value": 4965.31
   },
   {
    "depot": "Masterplan",
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 117.76,
-   "value": 3297.28
+   "price": 117.69,
+   "value": 3295.32
   }
  ],
  "totals": {
