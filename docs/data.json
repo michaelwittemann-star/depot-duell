@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-01T14:39+00:00",
+ "generated": "2026-10-02T01:04+00:00",
  "start": "2026-09-29",
  "capital": 16310.98,
  "weights": {
@@ -15,23 +15,23 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 632.68,
-      "move": -0.1448,
-      "text": "kippt auf aus bei Schluss unter 632.68 $"
+      "trigger_price": 633.32,
+      "move": -0.1465,
+      "text": "kippt auf aus bei Schluss unter 633.32 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": true,
-      "trigger_price": 583.06,
-      "move": -0.2118,
-      "text": "morgen positiv, solange Schluss über 583.06 $"
+      "trigger_price": 583.73,
+      "move": -0.2133,
+      "text": "morgen positiv, solange Schluss über 583.73 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": true,
       "value": 0.1534,
-      "move": 0.073,
-      "text": "jetzt 15 %, über 30 % bei einer Tagesbewegung von mehr als 7.3 %"
+      "move": 0.0747,
+      "text": "jetzt 15 %, über 30 % bei einer Tagesbewegung von mehr als 7.5 %"
      }
     ],
     "p1": 0.0,
@@ -39,14 +39,14 @@
     "flat": []
    },
    "A": {
-    "sigma_day": 0.0068,
+    "sigma_day": 0.0067,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 680.33,
-      "move": -0.1079,
-      "text": "kippt auf aus bei Schluss unter 680.33 $"
+      "trigger_price": 680.77,
+      "move": -0.1089,
+      "text": "kippt auf aus bei Schluss unter 680.77 $"
      }
     ],
     "p1": 0.0,
@@ -58,14 +58,14 @@
    "B": 0.0,
    "A": 0.0
   },
-  "us_date": "2026-09-30",
-  "qqq_close": 739.77,
-  "qqq_ma200": 665.87,
+  "us_date": "2026-10-01",
+  "qqq_close": 742.03,
+  "qqq_ma200": 666.52,
   "qqq_vol20": 0.1544,
-  "qqq_mom126": 0.2844,
+  "qqq_mom126": 0.2726,
   "qqq_trend_on": 1,
-  "spy_close": 762.63,
-  "spy_ma200": 716.11,
+  "spy_close": 763.99,
+  "spy_ma200": 716.56,
   "B": 1,
   "A": 1
  },
@@ -83,21 +83,21 @@
    "isin": "DE0009848119",
    "units": 28.194,
    "sold": 4692.0,
-   "price": 172.37
+   "price": 171.19
   },
   "0P00000CT1.F": {
    "name": "DWS Deutschland",
    "isin": "DE0008490962",
    "units": 12.816,
    "sold": 4140.97,
-   "price": 339.36
+   "price": 336.41
   },
   "0P00019QIN.F": {
    "name": "Sparkasse Karlsruhe - Premium Fonds",
    "isin": "",
    "units": 56.805,
    "sold": 7613.07,
-   "price": 136.75
+   "price": 136.67
   }
  },
  "funds_start": 17062.34,
@@ -117,10 +117,20 @@
   {
    "date": "2026-09-30",
    "funds": 16977.12,
-   "msci": 16331.78,
-   "plan": 16380.89,
-   "msci_after_tax": 16329.45,
-   "plan_after_tax": 16367.4,
+   "msci": 16317.84,
+   "plan": 16397.22,
+   "msci_after_tax": 16317.84,
+   "plan_after_tax": 16379.43,
+   "B": 1,
+   "A": 1
+  },
+  {
+   "date": "2026-10-01",
+   "funds": 16901.5,
+   "msci": 16359.67,
+   "plan": 16211.19,
+   "msci_after_tax": 16352.19,
+   "plan_after_tax": 16211.19,
    "B": 1,
    "A": 1
   }
@@ -185,32 +195,32 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 14.058,
-   "value": 16331.78
+   "price": 14.082,
+   "value": 16359.67
   },
   {
    "depot": "Masterplan",
    "sleeve": "B",
    "product": "SP3X",
    "units": 49.0,
-   "price": 165.72,
-   "value": 8120.28
+   "price": 161.93,
+   "value": 7934.57
   },
   {
    "depot": "Masterplan",
    "sleeve": "A",
    "product": "NDX2X",
    "units": 479.0,
-   "price": 10.366,
-   "value": 4965.31
+   "price": 10.32,
+   "value": 4943.28
   },
   {
    "depot": "Masterplan",
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 117.69,
-   "value": 3295.32
+   "price": 119.05,
+   "value": 3333.4
   }
  ],
  "totals": {
@@ -220,7 +230,7 @@
    "loss_pot": 0.0
   },
   "Masterplan": {
-   "fees": 0.03,
+   "fees": 0.05,
    "taxes": 0.0,
    "loss_pot": 0.0
   }
@@ -292,11 +302,5 @@
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
- "stale": [],
- "live": {
-  "time": "2026-10-01T18:45+00:00",
-  "plan": 16211.25,
-  "msci": 16359.67,
-  "funds": 16977.12
- }
+ "stale": []
 }
