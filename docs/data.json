@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-06T14:20+00:00",
+ "generated": "2026-10-07T01:00+00:00",
  "start": "2026-09-29",
  "capital": 16310.98,
  "weights": {
@@ -15,21 +15,21 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 634.75,
-      "move": -0.1606,
-      "text": "kippt auf aus bei Schluss unter 634.75 $"
+      "trigger_price": 635.48,
+      "move": -0.1635,
+      "text": "kippt auf aus bei Schluss unter 635.48 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": true,
-      "trigger_price": 587.33,
-      "move": -0.2233,
-      "text": "morgen positiv, solange Schluss über 587.33 $"
+      "trigger_price": 604.79,
+      "move": -0.2039,
+      "text": "morgen positiv, solange Schluss über 604.79 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": true,
-      "value": 0.1539,
+      "value": 0.1535,
       "move": 0.0725,
       "text": "jetzt 15 %, über 30 % bei einer Tagesbewegung von mehr als 7.3 %"
      }
@@ -44,9 +44,9 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 681.76,
-      "move": -0.1201,
-      "text": "kippt auf aus bei Schluss unter 681.76 $"
+      "trigger_price": 682.29,
+      "move": -0.1243,
+      "text": "kippt auf aus bei Schluss unter 682.29 $"
      }
     ],
     "p1": 0.0,
@@ -58,14 +58,14 @@
    "B": 0.0,
    "A": 0.0
   },
-  "us_date": "2026-10-05",
-  "qqq_close": 756.2,
-  "qqq_ma200": 667.97,
-  "qqq_vol20": 0.1549,
-  "qqq_mom126": 0.2877,
+  "us_date": "2026-10-06",
+  "qqq_close": 759.66,
+  "qqq_ma200": 668.78,
+  "qqq_vol20": 0.1545,
+  "qqq_mom126": 0.2934,
   "qqq_trend_on": 1,
-  "spy_close": 774.83,
-  "spy_ma200": 717.56,
+  "spy_close": 779.09,
+  "spy_ma200": 718.13,
   "B": 1,
   "A": 1
  },
@@ -83,21 +83,21 @@
    "isin": "DE0009848119",
    "units": 28.194,
    "sold": 4692.0,
-   "price": 172.86
+   "price": 173.04
   },
   "0P00000CT1.F": {
    "name": "DWS Deutschland",
    "isin": "DE0008490962",
    "units": 12.816,
    "sold": 4140.97,
-   "price": 338.3
+   "price": 340.42
   },
   "0P00019QIN.F": {
    "name": "Sparkasse Karlsruhe - Premium Fonds",
    "isin": "",
    "units": 56.805,
    "sold": 7613.07,
-   "price": 137.15
+   "price": 137.64
   }
  },
  "funds_start": 17062.34,
@@ -147,10 +147,20 @@
   {
    "date": "2026-10-05",
    "funds": 17000.07,
-   "msci": 16615.25,
-   "plan": 16835.43,
-   "msci_after_tax": 16560.61,
-   "plan_after_tax": 16702.16,
+   "msci": 16626.87,
+   "plan": 16827.6,
+   "msci_after_tax": 16570.08,
+   "plan_after_tax": 16696.4,
+   "B": 1,
+   "A": 1
+  },
+  {
+   "date": "2026-10-06",
+   "funds": 17060.15,
+   "msci": 16701.22,
+   "plan": 17163.38,
+   "msci_after_tax": 16630.71,
+   "plan_after_tax": 16943.73,
    "B": 1,
    "A": 1
   }
@@ -215,32 +225,32 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 14.302,
-   "value": 16615.25
+   "price": 14.376,
+   "value": 16701.22
   },
   {
    "depot": "Masterplan",
    "sleeve": "B",
    "product": "SP3X",
    "units": 49.0,
-   "price": 170.26,
-   "value": 8342.74
+   "price": 174.96,
+   "value": 8573.04
   },
   {
    "depot": "Masterplan",
    "sleeve": "A",
    "product": "NDX2X",
    "units": 479.0,
-   "price": 10.79,
-   "value": 5168.41
+   "price": 10.984,
+   "value": 5261.34
   },
   {
    "depot": "Masterplan",
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 118.73,
-   "value": 3324.44
+   "price": 118.9,
+   "value": 3329.2
   }
  ],
  "totals": {
@@ -250,7 +260,7 @@
    "loss_pot": 0.0
   },
   "Masterplan": {
-   "fees": 0.16,
+   "fees": 0.19,
    "taxes": 0.0,
    "loss_pot": 0.0
   }
@@ -322,11 +332,5 @@
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
- "stale": [],
- "live": {
-  "time": "2026-10-06T19:22+00:00",
-  "plan": 17163.58,
-  "msci": 16701.22,
-  "funds": 17000.07
- }
+ "stale": []
 }
