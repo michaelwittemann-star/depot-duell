@@ -65,7 +65,6 @@ h1 .vs{display:block;font-size:.4em;font-weight:500;color:var(--muted);letter-sp
 h2{font:600 24px/1.2 var(--font-display);margin:0 0 16px;letter-spacing:-.018em;text-wrap:balance}
 .stand{color:var(--muted);font-size:15px;letter-spacing:-.008em}
 .stand b{color:var(--ink);font-weight:500}
-#startinfo{font-size:19px;color:var(--ink);font-weight:500}
 
 .panel{background:var(--surface);border:0;border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .panel{border:1px solid var(--hair)}}
@@ -138,15 +137,6 @@ footer{color:var(--muted);font-size:13px;line-height:1.7;border-top:1px solid va
 footer a{color:var(--accent);text-decoration:none}
 footer a:hover{text-decoration:underline}
 
-.parqet button{margin-left:8px;font:500 13px var(--font-body);color:#fff;background:var(--accent);border:0;
-  border-radius:980px;padding:4px 12px;cursor:pointer;transition:opacity .18s ease}
-.parqet button:hover{opacity:.85}
-.mine{font-size:14px;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
-.mine input{width:120px;font:500 15px var(--font-body);font-variant-numeric:tabular-nums;color:var(--ink);
-  background:var(--ground-2);border:1px solid transparent;border-radius:11px;padding:8px 11px;text-align:right}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mine input{background:rgba(255,255,255,.08)}}
-:root[data-theme="dark"] .mine input{background:rgba(255,255,255,.08)}
-.mine input:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:0;border-color:var(--accent)}
 .prob{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 20px;margin:10px 0}
 .prob span{line-height:1.3}
 .prob b{font:600 32px/1 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.024em}
@@ -180,7 +170,6 @@ footer a:hover{text-decoration:underline}
 <div class="wrap">
   <header class="hero">
     <h1>MSCI World SRI <span class="vs">gegen</span> Michael Wittemann Premium Fonds</h1>
-    <div id="startinfo"></div>
     <div class="stand" id="stand">Lade Daten …</div>
   </header>
 
@@ -191,8 +180,6 @@ footer a:hover{text-decoration:underline}
   <section class="panel lead" aria-labelledby="todo-h">
     <div class="charthead">
       <h2 id="todo-h">Nächster Handelstag zur Eröffnung</h2>
-      <label class="mine" for="my-depot">Mein Plan-Depot
-        <input id="my-depot" type="number" min="1000" step="500" inputmode="numeric" value="15000"> €</label>
     </div>
     <div id="todo"></div>
   </section>
@@ -200,9 +187,6 @@ footer a:hover{text-decoration:underline}
   <section class="panel" aria-labelledby="fc-h">
     <h2 id="fc-h">Ausblick: Muss bald umgeschichtet werden?</h2>
     <div class="rules" id="forecast"></div>
-    <p class="small" style="margin:12px 0 0">Wahrscheinlichkeit aus der nötigen Kursbewegung bis zur Schwelle und der aktuellen Tagesschwankung. Im Rückblick 2000–2026 wurden
-      gut 8 von 10 Wechseln mindestens einen Tag vorher mit 20 % oder mehr angekündigt; etwa 4 von 10 solcher Warnungen führten tatsächlich zu einem Wechsel.
-      Ab 20 % gibt es eine Vorwarnung per E-Mail.</p>
   </section>
 
   <section class="panel" aria-labelledby="sig-h">
@@ -214,10 +198,6 @@ footer a:hover{text-decoration:underline}
   <section class="panel" aria-labelledby="chart-h">
     <div class="charthead">
       <h2 id="chart-h">Wertverlauf im Vergleich</h2>
-      <div class="seg" role="group" aria-label="Ansicht">
-        <button id="v-pre" aria-pressed="true">vor Steuer</button>
-        <button id="v-post" aria-pressed="false">nach Steuer bei Verkauf</button>
-      </div>
     </div>
     <div class="chartbox"><canvas id="chart" aria-label="Wertverlauf beider Depots"></canvas><div class="empty" id="chart-empty" hidden></div></div>
   </section>
@@ -254,7 +234,7 @@ const pct = (v, d = 1) => (v >= 0 ? "+" : "") + (v * 100).toLocaleString("de-DE"
 const dDE = s => new Date(s + "T12:00:00").toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const el = (tag, attrs = {}, text) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text != null) e.textContent = text; return e; };
-let DATA, chart, view = "pre";
+let DATA, chart;
 Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
 Chart.defaults.font.size = 12;
 
@@ -285,54 +265,27 @@ function renderDuo() {
     if (live && live[k] != null) s1.append(document.createTextNode(` · Stand ${new Date(live.time).toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"})} Uhr`));
     else if (last) s1.append(document.createTextNode(` · Schluss ${dDE(last.date)}`));
     card.append(s1);
-    const t = DATA.totals[name];
-    if (t) card.append(el("div", {class: "sub"}, `${desc} · Gebühren ${eur2(t.fees)} · gezahlte Steuer ${eur2(t.taxes)}`));
-    else card.append(el("div", {class: "sub"}, `${desc} · auf den gleichen Startbetrag normiert (tatsächlich 612,70 € Steuer beim Verkauf)`));
-    if (k === "plan" && (live || last)) {
-      const row = el("div", {class: "sub parqet"});
-      const value = wert.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2});
-      const btn = el("button", {type: "button", title: "Wert in die Zwischenablage kopieren"}, "kopieren");
-      btn.addEventListener("click", async () => {
-        try { await navigator.clipboard.writeText(value.replace(/\./g, "").replace(",", ".")); btn.textContent = "kopiert"; }
-        catch (e) { btn.textContent = value; }
-        setTimeout(() => { btn.textContent = "kopieren"; }, 2500);
-      });
-      row.append(document.createTextNode(`Für Parqet: ${value} € `), btn);
-      card.append(row);
-    }
+    card.append(el("div", {class: "sub"}, desc));
     box.append(card);
   });
-  const w = live && live.plan != null ? live : last;
-  if (w) {
-    const diff = w.plan - w.msci;
-    document.getElementById("startinfo").textContent =
-      `${planName()} gegen MSCI: ${diff >= 0 ? "+" : ""}${eur(diff)} (${pct(w.plan / basis("plan") - 1 - (w.msci / basis("msci") - 1))} Unterschied)`;
-  }
-}
-
-function myScale() {
-  const v = parseFloat(document.getElementById("my-depot").value);
-  return (isFinite(v) && v > 0 ? v : DATA.capital) / DATA.capital;
 }
 
 function renderTodo() {
   const box = document.getElementById("todo"); box.replaceChildren();
-  const s = DATA.signal, k = myScale();
-  const lead = el("p", {class: "small"}, `Grundlage: US-Schlusskurse vom ${dDE(s.us_date)}. Orders zur Eröffnung an der jeweiligen Heimatbörse aufgeben, am besten als Limit-Order. Beträge beim Kauf sind Schätzungen aus dem letzten Schlusskurs.`);
+  const s = DATA.signal;
   const orders = DATA.orders || [];
   if (!orders.length) {
-    box.append(el("p", {class: "none"}, "Nichts zu tun – alle Signale unverändert."), lead);
+    box.append(el("p", {class: "none"}, "Nichts zu tun – alle Signale unverändert."));
     return;
   }
   const rows = orders.map(o => {
     const p = DATA.products[o.product];
     const what = o.action === "Verkauf" ? (o.all ? "alle Stücke" : "nur Anteil Topf A") : "";
-    const mine = o.depot === planName() ? eur(o.amount * k) + (o.units ? ` · ${num(o.units * k, 3)} Stk.` : "") : "–";
     return [[o.depot === planName() ? planName() : "MSCI"], [`${o.action} ${what}`.trim(), o.action === "Kauf" ? "kauf" : "verkauf"],
-            [p.name], [`${p.venue} · ${p.isin}`, "small"], [eur(o.amount) + (o.units ? ` · ${num(o.units, 3)} Stk.` : ""), "num"], [mine, "num"]];
+            [p.name], [`${p.venue} · ${p.isin}`, "small"], [eur(o.amount) + (o.units ? ` · ${num(o.units, 3)} Stk.` : ""), "num"]];
   });
-  const wrap = el("div", {class: "scroll"}); const t = el("table", {id: "orders"}); wrap.append(t); box.append(wrap, lead);
-  table("orders", [["Depot"], ["Aktion"], ["Produkt"], ["Börse · ISIN"], ["Musterdepot", "num"], ["Mein Depot", "num"]], rows);
+  const wrap = el("div", {class: "scroll"}); const t = el("table", {id: "orders"}); wrap.append(t); box.append(wrap);
+  table("orders", [["Depot"], ["Aktion"], ["Produkt"], ["Börse · ISIN"], ["Betrag", "num"]], rows);
 }
 
 function renderForecast() {
@@ -399,10 +352,8 @@ function renderChart() {
   canvas.hidden = false; empty.hidden = true;
   const labels = [dDE(DATA.start).slice(0, 6) + "Start", ...h.map(r => dDE(r.date))];
   if (DATA.live) labels.push("jetzt");
-  const k = view === "pre" ? "" : "_after_tax";
   const series = key => {
-    const spalte = r => (r[key + k] != null ? r[key + k] : r[key]);       // Fonds haben keine Nach-Steuer-Reihe
-    const reihe = [basis(key), ...h.map(spalte)];
+    const reihe = [basis(key), ...h.map(r => r[key])];
     if (DATA.live) reihe.push(DATA.live[key]);
     return reihe;
   };
@@ -440,7 +391,6 @@ function renderChart() {
       scales: {x: {ticks: {color: ink, maxTicksLimit: 8, maxRotation: 0}, grid: {display: false}},
                y: {min: yMin, max: yMax, ticks: {color: ink, callback: v => eur(v)}, grid: {color: grid}},
                y2: {position: "right", min: rendite(yMin), max: rendite(yMax),
-                    title: {display: true, color: ink, text: `Rendite auf ${eur(DATA.capital)} Einsatz`},
                     ticks: {color: ink, callback: v => (v >= 0 ? "+" : "") + v.toFixed(1).replace(".", ",") + " %"},
                     grid: {drawOnChartArea: false, color: grid}}}
     }
@@ -461,11 +411,7 @@ function renderTables() {
   const hold = d => DATA.holdings.filter(x => x.depot === d).map(x => [[productName(x.product)], [SLEEVE[x.sleeve] || "", "small"], [x.units == null ? "–" : num(x.units, 3), "num"], [x.price == null ? "–" : num(x.price, 3) + " €", "num"], [eur(x.value), "num"]]);
   const hh = [["Produkt"], ["Topf"], ["Stück", "num"], ["Kurs", "num"], ["Wert", "num"]];
   table("hold-msci", hh, hold("MSCI World SRI"));
-  const k = myScale();
-  table("hold-plan", [["Produkt"], ["Topf"], ["Stück", "num"], ["Kurs", "num"], ["Wert", "num"], ["Mein Depot", "num"]],
-    DATA.holdings.filter(x => x.depot === planName()).map(x => [[productName(x.product)], [SLEEVE[x.sleeve] || "", "small"],
-      [x.units == null ? "–" : num(x.units, 3), "num"], [x.price == null ? "–" : num(x.price, 3) + " €", "num"], [eur(x.value), "num"],
-      [(x.units == null ? "" : num(x.units * k, 3) + " Stk. · ") + eur(x.value * k), "num"]]));
+  table("hold-plan", hh, hold(planName()));
   const tr = [...DATA.trades].reverse().map(t => [[dDE(t.date)], [t.depot === planName() ? planName() : "MSCI"], [t.action, t.action === "Kauf" ? "kauf" : "verkauf"], [productName(t.product)],
     [num(t.units, 3), "num"], [num(t.price, 3) + " €", "num"], [eur2(t.value), "num"], [eur2(t.fee), "num"], [t.tax ? eur2(t.tax) : "–", "num"], [t.reason, "small"]]);
   table("trades", [["Datum"], ["Depot"], ["Art"], ["Produkt"], ["Stück", "num"], ["Kurs", "num"], ["Betrag", "num"], ["Gebühr", "num"], ["Steuer", "num"], ["Grund"]], tr);
@@ -478,7 +424,7 @@ function renderTables() {
 function render() {
   const gen = new Date(DATA.generated);
   const stand = document.getElementById("stand"); stand.replaceChildren();
-  stand.append(document.createTextNode("Start "), el("b", {}, dDE(DATA.start)), document.createTextNode(` mit je ${eur(DATA.capital)} · aktualisiert `),
+  stand.append(document.createTextNode("Start "), el("b", {}, dDE(DATA.start)), document.createTextNode(" · aktualisiert "),
     el("b", {}, gen.toLocaleString("de-DE", {dateStyle: "medium", timeStyle: "short"})), document.createTextNode(` · ${DATA.history.length} Handelstage`));
   const box = document.getElementById("stale"), stale = DATA.stale || [];
   box.replaceChildren();
@@ -493,19 +439,6 @@ function render() {
   renderDuo(); renderTodo(); renderForecast(); renderSignals(); renderChart(); renderTables();
 }
 
-(() => {
-  const input = document.getElementById("my-depot");
-  try { const saved = localStorage.getItem("myDepot"); if (saved) input.value = saved; } catch (e) {}
-  document.addEventListener("daten-geladen", () => { try { if (!localStorage.getItem("myDepot")) input.value = DATA.capital; } catch (e) { input.value = DATA.capital; } });
-  input.addEventListener("input", () => {
-    try { localStorage.setItem("myDepot", input.value); } catch (e) {}
-    if (DATA) { renderTodo(); renderTables(); }
-  });
-})();
-
-["pre", "post"].forEach(v => document.getElementById("v-" + v).addEventListener("click", () => {
-  view = v; document.getElementById("v-pre").setAttribute("aria-pressed", v === "pre"); document.getElementById("v-post").setAttribute("aria-pressed", v === "post"); renderChart();
-}));
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (chart) { chart.destroy(); chart = null; } if (DATA) renderChart(); });
 
 fetch("data.json?" + Date.now()).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
