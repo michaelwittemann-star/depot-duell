@@ -73,9 +73,9 @@ h2{font:600 24px/1.2 var(--font-display);margin:0 0 16px;letter-spacing:-.018em;
 .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr));gap:18px}
 .depot{display:grid;gap:7px;position:relative;overflow:hidden}
 .depot::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--c)}
-.depot .name{font-weight:600;font-size:15px;line-height:1.3;display:flex;align-items:flex-start;gap:8px;
-  letter-spacing:-.01em;min-height:2.6em}
-.depot .name i{width:9px;height:9px;border-radius:50%;background:var(--c);display:inline-block;flex:none;margin-top:.42em}
+.depot .name{font-weight:600;font-size:13.5px;line-height:1.4;display:flex;align-items:center;gap:8px;
+  letter-spacing:-.01em;white-space:nowrap}
+.depot .name i{width:9px;height:9px;border-radius:50%;background:var(--c);display:inline-block;flex:none}
 .big{font:600 40px/1.05 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.028em}
 .sub{color:var(--muted);font-size:14px;letter-spacing:-.006em;font-variant-numeric:tabular-nums}
 .pos{color:var(--gain);font-weight:500} .neg{color:var(--loss);font-weight:500}
@@ -98,9 +98,10 @@ h2{font:600 24px/1.2 var(--font-display);margin:0 0 16px;letter-spacing:-.018em;
 .chip.on{background:var(--chip-on);color:var(--gain)} .chip.off{background:var(--chip-off);color:var(--loss)}
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr));gap:20px}
 .rule{display:grid;gap:8px;align-content:start}
-.rule .kopf{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.rule .kopf{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
 .rule .kopf b{font-size:16px;letter-spacing:-.012em}
 .rule p{margin:0;color:var(--muted);font-size:14px}
+.rule .punkte{margin:0;padding-left:20px;color:var(--muted);font-size:14px;display:grid;gap:5px}
 
 .charthead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
 .charthead h2{margin:0}
@@ -155,6 +156,7 @@ footer a:hover{text-decoration:underline}
   .wrap{padding:0 16px 64px;gap:18px}
   .panel{padding:20px;border-radius:16px}
   header.hero{padding:34px 0 18px}
+  .depot .name{font-size:15px}
   .big{font-size:34px}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto}}
@@ -308,11 +310,7 @@ function renderForecast() {
       const b = el("b", {class: f[pk] >= DATA.warn ? "hot" : ""}, Math.round(f[pk] * 100) + " %");
       const w = el("div"); w.append(b, el("span", {}, " " + lab)); pr.append(w);
     });
-    const ul = el("ul", {class: "cond"});
-    f.conditions.forEach(c => ul.append(el("li", {}, c.name === "20-Tage-Schwankung" ? c.text.replace("ueber", "über") :
-      `${c.name}: ${c.text.replace("ueber", "über")} (${pct(c.move)})`)));
-    f.flat.forEach(x => ul.append(el("li", {}, x)));
-    d.append(head, pr, ul); box.append(d);
+    d.append(head, pr); box.append(d);
   });
 }
 
@@ -331,24 +329,29 @@ function renderSignals() {
   const s = DATA.signal, rules = document.getElementById("rules"), gauges = document.getElementById("gauges");
   rules.replaceChildren(); gauges.replaceChildren();
   const state = DATA.state || {B: s.B, A: s.A};
-  [["B", "Regel B · Topf 50 %", "QQQ über 200-Tage-Schnitt (Einstieg ab +5 %, Ausstieg unter −5 %), 20-Tage-Schwankung unter 30 % und 6-Monats-Rendite positiv.", "3× S&P 500", "US-Staatsanleihen 20+ J."],
-   ["A", "Regel A · Topf 30 %", "SPY über 200-Tage-Schnitt (Einstieg ab +5 %, Ausstieg unter −5 %).", "2× Nasdaq-100", "½ US-Staatsanleihen 7–10 J. + ½ Gold"]].forEach(([k, title, text, on, off]) => {
+  [["B", "Regel B · Topf 50 %", ["QQQ über 200-Tage-Schnitt (Einstieg ab +5 %, Ausstieg unter −5 %)",
+                                 "20-Tage-Schwankung unter 30 %", "6-Monats-Rendite positiv"], "3× S&P 500", "US-Staatsanleihen 20+ J."],
+   ["A", "Regel A · Topf 30 %", ["SPY über 200-Tage-Schnitt (Einstieg ab +5 %, Ausstieg unter −5 %)"],
+    "2× Nasdaq-100", "½ US-Staatsanleihen 7–10 J. + ½ Gold"]].forEach(([k, title, punkte, on, off]) => {
     const d = el("div", {class: "rule"});
     const head = el("div", {class: "kopf"}); head.append(el("b", {}, title), el("span", {class: "chip " + (s[k] ? "on" : "off")}, s[k] ? "an · " + on : "aus · " + off));
-    d.append(head, el("p", {}, text));
+    const ul = el("ul", {class: "punkte"}); punkte.forEach(x => ul.append(el("li", {}, x)));
+    d.append(head, ul);
     rules.append(d);
   });
   const g = el("div", {class: "rule"}); const gk = el("div", {class: "kopf"});
   gk.append(el("b", {}, "Topf G · 20 %"), el("span", {class: "chip on"}, "immer Gold"));
-  g.append(gk, el("p", {}, "Fester Anteil, am ersten Handelstag des Jahres wird auf 50/30/20 zurückgesetzt.")); rules.append(g);
+  const gul = el("ul", {class: "punkte"});
+  ["Fester Anteil, wird nie umgeschichtet", "am ersten Handelstag des Jahres zurück auf 50/30/20"].forEach(x => gul.append(el("li", {}, x)));
+  g.append(gk, gul); rules.append(g);
   const qd = s.qqq_close / s.qqq_ma200 - 1, sd = s.spy_close / s.spy_ma200 - 1;
   const scale = x => 50 + x / 0.20 * 50;   // −20 % … +20 %
   const on = "var(--gain)", off = "var(--loss)";
   gauges.append(
     gauge("QQQ gegen 200-Tage-Schnitt", pct(qd), scale(qd), [scale(-0.05), scale(0.05)], [[0, scale(-0.05), off], [scale(0.05), 100, on]], `Schluss ${num(s.qqq_close)} $ · Schnitt ${num(s.qqq_ma200)} $ · Trend ${s.qqq_trend_on ? "an" : "aus"}`),
-    gauge("QQQ 20-Tage-Schwankung", pct(s.qqq_vol20, 0).replace("+", ""), s.qqq_vol20 / 0.6 * 100, [50], [[0, 50, on], [50, 100, off]], "Grenze 30 % p.a."),
+    gauge("SPY gegen 200-Tage-Schnitt", pct(sd), scale(sd), [scale(-0.05), scale(0.05)], [[0, scale(-0.05), off], [scale(0.05), 100, on]], `Schluss ${num(s.spy_close)} $ · Schnitt ${num(s.spy_ma200)} $`),
     gauge("QQQ 6-Monats-Rendite", pct(s.qqq_mom126), 50 + s.qqq_mom126 / 0.6 * 50, [50], [[0, 50, off], [50, 100, on]], "muss positiv sein"),
-    gauge("SPY gegen 200-Tage-Schnitt", pct(sd), scale(sd), [scale(-0.05), scale(0.05)], [[0, scale(-0.05), off], [scale(0.05), 100, on]], `Schluss ${num(s.spy_close)} $ · Schnitt ${num(s.spy_ma200)} $`)
+    gauge("QQQ 20-Tage-Schwankung", pct(s.qqq_vol20, 0).replace("+", ""), s.qqq_vol20 / 0.6 * 100, [50], [[0, 50, on], [50, 100, off]], "Grenze 30 % p.a.")
   );
 }
 
@@ -373,7 +376,7 @@ function renderChart() {
     {label: planName(), data: series("plan"), borderColor: css("--plan"), backgroundColor: "transparent", borderWidth: 2.4, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, cubicInterpolationMode: "monotone", borderCapStyle: "round"},
   ];
   if (DATA.funds_start) ds.push({label: "Sparkassen Müll", data: series("funds"),
-    borderColor: css("--funds"), backgroundColor: "transparent", borderWidth: 2, borderDash: [5, 4], pointRadius: 0, pointHoverRadius: 4, tension: 0.25, cubicInterpolationMode: "monotone", borderCapStyle: "round"});
+    borderColor: css("--funds"), backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, cubicInterpolationMode: "monotone", borderCapStyle: "round"});
   // Keine Reihe darf kuerzer sein als die x-Achse: fehlende Werte am Ende werden mit dem letzten bekannten fortgeschrieben
   ds.forEach(d => {
     for (let i = 0; i < labels.length; i++) if (d.data[i] == null) d.data[i] = i ? d.data[i - 1] : DATA.capital;
@@ -401,6 +404,8 @@ function renderChart() {
       scales: {x: {ticks: {color: ink, maxTicksLimit: 8, maxRotation: 0}, grid: {display: false}},
                y: {min: yMin, max: yMax, ticks: {color: ink, callback: v => eur(v)}, grid: {color: grid}},
                y2: {position: "right", min: rendite(yMin), max: rendite(yMax),
+                    // Beschriftung genau dort, wo links eine Gitterlinie liegt
+                    afterBuildTicks: axis => { const links = axis.chart.scales.y; if (links && links.ticks.length) axis.ticks = links.ticks.map(x => ({value: rendite(x.value)})); },
                     ticks: {color: ink, callback: v => (v >= 0 ? "+" : "") + v.toFixed(1).replace(".", ",") + " %"},
                     grid: {drawOnChartArea: false, color: grid}}}
     }
