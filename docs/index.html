@@ -117,7 +117,7 @@ h2{font:600 24px/1.2 var(--font-display);margin:0 0 16px;letter-spacing:-.018em;
 .empty{height:100%;display:grid;place-items:center;text-align:center;color:var(--muted);
   background:var(--ground-2);border-radius:14px;padding:18px}
 
-.tables{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(430px,100%),1fr));gap:18px}
+.tables{display:grid;grid-template-columns:1fr;gap:18px}
 .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 /* Rasterfelder duerfen nicht am Inhalt wachsen, sonst scrollt die ganze Seite zur Seite */
 .wrap>*,.duo>*,.tables>*,.rules>*,.signals>*,.panel,.scroll{min-width:0}
@@ -211,8 +211,10 @@ footer a:hover{text-decoration:underline}
   </section>
 
   <section class="tables">
-    <div class="panel"><h2>Bestand MSCI-Depot</h2><div class="scroll"><table id="hold-msci"></table></div></div>
     <div class="panel"><h2>Bestand Michael Wittemann Premium Fonds</h2><div class="scroll"><table id="hold-plan"></table></div></div>
+    <div class="panel"><h2>Bestand MSCI World SRI</h2><div class="scroll"><table id="hold-msci"></table></div></div>
+    <div class="panel"><h2>Bestand Sparkassen Müll</h2><div class="scroll"><table id="hold-funds"></table></div>
+      <p class="small" id="funds-note" style="margin:12px 0 0"></p></div>
   </section>
 
   <section class="panel" aria-labelledby="trades-h">
@@ -427,6 +429,14 @@ function renderTables() {
   const hh = [["Produkt"], ["Topf"], ["Stück", "num"], ["Kurs", "num"], ["Wert", "num"]];
   table("hold-msci", hh, hold("MSCI World SRI"));
   table("hold-plan", hh, hold(planName()));
+  const fonds = Object.values(DATA.funds || {});
+  table("hold-funds", [["Produkt"], ["ISIN"], ["Stück", "num"], ["Kurs", "num"], ["Wert", "num"]],
+    fonds.map(f => [[f.name], [f.isin || "–"], [num(f.units, 3), "num"], [f.price == null ? "–" : num(f.price, 3) + " €", "num"],
+                    [f.price == null ? "–" : eur(f.units * f.price), "num"]]));
+  const fn = document.getElementById("funds-note");
+  fn.textContent = DATA.funds_scale && DATA.funds_scale !== 1
+    ? `Am 24.09.2026 verkauft, um den Plan zu finanzieren. Oben im Vergleich sind diese Werte mit dem Faktor ${num(DATA.funds_scale, 4)} auf den gleichen Startbetrag umgerechnet.`
+    : "";
   const tr = [...DATA.trades].reverse().map(t => [[dDE(t.date)], [t.depot === planName() ? planName() : "MSCI"], [t.action, t.action === "Kauf" ? "kauf" : "verkauf"], [productName(t.product)],
     [num(t.units, 3), "num"], [num(t.price, 3) + " €", "num"], [eur2(t.value), "num"], [eur2(t.fee), "num"], [t.tax ? eur2(t.tax) : "–", "num"], [t.reason, "small"]]);
   table("trades", [["Datum"], ["Depot"], ["Art"], ["Produkt"], ["Stück", "num"], ["Kurs", "num"], ["Betrag", "num"], ["Gebühr", "num"], ["Steuer", "num"], ["Grund"]], tr);
