@@ -73,8 +73,9 @@ h2{font:600 24px/1.2 var(--font-display);margin:0 0 16px;letter-spacing:-.018em;
 .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr));gap:18px}
 .depot{display:grid;gap:7px;position:relative;overflow:hidden}
 .depot::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--c)}
-.depot .name{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
-.depot .name i{width:9px;height:9px;border-radius:50%;background:var(--c);display:inline-block;flex:none}
+.depot .name{font-weight:600;font-size:15px;line-height:1.3;display:flex;align-items:flex-start;gap:8px;
+  letter-spacing:-.01em;min-height:2.6em}
+.depot .name i{width:9px;height:9px;border-radius:50%;background:var(--c);display:inline-block;flex:none;margin-top:.42em}
 .big{font:600 40px/1.05 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.028em}
 .sub{color:var(--muted);font-size:14px;letter-spacing:-.006em;font-variant-numeric:tabular-nums}
 .pos{color:var(--gain);font-weight:500} .neg{color:var(--loss);font-weight:500}
@@ -83,7 +84,8 @@ h2{font:600 24px/1.2 var(--font-display);margin:0 0 16px;letter-spacing:-.018em;
 .lead .none{color:var(--muted);margin:0}
 .tag{display:inline-block;font-size:12px;color:var(--muted);margin-right:6px}
 .signals{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:20px}
-.gauge{display:grid;gap:8px}
+.gauge{display:grid;gap:8px;align-content:start}
+.gauge .small{min-height:2.6em}
 .gauge .row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
 .gauge .row b{font-weight:600;font-variant-numeric:tabular-nums}
 .bar{position:relative;height:6px;border-radius:3px;background:var(--ground-2)}
@@ -91,10 +93,14 @@ h2{font:600 24px/1.2 var(--font-display);margin:0 0 16px;letter-spacing:-.018em;
 :root[data-theme="dark"] .bar{background:rgba(255,255,255,.12)}
 .bar span{position:absolute;top:-4px;width:3px;height:14px;border-radius:2px;background:var(--ink)}
 .bar em{position:absolute;top:0;height:6px;border-radius:3px;opacity:.4}
-.chip{display:inline-flex;align-items:center;gap:6px;border-radius:980px;padding:3px 11px;font-size:12px;font-weight:600;letter-spacing:0}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:980px;padding:3px 11px;font-size:12px;
+  font-weight:600;letter-spacing:0;white-space:nowrap;flex:none;align-self:flex-start}
 .chip.on{background:var(--chip-on);color:var(--gain)} .chip.off{background:var(--chip-off);color:var(--loss)}
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr));gap:20px}
-.rule p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.rule{display:grid;gap:8px;align-content:start}
+.rule .kopf{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.rule .kopf b{font-size:16px;letter-spacing:-.012em}
+.rule p{margin:0;color:var(--muted);font-size:14px}
 
 .charthead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
 .charthead h2{margin:0}
@@ -233,7 +239,9 @@ const num = (v, d = 2) => v == null ? "–" : v.toLocaleString("de-DE", {minimum
 const pct = (v, d = 1) => (v >= 0 ? "+" : "") + (v * 100).toLocaleString("de-DE", {minimumFractionDigits: d, maximumFractionDigits: d}) + " %";
 const dDE = s => new Date(s + "T12:00:00").toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const el = (tag, attrs = {}, text) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text != null) e.textContent = text; return e; };
+// Zahl und Einheit bleiben zusammen, damit Zeilen ueberall gleich umbrechen
+const bindung = s => String(s).replace(/ (%|\$|€|p\.a\.|Uhr|Stk\.|J\.)/g, " $1");
+const el = (tag, attrs = {}, text) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text != null) e.textContent = bindung(text); return e; };
 let DATA, chart;
 Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
 Chart.defaults.font.size = 12;
@@ -262,8 +270,8 @@ function renderDuo() {
     const ch = wert / basis(k) - 1;
     const s1 = el("div", {class: "sub"});
     s1.append(el("span", {class: ch >= 0 ? "pos" : "neg"}, pct(ch)), document.createTextNode(" seit Start"));
-    if (live && live[k] != null) s1.append(document.createTextNode(` · Stand ${new Date(live.time).toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"})} Uhr`));
-    else if (last) s1.append(document.createTextNode(` · Schluss ${dDE(last.date)}`));
+    if (live && live[k] != null) s1.append(document.createTextNode(bindung(` · Stand ${new Date(live.time).toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"})} Uhr`)));
+    else if (last) s1.append(document.createTextNode(bindung(` · Schluss ${dDE(last.date)}`)));
     card.append(s1);
     card.append(el("div", {class: "sub"}, desc));
     box.append(card);
@@ -294,7 +302,7 @@ function renderForecast() {
   [["B", "Regel B · 3× S&P 500"], ["A", "Regel A · 2× Nasdaq-100"]].forEach(([key, title]) => {
     const f = fc[key]; if (!f) return;
     const d = el("div", {class: "rule"});
-    const head = el("div"); head.append(el("b", {}, title + " "), el("span", {class: "chip " + (s[key] ? "on" : "off")}, s[key] ? "jetzt an" : "jetzt aus"));
+    const head = el("div", {class: "kopf"}); head.append(el("b", {}, title), el("span", {class: "chip " + (s[key] ? "on" : "off")}, s[key] ? "jetzt an" : "jetzt aus"));
     const pr = el("div", {class: "prob"});
     [["p1", "Wechsel morgen"], ["p5", "in 5 Handelstagen"]].forEach(([pk, lab]) => {
       const b = el("b", {class: f[pk] >= DATA.warn ? "hot" : ""}, Math.round(f[pk] * 100) + " %");
@@ -326,11 +334,13 @@ function renderSignals() {
   [["B", "Regel B · Topf 50 %", "QQQ über 200-Tage-Schnitt (Einstieg ab +5 %, Ausstieg unter −5 %), 20-Tage-Schwankung unter 30 % und 6-Monats-Rendite positiv.", "3× S&P 500", "US-Staatsanleihen 20+ J."],
    ["A", "Regel A · Topf 30 %", "SPY über 200-Tage-Schnitt (Einstieg ab +5 %, Ausstieg unter −5 %).", "2× Nasdaq-100", "½ US-Staatsanleihen 7–10 J. + ½ Gold"]].forEach(([k, title, text, on, off]) => {
     const d = el("div", {class: "rule"});
-    const head = el("div"); head.append(el("b", {}, title + " "), el("span", {class: "chip " + (s[k] ? "on" : "off")}, s[k] ? "an · " + on : "aus · " + off));
+    const head = el("div", {class: "kopf"}); head.append(el("b", {}, title), el("span", {class: "chip " + (s[k] ? "on" : "off")}, s[k] ? "an · " + on : "aus · " + off));
     d.append(head, el("p", {}, text));
     rules.append(d);
   });
-  const g = el("div", {class: "rule"}); g.append(el("b", {}, "Topf G · 20 %  "), el("span", {class: "chip on"}, "immer Gold")); g.append(el("p", {}, "Fester Anteil, am ersten Handelstag des Jahres wird auf 50/30/20 zurückgesetzt.")); rules.append(g);
+  const g = el("div", {class: "rule"}); const gk = el("div", {class: "kopf"});
+  gk.append(el("b", {}, "Topf G · 20 %"), el("span", {class: "chip on"}, "immer Gold"));
+  g.append(gk, el("p", {}, "Fester Anteil, am ersten Handelstag des Jahres wird auf 50/30/20 zurückgesetzt.")); rules.append(g);
   const qd = s.qqq_close / s.qqq_ma200 - 1, sd = s.spy_close / s.spy_ma200 - 1;
   const scale = x => 50 + x / 0.20 * 50;   // −20 % … +20 %
   const on = "var(--gain)", off = "var(--loss)";
@@ -425,7 +435,7 @@ function render() {
   const gen = new Date(DATA.generated);
   const stand = document.getElementById("stand"); stand.replaceChildren();
   stand.append(document.createTextNode("Start "), el("b", {}, dDE(DATA.start)), document.createTextNode(" · aktualisiert "),
-    el("b", {}, gen.toLocaleString("de-DE", {dateStyle: "medium", timeStyle: "short"})), document.createTextNode(` · ${DATA.history.length} Handelstage`));
+    el("b", {}, gen.toLocaleString("de-DE", {dateStyle: "medium", timeStyle: "short"})), document.createTextNode(bindung(` · ${DATA.history.length} Handelstage`)));
   const box = document.getElementById("stale"), stale = DATA.stale || [];
   box.replaceChildren();
   if (DATA.waiting) {
