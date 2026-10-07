@@ -186,7 +186,7 @@ const SLEEVE = {B: "Topf B · 50 %", A: "Topf A · 30 %", G: "Topf G · 20 %", M
 
 function planName() { return DATA.plan_name || "Masterplan"; }
 
-function basis(key) { return key === "funds" ? (DATA.funds_start || DATA.capital) : DATA.capital; }
+function basis(key) { return DATA.capital; }   // alle drei Verlaeufe starten beim gleichen Betrag
 
 function renderDuo() {
   const h = DATA.history, last = h[h.length - 1], live = DATA.live, box = document.getElementById("duo");
@@ -194,7 +194,7 @@ function renderDuo() {
   const karten = [
     ["msci", "MSCI World SRI", "--msci", "iShares MSCI World SRI UCITS ETF"],
     ["plan", planName(), "--plan", "50 % Regel B · 30 % Regel A · 20 % Gold"],
-    ["funds", "Behaltene Fonds", "--funds", Object.values(DATA.funds || {}).map(f => f.name).join(" · ")],
+    ["funds", "Sparkassen Müll", "--funds", Object.values(DATA.funds || {}).map(f => f.name).join(" · ")],
   ];
   karten.forEach(([k, name, color, desc]) => {
     if (k === "funds" && !DATA.funds_start) return;
@@ -210,7 +210,7 @@ function renderDuo() {
     card.append(s1);
     const t = DATA.totals[name];
     if (t) card.append(el("div", {class: "sub"}, `${desc} · Gebühren ${eur2(t.fees)} · gezahlte Steuer ${eur2(t.taxes)}`));
-    else card.append(el("div", {class: "sub"}, `${desc} · beim Verkauf am 24.09. fielen 612,70 € Steuer an`));
+    else card.append(el("div", {class: "sub"}, `${desc} · auf den gleichen Startbetrag normiert (tatsächlich 612,70 € Steuer beim Verkauf)`));
     if (k === "plan" && (live || last)) {
       const row = el("div", {class: "sub parqet"});
       const value = wert.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -324,8 +324,9 @@ function renderChart() {
   if (DATA.live) labels.push("jetzt");
   const k = view === "pre" ? "" : "_after_tax";
   const series = key => {
-    const reihe = [basis(key), ...h.map(r => r[key + k])];
-    if (DATA.live && DATA.live[key] != null) reihe.push(DATA.live[key]);
+    const spalte = r => (r[key + k] != null ? r[key + k] : r[key]);       // Fonds haben keine Nach-Steuer-Reihe
+    const reihe = [basis(key), ...h.map(spalte)];
+    if (DATA.live) reihe.push(DATA.live[key]);
     return reihe;
   };
   const ink = css("--muted"), grid = css("--line");
@@ -333,8 +334,13 @@ function renderChart() {
     {label: "MSCI World SRI", data: series("msci"), borderColor: css("--msci"), backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, tension: 0.15},
     {label: planName(), data: series("plan"), borderColor: css("--plan"), backgroundColor: "transparent", borderWidth: 2.4, pointRadius: 0, tension: 0.15},
   ];
-  if (DATA.funds_start) ds.push({label: "Behaltene Fonds", data: [DATA.funds_start, ...h.map(r => r.funds)],
+  if (DATA.funds_start) ds.push({label: "Sparkassen Müll", data: series("funds"),
     borderColor: css("--funds"), backgroundColor: "transparent", borderWidth: 2, borderDash: [5, 4], pointRadius: 0, tension: 0.15});
+  // Keine Reihe darf kuerzer sein als die x-Achse: fehlende Werte am Ende werden mit dem letzten bekannten fortgeschrieben
+  ds.forEach(d => {
+    for (let i = 0; i < labels.length; i++) if (d.data[i] == null) d.data[i] = i ? d.data[i - 1] : DATA.capital;
+    d.data.length = labels.length;
+  });
   // Feste Grenzen, damit die Euro-Achse links und die Prozentachse rechts genau uebereinanderliegen
   const werte = ds.flatMap(d => d.data).filter(v => v != null && isFinite(v));
   const spanne = Math.max(...werte) - Math.min(...werte);
@@ -352,7 +358,7 @@ function renderChart() {
     options: {
       responsive: true, maintainAspectRatio: false, animation: false, interaction: {mode: "index", intersect: false},
       plugins: {legend: {labels: {color: ink, boxWidth: 12, usePointStyle: true}},
-                tooltip: {callbacks: {label: c => `${c.dataset.label}: ${eur(c.parsed.y)} (${pct(c.parsed.y / (c.dataset.label === "Behaltene Fonds" ? (DATA.funds_start || DATA.capital) : DATA.capital) - 1)})`}}},
+                tooltip: {callbacks: {label: c => `${c.dataset.label}: ${eur(c.parsed.y)} (${pct(c.parsed.y / (DATA.capital) - 1)})`}}},
       scales: {x: {ticks: {color: ink, maxTicksLimit: 8, maxRotation: 0}, grid: {display: false}},
                y: {min: yMin, max: yMax, ticks: {color: ink, callback: v => eur(v)}, grid: {color: grid}},
                y2: {position: "right", min: rendite(yMin), max: rendite(yMax),

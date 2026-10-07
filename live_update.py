@@ -49,11 +49,13 @@ def main() -> None:
         kurs = preis(tick) or (data.get("funds", {}).get(tick) or {}).get("price")
         if kurs:
             fonds += f["units"] * kurs
+    roh = fonds
+    fonds *= data.get("funds_scale") or 1.0           # gleiche Normierung wie in der Tagesreihe
     jetzt = datetime.now(timezone.utc)
     data["live"] = {"time": jetzt.isoformat(timespec="minutes"), "plan": round(plan, 2), "msci": round(msci, 2),
-                    "funds": round(fonds, 2)}
+                    "funds": round(fonds, 2), "funds_raw": round(roh, 2)}
     DATA.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"Zwischenstand {jetzt:%H:%M} UTC - {PLAN_NAME} {plan:,.2f} | MSCI {msci:,.2f} | behaltene Fonds {fonds:,.2f}")
+    print(f"Zwischenstand {jetzt:%H:%M} UTC - {PLAN_NAME} {plan:,.2f} | MSCI {msci:,.2f} | Sparkassen Muell {fonds:,.2f}")
 
     if os.environ.get("PARQET_CLIENT_ID") and os.environ.get("PARQET_REFRESH_TOKEN"):
         tok = ps.token()

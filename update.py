@@ -448,6 +448,7 @@ def main():
 
     msci, plan = Depot("MSCI World SRI"), Depot(PLAN_NAME)
     state, history, last_day = None, [], None
+    fonds_last: dict[str, float] = {}
     for day_ts in eu_days:
         day = day_ts.date()
         prior = sig[sig.index < day_ts]
@@ -507,8 +508,11 @@ def main():
                                      f"Jahres-Rebalancing: Topf {sleeve} zurück auf {int(WEIGHTS[sleeve] * 100)} %")
 
         pc = {k: float(closes.loc[day_ts, k]) for k in PRODUCTS}
-        fw = sum(f["units"] * float(fonds_close[t].asof(day_ts)) for t, f in SOLD_FUNDS.items()
-                 if t in fonds_close and pd.notna(fonds_close[t].asof(day_ts)))
+        for tick in SOLD_FUNDS:                                   # fehlt ein Fondskurs, gilt der zuletzt bekannte
+            kurs = fonds_close[tick].asof(day_ts) if tick in fonds_close else float("nan")
+            if pd.notna(kurs):
+                fonds_last[tick] = float(kurs)
+        fw = sum(f["units"] * fonds_last[t] for t, f in SOLD_FUNDS.items() if t in fonds_last)
         history.append({"date": day.isoformat(), "funds": round(fw, 2),
                         "msci": round(msci.value(pc), 2), "plan": round(plan.value(pc), 2),
                         "msci_after_tax": round(msci.value_after_tax(pc, day), 2), "plan_after_tax": round(plan.value_after_tax(pc, day), 2),
@@ -569,13 +573,19 @@ def main():
         if abs(depot.cash) > 0.5:
             holdings.append({"depot": depot.name, "sleeve": "", "product": "CASH", "units": None, "price": None, "value": round(depot.cash, 2)})
 
+    # Die behaltenen Fonds waren mehr wert als der Einsatz (beim Verkauf fiel Steuer an). Fuer den Vergleich
+    # wird die Reihe so skaliert, dass alle drei Verlaeufe beim gleichen Betrag starten.
+    funds_scale = round(CAPITAL / history[0]["funds"], 10) if history and history[0]["funds"] else 1.0
+    for row in history:
+        row["funds"] = round(row["funds"] * funds_scale, 2)
+
     data = {
         "generated": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "plan_name": PLAN_NAME, "start": START.isoformat(), "capital": CAPITAL, "weights": WEIGHTS,
         "signal": detail, "tomorrow": tomorrow, "orders": orders, "state": state, "my_depot": MY_DEPOT, "warn": WARN,
         "funds": {t: {**f, "price": round(float(fonds_close[t].iloc[-1]), 4) if t in fonds_close else None}
                   for t, f in SOLD_FUNDS.items()},
-        "funds_start": history[0]["funds"] if history else None,
+        "funds_start": CAPITAL if history else None, "funds_scale": funds_scale,
         "waiting": bool(state is None and START <= date.today()),   # Start liegt an, Kurse fehlen noch
         "waiting_text": ("Deine Käufe vom " + START.strftime("%d.%m.%Y") + " sind erfasst. Die erste Bewertung erscheint, "
                          "sobald der Schlusskurs des Starttags vorliegt (nach 17:35 Uhr).") if REAL_START else "",
@@ -612,6 +622,10 @@ def main():
         except ValueError:
             vorher = None
         if vorher and vorher.get("time", "")[:10] == date.today().isoformat():
+            if vorher.get("funds_raw"):                # Fondsreihe mit der aktuellen Normierung neu umrechnen
+                vorher["funds"] = round(vorher["funds_raw"] * funds_scale, 2)
+            else:
+                vorher.pop("funds", None)
             data["live"] = vorher
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")

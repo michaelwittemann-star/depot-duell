@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-07T20:46+00:00",
+ "generated": "2026-10-07T20:52+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -101,13 +101,14 @@
    "price": 137.64
   }
  },
- "funds_start": 17062.34,
+ "funds_start": 16310.98,
+ "funds_scale": 0.9559638361,
  "waiting": false,
  "waiting_text": "Deine Käufe vom 29.09.2026 sind erfasst. Die erste Bewertung erscheint, sobald der Schlusskurs des Starttags vorliegt (nach 17:35 Uhr).",
  "history": [
   {
    "date": "2026-09-29",
-   "funds": 17062.34,
+   "funds": 16310.98,
    "msci": 16296.93,
    "plan": 16167.65,
    "msci_after_tax": 16296.93,
@@ -117,7 +118,7 @@
   },
   {
    "date": "2026-09-30",
-   "funds": 16977.12,
+   "funds": 16229.51,
    "msci": 16317.84,
    "plan": 16397.22,
    "msci_after_tax": 16317.84,
@@ -127,7 +128,7 @@
   },
   {
    "date": "2026-10-01",
-   "funds": 16901.5,
+   "funds": 16157.22,
    "msci": 16359.67,
    "plan": 16211.19,
    "msci_after_tax": 16352.19,
@@ -137,7 +138,7 @@
   },
   {
    "date": "2026-10-02",
-   "funds": 16922.12,
+   "funds": 16176.93,
    "msci": 16529.28,
    "plan": 16592.79,
    "msci_after_tax": 16490.5,
@@ -147,7 +148,7 @@
   },
   {
    "date": "2026-10-05",
-   "funds": 17000.07,
+   "funds": 16251.45,
    "msci": 16626.87,
    "plan": 16827.6,
    "msci_after_tax": 16570.08,
@@ -157,7 +158,7 @@
   },
   {
    "date": "2026-10-06",
-   "funds": 17060.15,
+   "funds": 16308.89,
    "msci": 16712.84,
    "plan": 17164.42,
    "msci_after_tax": 16640.19,
@@ -167,7 +168,7 @@
   },
   {
    "date": "2026-10-07",
-   "funds": 17060.15,
+   "funds": 16308.89,
    "msci": 16626.87,
    "plan": 16945.77,
    "msci_after_tax": 16570.08,
@@ -345,9 +346,10 @@
  },
  "stale": [],
  "live": {
-  "time": "2026-10-07T19:18+00:00",
+  "time": "2026-10-07T20:52+00:00",
   "plan": 16945.98,
   "msci": 16626.87,
-  "funds": 17060.15
+  "funds": 16308.89,
+  "funds_raw": 17060.15
  }
 }
