@@ -1,6 +1,6 @@
-"""Schiebt den taeglichen Wert des Masterplans als eigene Position "Masterfonds" nach Parqet.
+"""Schiebt den taeglichen Wert des Fonds als eigene Position nach Parqet.
 
-Der Masterplan wird dort wie ein Fonds gefuehrt: Anteilswert startet bei 100 EUR, die Stueckzahl ergibt sich
+Der Fonds wird dort wie ein Fonds gefuehrt: Anteilswert startet bei 100 EUR, die Stueckzahl ergibt sich
 aus dem eingesetzten Kapital (16.500 EUR -> 165 Anteile). Eine einzige Kauf-Buchung am Starttag, danach nur noch
 taegliche Kurse. So sieht man in Parqet eine geschlossene, langlaufende Position mit der Rendite des Plans.
 
@@ -119,7 +119,7 @@ def main() -> None:
         api("POST", f"/portfolios/{pid}/activities", tok, json={"activities": [{
             "currency": "EUR", "datetime": zeitpunkt(rows[0]["datum"]), "shares": anteile,
             "price": BASE_QUOTE, "type": "buy", "assetIdentifierType": "custom_asset", "holding_id": hid,
-            "description": "Start des Masterplans", "externalId": f"{EXTERNAL_ID}-start"}]})
+            "description": "Start der Position", "externalId": f"{EXTERNAL_ID}-start"}]})
         print(f"Kauf gebucht: {anteile} Anteile zu {BASE_QUOTE} EUR")
 
     quotes = [{"currency": "EUR", "datetime": zeitpunkt(r["datum"]),

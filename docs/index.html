@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Depot-Duell</title>
-<meta name="description" content="Papierdepot-Vergleich: MSCI World SRI gegen den Masterplan, täglich aktualisiert.">
+<meta name="description" content="Papierdepot-Vergleich: MSCI World SRI gegen den Michael Wittemann Premium Fonds, täglich aktualisiert.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -103,7 +103,7 @@ footer a{color:var(--plan)}
 <div class="wrap">
   <header>
     <div>
-      <h1>MSCI World SRI <span class="vs">gegen</span> Masterplan</h1>
+      <h1>MSCI World SRI <span class="vs">gegen</span> Michael Wittemann Premium Fonds</h1>
       <div class="stand" id="stand">Lade Daten …</div>
     </div>
     <div class="stand" id="startinfo"></div>
@@ -149,7 +149,7 @@ footer a{color:var(--plan)}
 
   <section class="tables">
     <div class="panel"><h2>Bestand MSCI-Depot</h2><div class="scroll"><table id="hold-msci"></table></div></div>
-    <div class="panel"><h2>Bestand Masterplan-Depot</h2><div class="scroll"><table id="hold-plan"></table></div></div>
+    <div class="panel"><h2>Bestand Michael Wittemann Premium Fonds</h2><div class="scroll"><table id="hold-plan"></table></div></div>
   </section>
 
   <section class="panel" aria-labelledby="trades-h">
@@ -166,7 +166,7 @@ footer a{color:var(--plan)}
   </section>
 
   <footer id="foot">Zum Mitverfolgen, keine Anlageberatung. Kurse: Yahoo Finance, Aktualisierung werktags nach US-Börsenschluss.<br>
-    Dateien zum Herunterladen: <a href="masterfonds.csv">Tageswerte des Masterfonds (CSV)</a> ·
+    Dateien zum Herunterladen: <a href="masterfonds.csv">Tageswerte des Fonds (CSV)</a> ·
     <a href="data.json">Rohdaten (JSON)</a></footer>
 </div>
 
@@ -184,6 +184,8 @@ let DATA, chart, view = "pre";
 function productName(key) { return key === "CASH" ? "Kasse (Gebühren, Rundung)" : (DATA.products[key]?.name || key); }
 const SLEEVE = {B: "Topf B · 50 %", A: "Topf A · 30 %", G: "Topf G · 20 %", M: "", "": ""};
 
+function planName() { return DATA.plan_name || "Masterplan"; }
+
 function basis(key) { return key === "funds" ? (DATA.funds_start || DATA.capital) : DATA.capital; }
 
 function renderDuo() {
@@ -191,7 +193,7 @@ function renderDuo() {
   box.replaceChildren();
   const karten = [
     ["msci", "MSCI World SRI", "--msci", "iShares MSCI World SRI UCITS ETF"],
-    ["plan", "Masterplan", "--plan", "50 % Regel B · 30 % Regel A · 20 % Gold"],
+    ["plan", planName(), "--plan", "50 % Regel B · 30 % Regel A · 20 % Gold"],
     ["funds", "Behaltene Fonds", "--funds", Object.values(DATA.funds || {}).map(f => f.name).join(" · ")],
   ];
   karten.forEach(([k, name, color, desc]) => {
@@ -206,7 +208,7 @@ function renderDuo() {
     if (live && live[k] != null) s1.append(document.createTextNode(` · Stand ${new Date(live.time).toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"})} Uhr`));
     else if (last) s1.append(document.createTextNode(` · Schluss ${dDE(last.date)}`));
     card.append(s1);
-    const t = DATA.totals[name === "Masterplan" ? "Masterplan" : name];
+    const t = DATA.totals[name];
     if (t) card.append(el("div", {class: "sub"}, `${desc} · Gebühren ${eur2(t.fees)} · gezahlte Steuer ${eur2(t.taxes)}`));
     else card.append(el("div", {class: "sub"}, `${desc} · beim Verkauf am 24.09. fielen 612,70 € Steuer an`));
     if (k === "plan" && (live || last)) {
@@ -218,7 +220,7 @@ function renderDuo() {
         catch (e) { btn.textContent = value; }
         setTimeout(() => { btn.textContent = "kopieren"; }, 2500);
       });
-      row.append(document.createTextNode(`Für Parqet („Masterfonds“): ${value} € `), btn);
+      row.append(document.createTextNode(`Für Parqet: ${value} € `), btn);
       card.append(row);
     }
     box.append(card);
@@ -227,7 +229,7 @@ function renderDuo() {
   if (w) {
     const diff = w.plan - w.msci;
     document.getElementById("startinfo").textContent =
-      `Masterplan gegen MSCI: ${diff >= 0 ? "+" : ""}${eur(diff)} (${pct(w.plan / basis("plan") - 1 - (w.msci / basis("msci") - 1))} Unterschied)`;
+      `${planName()} gegen MSCI: ${diff >= 0 ? "+" : ""}${eur(diff)} (${pct(w.plan / basis("plan") - 1 - (w.msci / basis("msci") - 1))} Unterschied)`;
   }
 }
 
@@ -248,8 +250,8 @@ function renderTodo() {
   const rows = orders.map(o => {
     const p = DATA.products[o.product];
     const what = o.action === "Verkauf" ? (o.all ? "alle Stücke" : "nur Anteil Topf A") : "";
-    const mine = o.depot === "Masterplan" ? eur(o.amount * k) + (o.units ? ` · ${num(o.units * k, 3)} Stk.` : "") : "–";
-    return [[o.depot === "Masterplan" ? "Masterplan" : "MSCI"], [`${o.action} ${what}`.trim(), o.action === "Kauf" ? "kauf" : "verkauf"],
+    const mine = o.depot === planName() ? eur(o.amount * k) + (o.units ? ` · ${num(o.units * k, 3)} Stk.` : "") : "–";
+    return [[o.depot === planName() ? planName() : "MSCI"], [`${o.action} ${what}`.trim(), o.action === "Kauf" ? "kauf" : "verkauf"],
             [p.name], [`${p.venue} · ${p.isin}`, "small"], [eur(o.amount) + (o.units ? ` · ${num(o.units, 3)} Stk.` : ""), "num"], [mine, "num"]];
   });
   const wrap = el("div", {class: "scroll"}); const t = el("table", {id: "orders"}); wrap.append(t); box.append(wrap, lead);
@@ -329,19 +331,34 @@ function renderChart() {
   const ink = css("--muted"), grid = css("--line");
   const ds = [
     {label: "MSCI World SRI", data: series("msci"), borderColor: css("--msci"), backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, tension: 0.15},
-    {label: "Masterplan", data: series("plan"), borderColor: css("--plan"), backgroundColor: "transparent", borderWidth: 2.4, pointRadius: 0, tension: 0.15},
+    {label: planName(), data: series("plan"), borderColor: css("--plan"), backgroundColor: "transparent", borderWidth: 2.4, pointRadius: 0, tension: 0.15},
   ];
   if (DATA.funds_start) ds.push({label: "Behaltene Fonds", data: [DATA.funds_start, ...h.map(r => r.funds)],
     borderColor: css("--funds"), backgroundColor: "transparent", borderWidth: 2, borderDash: [5, 4], pointRadius: 0, tension: 0.15});
-  if (chart) { chart.data.labels = labels; chart.data.datasets = ds; chart.update(); return; }
+  // Feste Grenzen, damit die Euro-Achse links und die Prozentachse rechts genau uebereinanderliegen
+  const werte = ds.flatMap(d => d.data).filter(v => v != null && isFinite(v));
+  const spanne = Math.max(...werte) - Math.min(...werte);
+  const luft = (spanne > 0 ? spanne : DATA.capital * 0.02) * 0.08;
+  const yMin = Math.min(...werte) - luft, yMax = Math.max(...werte) + luft;
+  const rendite = v => (v / DATA.capital - 1) * 100;
+  if (chart) {
+    chart.data.labels = labels; chart.data.datasets = ds;
+    chart.options.scales.y.min = yMin; chart.options.scales.y.max = yMax;
+    chart.options.scales.y2.min = rendite(yMin); chart.options.scales.y2.max = rendite(yMax);
+    chart.update(); return;
+  }
   chart = new Chart(canvas, {
     type: "line", data: {labels, datasets: ds},
     options: {
       responsive: true, maintainAspectRatio: false, animation: false, interaction: {mode: "index", intersect: false},
       plugins: {legend: {labels: {color: ink, boxWidth: 12, usePointStyle: true}},
-                tooltip: {callbacks: {label: c => `${c.dataset.label}: ${eur(c.parsed.y)}`}}},
+                tooltip: {callbacks: {label: c => `${c.dataset.label}: ${eur(c.parsed.y)} (${pct(c.parsed.y / (c.dataset.label === "Behaltene Fonds" ? (DATA.funds_start || DATA.capital) : DATA.capital) - 1)})`}}},
       scales: {x: {ticks: {color: ink, maxTicksLimit: 8, maxRotation: 0}, grid: {display: false}},
-               y: {ticks: {color: ink, callback: v => eur(v)}, grid: {color: grid}}}
+               y: {min: yMin, max: yMax, ticks: {color: ink, callback: v => eur(v)}, grid: {color: grid}},
+               y2: {position: "right", min: rendite(yMin), max: rendite(yMax),
+                    title: {display: true, color: ink, text: `Rendite auf ${eur(DATA.capital)} Einsatz`},
+                    ticks: {color: ink, callback: v => (v >= 0 ? "+" : "") + v.toFixed(1).replace(".", ",") + " %"},
+                    grid: {drawOnChartArea: false, color: grid}}}
     }
   });
 }
@@ -362,10 +379,10 @@ function renderTables() {
   table("hold-msci", hh, hold("MSCI World SRI"));
   const k = myScale();
   table("hold-plan", [["Produkt"], ["Topf"], ["Stück", "num"], ["Kurs", "num"], ["Wert", "num"], ["Mein Depot", "num"]],
-    DATA.holdings.filter(x => x.depot === "Masterplan").map(x => [[productName(x.product)], [SLEEVE[x.sleeve] || "", "small"],
+    DATA.holdings.filter(x => x.depot === planName()).map(x => [[productName(x.product)], [SLEEVE[x.sleeve] || "", "small"],
       [x.units == null ? "–" : num(x.units, 3), "num"], [x.price == null ? "–" : num(x.price, 3) + " €", "num"], [eur(x.value), "num"],
       [(x.units == null ? "" : num(x.units * k, 3) + " Stk. · ") + eur(x.value * k), "num"]]));
-  const tr = [...DATA.trades].reverse().map(t => [[dDE(t.date)], [t.depot === "Masterplan" ? "Masterplan" : "MSCI"], [t.action, t.action === "Kauf" ? "kauf" : "verkauf"], [productName(t.product)],
+  const tr = [...DATA.trades].reverse().map(t => [[dDE(t.date)], [t.depot === planName() ? planName() : "MSCI"], [t.action, t.action === "Kauf" ? "kauf" : "verkauf"], [productName(t.product)],
     [num(t.units, 3), "num"], [num(t.price, 3) + " €", "num"], [eur2(t.value), "num"], [eur2(t.fee), "num"], [t.tax ? eur2(t.tax) : "–", "num"], [t.reason, "small"]]);
   table("trades", [["Datum"], ["Depot"], ["Art"], ["Produkt"], ["Stück", "num"], ["Kurs", "num"], ["Betrag", "num"], ["Gebühr", "num"], ["Steuer", "num"], ["Grund"]], tr);
   table("products", [["Kürzel"], ["Produkt"], ["ISIN"], ["Börse"], ["Kosten"], ["Spread je Seite", "num"]],

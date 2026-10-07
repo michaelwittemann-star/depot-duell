@@ -14,7 +14,7 @@ from pathlib import Path
 import requests
 
 import parqet_sync as ps
-from update import CAPITAL, PRODUCTS, SOLD_FUNDS
+from update import CAPITAL, PLAN_NAME, PRODUCTS, SOLD_FUNDS
 
 DATA = Path(__file__).parent / "docs" / "data.json"
 
@@ -43,7 +43,7 @@ def main() -> None:
         summe = sum(h["units"] * (kurse.get(h["product"]) or alt[h["product"]]) for h in bestand if h["depot"] == depot)
         return summe + next((h["value"] for h in data["holdings"] if h["depot"] == depot and h["product"] == "CASH"), 0.0)
 
-    plan, msci = wert("Masterplan"), wert("MSCI World SRI")
+    plan, msci = wert(PLAN_NAME), wert("MSCI World SRI")
     fonds = 0.0
     for tick, f in SOLD_FUNDS.items():
         kurs = preis(tick) or (data.get("funds", {}).get(tick) or {}).get("price")
@@ -53,7 +53,7 @@ def main() -> None:
     data["live"] = {"time": jetzt.isoformat(timespec="minutes"), "plan": round(plan, 2), "msci": round(msci, 2),
                     "funds": round(fonds, 2)}
     DATA.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"Zwischenstand {jetzt:%H:%M} UTC - Masterplan {plan:,.2f} | MSCI {msci:,.2f} | behaltene Fonds {fonds:,.2f}")
+    print(f"Zwischenstand {jetzt:%H:%M} UTC - {PLAN_NAME} {plan:,.2f} | MSCI {msci:,.2f} | behaltene Fonds {fonds:,.2f}")
 
     if os.environ.get("PARQET_CLIENT_ID") and os.environ.get("PARQET_REFRESH_TOKEN"):
         tok = ps.token()

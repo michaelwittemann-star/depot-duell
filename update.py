@@ -1,9 +1,9 @@
-"""Depot-Vergleich: MSCI World SRI gegen den Masterplan, Papierdepots ab START mit je 100.000 EUR.
+"""Depot-Vergleich: MSCI World SRI gegen den Michael Wittemann Premium Fonds, Papierdepots ab START mit je 100.000 EUR.
 
 Laeuft taeglich (GitHub Actions) und rechnet beide Depots bei jedem Lauf vollstaendig ab START neu
 (deterministisch, kein gespeicherter Zustand). Ergebnis: docs/data.json fuer docs/index.html.
 
-Regeln des Masterplans (Signale aus US-Schlusskursen, um Dividenden bereinigt):
+Regeln des Fonds (Signale aus US-Schlusskursen, um Dividenden bereinigt):
   Topf B (50 %): QQQ über 200-Tage-Schnitt (Einstieg über +5 %, Ausstieg unter -5 %) UND 20-Tage-Vola von QQQ < 30 %
                  UND QQQ-Rendite über 126 Handelstage > 0  ->  3x S&P 500, sonst US-Staatsanleihen 20+ Jahre
   Topf A (30 %): SPY über 200-Tage-Schnitt (Einstieg über +5 %, Ausstieg unter -5 %)  ->  2x Nasdaq-100,
@@ -33,10 +33,11 @@ MY_DEPOT = CAPITAL                                       # Betraege in der Mail 
 # Tatsaechliche Ausfuehrungen vom Starttag (flatex): Topf:Produkt -> (Stueck, gebuchter Betrag inkl. Gebuehr)
 REAL_START = {"B:SP3X": (49.0, 8089.90), "A:NDX2X": (479.0, 4926.04), "G:GOLD": (28.0, 3295.04)}
 WARN = 0.20                                              # Vorwarnung ab 20 % Wechselwahrscheinlichkeit in 5 Handelstagen
+PLAN_NAME = "Michael Wittemann Premium Fonds"             # Name des Plan-Depots, ueberall gleich
 SITE = "https://michaelwittemann-star.github.io/depot-duell/"
 OUT = Path(__file__).parent / "docs" / "data.json"
 CACHE = Path(__file__).parent / "docs" / "prices.csv"
-TRACK = Path(__file__).parent / "docs" / "masterfonds.csv"      # taeglicher Gesamtwert des Masterplans ("Masterfonds")
+TRACK = Path(__file__).parent / "docs" / "masterfonds.csv"      # taeglicher Gesamtwert des Fonds ("Masterfonds")
 NOTIFY = Path(__file__).parent / "notify"
 
 PRODUCTS = {
@@ -445,7 +446,7 @@ def main():
     opens = opens.fillna(closes.shift(1)).fillna(closes)          # fehlende Eroeffnung: Vortagesschluss
     eu_days = [d for d in raw["MSCI"]["close"].dropna().index if d.date() >= START]
 
-    msci, plan = Depot("MSCI World SRI"), Depot("Masterplan")
+    msci, plan = Depot("MSCI World SRI"), Depot(PLAN_NAME)
     state, history, last_day = None, [], None
     for day_ts in eu_days:
         day = day_ts.date()
@@ -523,14 +524,14 @@ def main():
         for sleeve, w in WEIGHTS.items():
             for prod, share in tgt_now[sleeve].items():
                 amount = f"{CAPITAL * w * share:,.0f}".replace(",", ".")
-                tomorrow.append({"depot": "Masterplan", "text": f"Topf {sleeve}: {amount} EUR in {PRODUCTS[prod]['name']} "
+                tomorrow.append({"depot": PLAN_NAME, "text": f"Topf {sleeve}: {amount} EUR in {PRODUCTS[prod]['name']} "
                                  f"({PRODUCTS[prod]['venue']}, {PRODUCTS[prod]['isin']}) kaufen"})
     else:
         for sleeve, now in (("B", b_now), ("A", a_now)):
             if now != state[sleeve]:
                 old = " + ".join(PRODUCTS[p]["name"] for p in target_assets(state["B"], state["A"])[sleeve])
                 new = " + ".join(PRODUCTS[p]["name"] for p in tgt_now[sleeve])
-                tomorrow.append({"depot": "Masterplan", "text": f"Topf {sleeve}: {old} verkaufen, Erlös in {new} ({RULE_TEXT[sleeve][0 if now else 1]})"})
+                tomorrow.append({"depot": PLAN_NAME, "text": f"Topf {sleeve}: {old} verkaufen, Erlös in {new} ({RULE_TEXT[sleeve][0 if now else 1]})"})
 
     pc_last = {k: float(closes[k].iloc[-1]) for k in PRODUCTS}
     orders = []                         # je Order: Betrag/Stück fuer das 100.000-EUR-Musterdepot (Seite skaliert)
@@ -539,7 +540,7 @@ def main():
                        "units": None, "price": round(pc_last["MSCI"], 4)})
         for sleeve, w in WEIGHTS.items():
             for prod, share in tgt_now[sleeve].items():
-                orders.append({"depot": "Masterplan", "action": "Kauf", "product": prod, "sleeve": sleeve,
+                orders.append({"depot": PLAN_NAME, "action": "Kauf", "product": prod, "sleeve": sleeve,
                                "amount": round(CAPITAL * w * share, 2), "units": None, "price": round(pc_last[prod], 4)})
     else:
         for sleeve, now in (("B", b_now), ("A", a_now)):
@@ -551,11 +552,11 @@ def main():
                 u = plan.units(key)
                 value = u * pc_last[prod]
                 proceeds += value
-                orders.append({"depot": "Masterplan", "action": "Verkauf", "product": prod, "sleeve": sleeve,
+                orders.append({"depot": PLAN_NAME, "action": "Verkauf", "product": prod, "sleeve": sleeve,
                                "amount": round(value, 2), "units": round(u, 4), "all": prod != "GOLD",
                                "price": round(pc_last[prod], 4)})
             for prod, share in tgt_now[sleeve].items():
-                orders.append({"depot": "Masterplan", "action": "Kauf", "product": prod, "sleeve": sleeve,
+                orders.append({"depot": PLAN_NAME, "action": "Kauf", "product": prod, "sleeve": sleeve,
                                "amount": round(proceeds * share, 2), "units": None, "price": round(pc_last[prod], 4)})
     holdings = []
     for depot in (msci, plan):
@@ -570,7 +571,7 @@ def main():
 
     data = {
         "generated": datetime.now(timezone.utc).isoformat(timespec="minutes"),
-        "start": START.isoformat(), "capital": CAPITAL, "weights": WEIGHTS,
+        "plan_name": PLAN_NAME, "start": START.isoformat(), "capital": CAPITAL, "weights": WEIGHTS,
         "signal": detail, "tomorrow": tomorrow, "orders": orders, "state": state, "my_depot": MY_DEPOT, "warn": WARN,
         "funds": {t: {**f, "price": round(float(fonds_close[t].iloc[-1]), 4) if t in fonds_close else None}
                   for t, f in SOLD_FUNDS.items()},
@@ -619,7 +620,7 @@ def main():
 
 
 def write_tracking(history: list) -> None:
-    """Taeglicher Gesamtwert beider Depots als CSV - der Masterplan als 'Masterfonds' mit Anteilswert (Start 100)."""
+    """Taeglicher Gesamtwert beider Depots als CSV - der Fonds als eigene Position mit Anteilswert (Start 100)."""
     rows = ["datum;masterfonds_wert;masterfonds_anteilswert;masterfonds_tagesrendite;msci_wert;msci_anteilswert"]
     prev = None
     for h in history:
@@ -670,7 +671,7 @@ def write_notification(data: dict, state) -> None:
     if last:
         seit = last["plan"] / CAPITAL - 1
         wert = f"{last['plan']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        lines += [f"**Gesamtwert Masterplan: {wert} EUR** ({f'{seit * 100:+.1f}'.replace('.', ',')} % seit Start, Stand {date.fromisoformat(last['date']).strftime('%d.%m.%Y')})", ""]
+        lines += [f"**Gesamtwert {PLAN_NAME}: {wert} EUR** ({f'{seit * 100:+.1f}'.replace('.', ',')} % seit Start, Stand {date.fromisoformat(last['date']).strftime('%d.%m.%Y')})", ""]
 
     top_rule = max(("B", "A"), key=lambda k: fc[k]["p5"])
     lines += [f"Wahrscheinlichkeit, dass morgen gehandelt werden muss: **{fc[top_rule]['p1'] * 100:.0f} %**"
@@ -704,7 +705,7 @@ def write_notification(data: dict, state) -> None:
                   "bei ruhigem Markt reicht das meist für eine Ausführung in der Eröffnungsauktion. Beträge und Stückzahlen für "
                   + _eur(MY_DEPOT) + " Depotwert._", ""]
 
-    letzte = [tr for tr in data["trades"] if tr["depot"] == "Masterplan" and last and tr["date"] == last["date"]
+    letzte = [tr for tr in data["trades"] if tr["depot"] == PLAN_NAME and last and tr["date"] == last["date"]
               and not tr["reason"].startswith("Start:")]        # Startkaeufe sind bereits ausgefuehrt
     if letzte and not handeln:
         tag = date.fromisoformat(last["date"]).strftime("%d.%m.%Y")
@@ -716,7 +717,7 @@ def write_notification(data: dict, state) -> None:
             lines.append(f"- {art}: {PRODUCTS[tr['product']]['name']} ({PRODUCTS[tr['product']]['venue']}), rund {stk} Stück")
         lines += ["", "_Bei einem Verkauf, der zweimal nicht durchgeht: billigst bzw. bestens ausführen. "
                   "Ein paar Zehntelprozent Kurs kosten weniger als mehrere Tage in der falschen Position._", ""]
-    soll = [h for h in data["holdings"] if h["depot"] == "Masterplan" and h["product"] != "CASH"]
+    soll = [h for h in data["holdings"] if h["depot"] == PLAN_NAME and h["product"] != "CASH"]
     if soll and last:
         gesamt = sum(h["value"] for h in soll)
         lines += ["## Soll-Bestand (zur Kontrolle)", ""]
@@ -727,7 +728,7 @@ def write_notification(data: dict, state) -> None:
     if last and len(hist) > 1 and date.fromisoformat(last["date"]).month != date.fromisoformat(hist[-2]["date"]).month:
         wert = f"{last['plan']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         lines += ["## Monatsanfang: Parqet aktualisieren", "",
-                  f"Wert des eigenen Vermögenswerts \u201eMasterfonds\u201c auf **{wert} EUR** setzen.", ""]
+                  f"Wert des eigenen Vermögenswerts \u201e{PLAN_NAME}\u201c auf **{wert} EUR** setzen.", ""]
 
     if data.get("stale"):
         lines += [f"> Hinweis: Für {', '.join(data['stale'])} lagen keine frischen Kurse vor, es wurden archivierte Werte benutzt.", ""]
