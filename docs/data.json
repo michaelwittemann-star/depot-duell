@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-09T14:29+00:00",
+ "generated": "2026-10-10T01:13+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -11,27 +11,27 @@
  "signal": {
   "forecast": {
    "B": {
-    "sigma_day": 0.0099,
+    "sigma_day": 0.0098,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 636.79,
-      "move": -0.1482,
-      "text": "kippt auf aus bei Schluss unter 636.79 $"
+      "trigger_price": 637.42,
+      "move": -0.1515,
+      "text": "kippt auf aus bei Schluss unter 637.42 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": true,
-      "trigger_price": 609.76,
-      "move": -0.1843,
-      "text": "morgen positiv, solange Schluss über 609.76 $"
+      "trigger_price": 616.07,
+      "move": -0.18,
+      "text": "morgen positiv, solange Schluss über 616.07 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": true,
-      "value": 0.1569,
-      "move": 0.0725,
+      "value": 0.1556,
+      "move": 0.073,
       "text": "jetzt 16 %, über 30 % bei einer Tagesbewegung von mehr als 7.3 %"
      }
     ],
@@ -40,14 +40,14 @@
     "flat": []
    },
    "A": {
-    "sigma_day": 0.0064,
+    "sigma_day": 0.0062,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 683.22,
-      "move": -0.1172,
-      "text": "kippt auf aus bei Schluss unter 683.22 $"
+      "trigger_price": 683.68,
+      "move": -0.1219,
+      "text": "kippt auf aus bei Schluss unter 683.68 $"
      }
     ],
     "p1": 0.0,
@@ -59,14 +59,14 @@
    "B": 0.0,
    "A": 0.0
   },
-  "us_date": "2026-10-08",
-  "qqq_close": 747.58,
-  "qqq_ma200": 670.21,
-  "qqq_vol20": 0.1578,
-  "qqq_mom126": 0.2278,
+  "us_date": "2026-10-09",
+  "qqq_close": 751.27,
+  "qqq_ma200": 670.88,
+  "qqq_vol20": 0.1565,
+  "qqq_mom126": 0.2321,
   "qqq_trend_on": 1,
-  "spy_close": 773.93,
-  "spy_ma200": 719.16,
+  "spy_close": 778.57,
+  "spy_ma200": 719.66,
   "B": 1,
   "A": 1
  },
@@ -84,21 +84,21 @@
    "isin": "DE0009848119",
    "units": 28.194,
    "sold": 4692.0,
-   "price": 172.52
+   "price": 173.57
   },
   "0P00000CT1.F": {
    "name": "DWS Deutschland",
    "isin": "DE0008490962",
    "units": 12.816,
    "sold": 4140.97,
-   "price": 329.68
+   "price": 334.2
   },
   "0P00019QIN.F": {
    "name": "Sparkasse Karlsruhe - Premium Fonds",
    "isin": "",
    "units": 56.805,
    "sold": 7613.07,
-   "price": 137.93
+   "price": 137.56
   }
  },
  "funds_start": 16310.98,
@@ -179,10 +179,20 @@
   {
    "date": "2026-10-08",
    "funds": 16179.04,
-   "msci": 16557.16,
-   "plan": 16898.39,
-   "msci_after_tax": 16513.24,
-   "plan_after_tax": 16748.52,
+   "msci": 16554.84,
+   "plan": 16892.24,
+   "msci_after_tax": 16511.34,
+   "plan_after_tax": 16744.0,
+   "B": 1,
+   "A": 1
+  },
+  {
+   "date": "2026-10-09",
+   "funds": 16242.63,
+   "msci": 16675.66,
+   "plan": 16959.91,
+   "msci_after_tax": 16609.87,
+   "plan_after_tax": 16793.83,
    "B": 1,
    "A": 1
   }
@@ -247,32 +257,32 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 14.252,
-   "value": 16557.16
+   "price": 14.354,
+   "value": 16675.66
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "B",
    "product": "SP3X",
    "units": 49.0,
-   "price": 171.61,
-   "value": 8408.89
+   "price": 172.95,
+   "value": 8474.55
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "A",
    "product": "NDX2X",
    "units": 479.0,
-   "price": 10.818,
-   "value": 5181.82
+   "price": 10.682,
+   "value": 5116.68
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 118.14,
-   "value": 3307.92
+   "price": 120.32,
+   "value": 3368.96
   }
  ],
  "totals": {
@@ -282,7 +292,7 @@
    "loss_pot": 0.0
   },
   "Michael Wittemann Premium Fonds": {
-   "fees": 0.25,
+   "fees": 0.27,
    "taxes": 0.0,
    "loss_pot": 0.0
   }
@@ -354,12 +364,5 @@
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
- "stale": [],
- "live": {
-  "time": "2026-10-09T18:43+00:00",
-  "plan": 16960.19,
-  "msci": 16675.66,
-  "funds": 16179.04,
-  "funds_raw": 16924.32
- }
+ "stale": []
 }
