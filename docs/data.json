@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-14T01:57+00:00",
+ "generated": "2026-10-14T10:29+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -209,10 +209,10 @@
   {
    "date": "2026-10-13",
    "funds": 16315.54,
-   "msci": 16566.46,
-   "plan": 16778.35,
-   "msci_after_tax": 16520.82,
-   "plan_after_tax": 16660.08,
+   "msci": 16573.43,
+   "plan": 16781.9,
+   "msci_after_tax": 16526.5,
+   "plan_after_tax": 16662.69,
    "B": 1,
    "A": 1
   }
@@ -277,8 +277,8 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 14.26,
-   "value": 16566.46
+   "price": 14.266,
+   "value": 16573.43
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
@@ -293,16 +293,16 @@
    "sleeve": "A",
    "product": "NDX2X",
    "units": 479.0,
-   "price": 10.416,
-   "value": 4989.26
+   "price": 10.424,
+   "value": 4993.1
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 119.58,
-   "value": 3348.24
+   "price": 119.57,
+   "value": 3347.96
   }
  ],
  "totals": {
