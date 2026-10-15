@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T00:48+00:00",
+ "generated": "2026-10-15T01:32+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -84,14 +84,14 @@
    "isin": "DE0009848119",
    "units": 28.194,
    "sold": 4692.0,
-   "price": 174.57
+   "price": 175.17
   },
   "0P00000CT1.F": {
    "name": "DWS Deutschland",
    "isin": "DE0008490962",
    "units": 12.816,
    "sold": 4140.97,
-   "price": 336.09
+   "price": 337.65
   },
   "0P00019QIN.F": {
    "name": "Sparkasse Karlsruhe - Premium Fonds",
@@ -218,7 +218,7 @@
   },
   {
    "date": "2026-10-14",
-   "funds": 16301.42,
+   "funds": 16336.7,
    "msci": 16566.46,
    "plan": 16585.44,
    "msci_after_tax": 16520.82,
