@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T23:51+00:00",
+ "generated": "2026-10-17T00:24+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -414,12 +414,5 @@
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
- "stale": [],
- "live": {
-  "time": "2026-10-16T16:25+00:00",
-  "plan": 16165.48,
-  "msci": 16485.13,
-  "funds": 16247.72,
-  "funds_raw": 16996.17
- }
+ "stale": []
 }
