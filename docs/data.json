@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-02T17:19+00:00",
+ "generated": "2026-11-03T03:03+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -11,45 +11,45 @@
  "signal": {
   "forecast": {
    "B": {
-    "sigma_day": 0.0144,
+    "sigma_day": 0.0142,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 644.57,
-      "move": -0.0665,
-      "text": "kippt auf aus bei Schluss unter 644.57 $"
+      "trigger_price": 644.87,
+      "move": -0.0532,
+      "text": "kippt auf aus bei Schluss unter 644.87 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": true,
-      "trigger_price": 671.44,
-      "move": -0.0276,
-      "text": "morgen positiv, solange Schluss über 671.44 $"
+      "trigger_price": 680.15,
+      "move": -0.0014,
+      "text": "morgen positiv, solange Schluss über 680.15 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": true,
-      "value": 0.2285,
-      "move": 0.0534,
-      "text": "jetzt 23 %, über 30 % bei einer Tagesbewegung von mehr als 5.3 %"
+      "value": 0.2256,
+      "move": 0.0523,
+      "text": "jetzt 23 %, über 30 % bei einer Tagesbewegung von mehr als 5.2 %"
      }
     ],
-    "p1": 0.026,
-    "p5": 0.807,
+    "p1": 0.462,
+    "p5": 0.921,
     "flat": [
-     "Momentum kippt bei gleichbleibendem Kurs in 3 Handelstag(en)"
+     "Momentum kippt bei gleichbleibendem Kurs in 2 Handelstag(en)"
     ]
    },
    "A": {
-    "sigma_day": 0.0073,
+    "sigma_day": 0.0072,
     "conditions": [
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 689.7,
-      "move": -0.0874,
-      "text": "kippt auf aus bei Schluss unter 689.70 $"
+      "trigger_price": 690.01,
+      "move": -0.0826,
+      "text": "kippt auf aus bei Schluss unter 690.01 $"
      }
     ],
     "p1": 0.0,
@@ -58,17 +58,17 @@
    }
   },
   "forecast_prev": {
-   "B": 0.137,
+   "B": 0.807,
    "A": 0.0
   },
-  "us_date": "2026-10-30",
-  "qqq_close": 690.49,
-  "qqq_ma200": 678.38,
-  "qqq_vol20": 0.2264,
-  "qqq_mom126": 0.0264,
+  "us_date": "2026-11-02",
+  "qqq_close": 681.09,
+  "qqq_ma200": 678.68,
+  "qqq_vol20": 0.2235,
+  "qqq_mom126": 0.0144,
   "qqq_trend_on": 1,
-  "spy_close": 755.72,
-  "spy_ma200": 725.98,
+  "spy_close": 752.1,
+  "spy_ma200": 726.31,
   "B": 1,
   "A": 1
  },
@@ -86,21 +86,21 @@
    "isin": "DE0009848119",
    "units": 28.194,
    "sold": 4692.0,
-   "price": 179.3
+   "price": 178.65
   },
   "0P00000CT1.F": {
    "name": "DWS Deutschland",
    "isin": "DE0008490962",
    "units": 12.816,
    "sold": 4140.97,
-   "price": 338.85
+   "price": 339.29
   },
   "0P00019QIN.F": {
    "name": "Sparkasse Karlsruhe - Premium Fonds",
    "isin": "",
    "units": 56.805,
    "sold": 7613.07,
-   "price": 137.71
+   "price": 137.34
   }
  },
  "funds_start": 16310.98,
@@ -350,7 +350,7 @@
   },
   {
    "date": "2026-11-02",
-   "funds": 16462.18,
+   "funds": 16429.96,
    "msci": 16708.19,
    "plan": 15407.69,
    "msci_after_tax": 16636.4,
@@ -534,12 +534,5 @@
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
- "stale": [],
- "live": {
-  "time": "2026-11-02T23:22+00:00",
-  "plan": 15407.69,
-  "msci": 16708.19,
-  "funds": 16462.18,
-  "funds_raw": 17220.5
- }
+ "stale": []
 }
