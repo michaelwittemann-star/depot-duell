@@ -463,32 +463,32 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 14.37,
-   "value": 16694.25
+   "price": 14.356,
+   "value": 16677.98
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "B",
    "product": "UST20",
    "units": 2920.0,
-   "price": 2.7207,
-   "value": 7944.44
+   "price": 2.7405,
+   "value": 8002.26
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "A",
    "product": "NDX2X",
    "units": 479.0,
-   "price": 9.03,
-   "value": 4325.37
+   "price": 8.867,
+   "value": 4247.29
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 116.0,
-   "value": 3248.0
+   "price": 117.99,
+   "value": 3303.72
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
@@ -508,7 +508,7 @@
   "Michael Wittemann Premium Fonds": {
    "fees": 0.97,
    "taxes": 0.0,
-   "loss_pot": 0.0
+   "loss_pot": -105.84
   }
  },
  "products": {
@@ -580,9 +580,9 @@
  },
  "stale": [],
  "live": {
-  "time": "2026-11-05T08:38+00:00",
-  "plan": 15521.7,
-  "msci": 16668.69,
+  "time": "2026-11-05T08:39+00:00",
+  "plan": 15525.05,
+  "msci": 16677.98,
   "funds": 16523.31,
   "funds_raw": 17284.45
  }
