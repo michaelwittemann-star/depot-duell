@@ -70,35 +70,10 @@
   "B": 0,
   "A": 1
  },
- "tomorrow": [
-  {
-   "depot": "Michael Wittemann Premium Fonds",
-   "text": "Topf B: WisdomTree S&P 500 3x Daily Leveraged verkaufen, Erlös in iShares $ Treasury Bond 20+yr UCITS ETF (Dist) (Regel B aus: QQQ-Trend, Vola oder Momentum verletzt)"
-  }
- ],
- "orders": [
-  {
-   "depot": "Michael Wittemann Premium Fonds",
-   "action": "Verkauf",
-   "product": "SP3X",
-   "sleeve": "B",
-   "amount": 7962.5,
-   "units": 49.0,
-   "all": true,
-   "price": 162.5
-  },
-  {
-   "depot": "Michael Wittemann Premium Fonds",
-   "action": "Kauf",
-   "product": "UST20",
-   "sleeve": "B",
-   "amount": 7962.5,
-   "units": null,
-   "price": 2.7262
-  }
- ],
+ "tomorrow": [],
+ "orders": [],
  "state": {
-  "B": 1,
+  "B": 0,
   "A": 1
  },
  "my_depot": 16310.98,
@@ -454,6 +429,32 @@
    "fee": 0.0,
    "tax": 0.0,
    "reason": "Start: tatsaechliche Ausfuehrung bei flatex am 29.09.2026"
+  },
+  {
+   "date": "2026-11-05",
+   "depot": "Michael Wittemann Premium Fonds",
+   "action": "Verkauf",
+   "sleeve": "B",
+   "product": "SP3X",
+   "units": 49.0,
+   "price": 162.94,
+   "value": 7984.06,
+   "fee": 0.0,
+   "tax": 0.0,
+   "reason": "Regel B aus: QQQ-Trend, Vola oder Momentum verletzt – tatsaechliche Ausfuehrung bei flatex am 05.11.2026"
+  },
+  {
+   "date": "2026-11-05",
+   "depot": "Michael Wittemann Premium Fonds",
+   "action": "Kauf",
+   "sleeve": "B",
+   "product": "UST20",
+   "units": 2920.0,
+   "price": 2.7436,
+   "value": 8011.31,
+   "fee": 0.0,
+   "tax": 0.0,
+   "reason": "Regel B aus: QQQ-Trend, Vola oder Momentum verletzt – tatsaechliche Ausfuehrung bei flatex am 05.11.2026"
   }
  ],
  "holdings": [
@@ -468,10 +469,10 @@
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "B",
-   "product": "SP3X",
-   "units": 49.0,
-   "price": 162.5,
-   "value": 7962.5
+   "product": "UST20",
+   "units": 2920.0,
+   "price": 2.7207,
+   "value": 7944.44
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
@@ -495,7 +496,7 @@
    "product": "CASH",
    "units": null,
    "price": null,
-   "value": -0.97
+   "value": -28.22
   }
  ],
  "totals": {
@@ -577,5 +578,12 @@
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
- "stale": []
+ "stale": [],
+ "live": {
+  "time": "2026-11-05T08:38+00:00",
+  "plan": 15521.7,
+  "msci": 16668.69,
+  "funds": 16523.31,
+  "funds_raw": 17284.45
+ }
 }
