@@ -32,6 +32,11 @@ CAPITAL = 16_310.98                                      # tatsaechlich investie
 MY_DEPOT = CAPITAL                                       # Betraege in der Mail = echtes Depot
 # Tatsaechliche Ausfuehrungen vom Starttag (flatex): Topf:Produkt -> (Stueck, gebuchter Betrag inkl. Gebuehr)
 REAL_START = {"B:SP3X": (49.0, 8089.90), "A:NDX2X": (479.0, 4926.04), "G:GOLD": (28.0, 3295.04)}
+# Tatsaechliche Umschichtungen (flatex): (Tag, Topf) -> Verkaeufe (Stueck, Gutschrift netto, einbehaltene Steuer)
+# und Kaeufe (Stueck, Belastung inkl. Gebuehr). Ersetzt fuer diesen Wechsel die geschaetzte Ausfuehrung.
+REAL_TRADES = {
+    (date(2026, 11, 5), "B"): {"sell": {"B:SP3X": (49.0, 7984.06, 0.0)}, "buy": {"B:UST20": (2920.0, 8011.31)}},
+}
 WARN = 0.20                                              # Vorwarnung ab 20 % Wechselwahrscheinlichkeit in 5 Handelstagen
 PLAN_NAME = "Michael Wittemann Premium Fonds"             # Name des Plan-Depots, ueberall gleich
 SITE = "https://michaelwittemann-star.github.io/depot-duell/"
@@ -392,6 +397,33 @@ class Depot:
                             "tax": round(tax, 2), "reason": reason})
         return net
 
+    def sell_real(self, key: str, units: float, net: float, tax: float, day: date, reason: str):
+        """Tatsaechlicher Verkauf: Gutschrift und Steuer laut Abrechnung, Verlust geht in den Verlusttopf."""
+        sleeve, prod = key.split(":")
+        cost, remaining, new_lots = 0.0, units, []
+        for lot in self.lots.get(key, []):
+            take = min(lot.units, remaining)
+            if take > 1e-12:
+                cost += lot.cost * take / lot.units
+                remaining -= take
+            if take < lot.units - 1e-12:
+                new_lots.append(Lot(lot.units - take, lot.cost - lot.cost * take / lot.units, lot.bought))
+        self.lots[key] = new_lots
+        self.loss_pot = min(self.loss_pot + net + tax - cost, 0.0)   # Steuer hat flatex schon einbehalten
+        self.taxes_paid += tax
+        self.cash += net
+        self.trades.append({"date": day.isoformat(), "depot": self.name, "action": "Verkauf", "sleeve": sleeve, "product": prod,
+                            "units": units, "price": round((net + tax) / units, 4), "value": round(net + tax, 2), "fee": 0.0,
+                            "tax": round(tax, 2), "reason": reason})
+
+    def buy_real(self, key: str, units: float, cost: float, day: date, reason: str):
+        sleeve, prod = key.split(":")
+        self.lots.setdefault(key, []).append(Lot(units, cost, day))
+        self.cash -= cost
+        self.trades.append({"date": day.isoformat(), "depot": self.name, "action": "Kauf", "sleeve": sleeve, "product": prod,
+                            "units": units, "price": round(cost / units, 4), "value": round(cost, 2), "fee": 0.0,
+                            "tax": 0.0, "reason": reason})
+
     def _tax(self, gain: float) -> float:
         total = gain + self.loss_pot
         if total <= 0:
@@ -484,6 +516,15 @@ def main():
                 if now == state[sleeve]:
                     continue
                 reason = RULE_TEXT[sleeve][0 if now else 1]
+                real = REAL_TRADES.get((day, sleeve))
+                if real:                                           # echte Ausfuehrung bei flatex uebernehmen
+                    note = f"{reason} – tatsaechliche Ausfuehrung bei flatex am {day.strftime('%d.%m.%Y')}"
+                    for key, (units, net, tax) in real["sell"].items():
+                        plan.sell_real(key, units, net, tax, day, note)
+                    for key, (units, cost) in real["buy"].items():
+                        plan.buy_real(key, units, cost, day, note)
+                    state[sleeve] = now
+                    continue
                 before = plan.cash
                 for key in plan.keys(sleeve):
                     plan.sell(key, 1.0, po[key.split(":")[1]], day, reason)
@@ -720,7 +761,8 @@ def write_notification(data: dict, state) -> None:
                   + _eur(MY_DEPOT) + " Depotwert._", ""]
 
     letzte = [tr for tr in data["trades"] if tr["depot"] == PLAN_NAME and last and tr["date"] == last["date"]
-              and not tr["reason"].startswith("Start:")]        # Startkaeufe sind bereits ausgefuehrt
+              and not tr["reason"].startswith("Start:")
+              and "tatsaechliche Ausfuehrung" not in tr["reason"]]   # echte Ausfuehrungen sind bereits erledigt
     if letzte and not handeln:
         tag = date.fromisoformat(last["date"]).strftime("%d.%m.%Y")
         lines += [f"## Kontrolle: am {tag} war umzuschichten", "",
