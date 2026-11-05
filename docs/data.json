@@ -526,7 +526,7 @@
    "ticker": "3USL.MI",
    "name": "WisdomTree S&P 500 3x Daily Leveraged",
    "isin": "IE00B7Y34M31",
-   "venue": "Borsa Italiana",
+   "venue": "Xetra",
    "costs": "0,75 % p.a. (im Kurs enthalten)",
    "half_spread": 0.0015,
    "custody_pa": 0.0,
@@ -546,7 +546,7 @@
    "ticker": "LQQ.PA",
    "name": "Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF",
    "isin": "FR0010342592",
-   "venue": "Euronext Paris",
+   "venue": "Xetra",
    "costs": "0,60 % p.a. (im Kurs enthalten)",
    "half_spread": 0.001,
    "custody_pa": 0.0,
@@ -574,7 +574,7 @@
   }
  },
  "assumptions": {
-  "fee": "flatex: 5,90 EUR je Order, an Euronext Paris und Borsa Italiana zzgl. ca. 2 EUR Fremdkosten",
+  "fee": "flatex: 5,90 EUR je Order, alle Produkte über Xetra",
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
