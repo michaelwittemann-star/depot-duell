@@ -48,11 +48,11 @@ NOTIFY = Path(__file__).parent / "notify"
 PRODUCTS = {
     "MSCI": {"ticker": "2B7K.DE", "name": "iShares MSCI World SRI UCITS ETF (Acc)", "isin": "IE00BYX2JD69", "venue": "Xetra",
              "costs": "0,20 % p.a. (im Kurs enthalten)", "half_spread": 0.0005, "custody_pa": 0.0, "teilfreistellung": 0.30},
-    "SP3X": {"ticker": "3USL.MI", "name": "WisdomTree S&P 500 3x Daily Leveraged", "isin": "IE00B7Y34M31", "venue": "Borsa Italiana",
+    "SP3X": {"ticker": "3USL.MI", "name": "WisdomTree S&P 500 3x Daily Leveraged", "isin": "IE00B7Y34M31", "venue": "Xetra",
              "costs": "0,75 % p.a. (im Kurs enthalten)", "half_spread": 0.0015, "custody_pa": 0.0, "teilfreistellung": 0.0},
     "UST20": {"ticker": "IS04.DE", "name": "iShares $ Treasury Bond 20+yr UCITS ETF (Dist)", "isin": "IE00BSKRJZ44", "venue": "Xetra",
               "costs": "0,07 % p.a. (im Kurs enthalten)", "half_spread": 0.0010, "custody_pa": 0.0, "teilfreistellung": 0.0},
-    "NDX2X": {"ticker": "LQQ.PA", "name": "Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF", "isin": "FR0010342592", "venue": "Euronext Paris",
+    "NDX2X": {"ticker": "LQQ.PA", "name": "Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF", "isin": "FR0010342592", "venue": "Xetra",
               "costs": "0,60 % p.a. (im Kurs enthalten)", "half_spread": 0.0010, "custody_pa": 0.0, "teilfreistellung": 0.0},
     "UST710": {"ticker": "IUSM.DE", "name": "iShares $ Treasury Bond 7-10yr UCITS ETF (Dist)", "isin": "IE00B1FZS798", "venue": "Xetra",
                "costs": "0,07 % p.a. (im Kurs enthalten)", "half_spread": 0.0015, "custody_pa": 0.0, "teilfreistellung": 0.0},
@@ -65,7 +65,7 @@ SOLD_FUNDS = {
     "0P00000CT1.F": {"name": "DWS Deutschland", "isin": "DE0008490962", "units": 12.816, "sold": 4140.97},
     "0P00019QIN.F": {"name": "Sparkasse Karlsruhe - Premium Fonds", "isin": "", "units": 56.805, "sold": 7613.07},
 }
-FEE_FLAT, FEE_FOREIGN = 5.90, 2.00      # flatex: 5,90 EUR je Order, an Auslandsboersen (Paris, Mailand) zzgl. ca. 2 EUR Fremdkosten
+FEE_FLAT = 5.90                         # flatex: 5,90 EUR je Order, alle Produkte ueber Xetra (keine Fremdkosten)
 TAX = 0.26375                            # Abgeltungsteuer + Soli, ohne Kirchensteuer, ohne Sparer-Pauschbetrag
 WEIGHTS = {"B": 0.5, "A": 0.3, "G": 0.2}
 SIGNAL_TICKERS = ("QQQ", "SPY")
@@ -76,7 +76,7 @@ RULE_TEXT = {"B": ("Regel B an: QQQ-Trend, Vola und Momentum erfüllt", "Regel B
 def fee(value: float, prod: str) -> float:
     if value <= 0:
         return 0.0
-    return FEE_FLAT + (0.0 if PRODUCTS[prod]["venue"] == "Xetra" else FEE_FOREIGN)
+    return FEE_FLAT
 
 
 def load_cache() -> pd.DataFrame:
@@ -634,7 +634,7 @@ def main():
         "totals": {d.name: {"fees": round(d.fees_paid, 2), "taxes": round(d.taxes_paid, 2), "loss_pot": round(d.loss_pot, 2)} for d in (msci, plan)},
         "products": PRODUCTS,
         "assumptions": {
-            "fee": "flatex: 5,90 EUR je Order, an Euronext Paris und Borsa Italiana zzgl. ca. 2 EUR Fremdkosten",
+            "fee": "flatex: 5,90 EUR je Order, alle Produkte über Xetra",
             "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. "
                    "MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. "
                    "Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
