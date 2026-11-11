@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-10T15:42+00:00",
+ "generated": "2026-11-11T01:27+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -16,27 +16,27 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 646.19,
-      "move": -0.0488,
-      "text": "kippt auf aus bei Schluss unter 646.19 $"
+      "trigger_price": 646.41,
+      "move": -0.042,
+      "text": "kippt auf aus bei Schluss unter 646.41 $"
      },
      {
       "name": "6-Monats-Rendite",
       "ok": false,
-      "trigger_price": 705.73,
-      "move": 0.0388,
-      "text": "morgen positiv, solange Schluss über 705.73 $"
+      "trigger_price": 713.18,
+      "move": 0.0569,
+      "text": "morgen positiv, solange Schluss über 713.18 $"
      },
      {
       "name": "20-Tage-Schwankung",
       "ok": false,
-      "value": 0.3587,
+      "value": 0.3588,
       "move": 0.0,
       "text": "jetzt 36 %, über 30 % bei einer Tagesbewegung von mehr als 0.0 %"
      }
     ],
-    "p1": 0.002,
-    "p5": 0.059,
+    "p1": 0.0,
+    "p5": 0.058,
     "flat": []
    },
    "A": {
@@ -45,28 +45,28 @@
      {
       "name": "200-Tage-Schnitt",
       "ok": true,
-      "trigger_price": 691.61,
-      "move": -0.0811,
-      "text": "kippt auf aus bei Schluss unter 691.61 $"
+      "trigger_price": 691.9,
+      "move": -0.0774,
+      "text": "kippt auf aus bei Schluss unter 691.90 $"
      }
     ],
     "p1": 0.0,
-    "p5": 0.004,
+    "p5": 0.005,
     "flat": []
    }
   },
   "forecast_prev": {
-   "B": 0.013,
-   "A": 0.015
+   "B": 0.059,
+   "A": 0.004
   },
-  "us_date": "2026-11-09",
-  "qqq_close": 679.35,
-  "qqq_ma200": 680.09,
+  "us_date": "2026-11-10",
+  "qqq_close": 674.76,
+  "qqq_ma200": 680.35,
   "qqq_vol20": 0.3534,
-  "qqq_mom126": -0.0455,
+  "qqq_mom126": -0.0439,
   "qqq_trend_on": 1,
-  "spy_close": 752.69,
-  "spy_ma200": 727.99,
+  "spy_close": 749.92,
+  "spy_ma200": 728.3,
   "B": 0,
   "A": 1
  },
@@ -84,21 +84,21 @@
    "isin": "DE0009848119",
    "units": 28.194,
    "sold": 4692.0,
-   "price": 180.38
+   "price": 181.73
   },
   "0P00000CT1.F": {
    "name": "DWS Deutschland",
    "isin": "DE0008490962",
    "units": 12.816,
    "sold": 4140.97,
-   "price": 342.39
+   "price": 349.19
   },
   "0P00019QIN.F": {
    "name": "Sparkasse Karlsruhe - Premium Fonds",
    "isin": "",
    "units": 56.805,
    "sold": 7613.07,
-   "price": 135.67
+   "price": 136.65
   }
  },
  "funds_start": 16310.98,
@@ -405,6 +405,16 @@
    "plan_after_tax": 15389.7,
    "B": 0,
    "A": 1
+  },
+  {
+   "date": "2026-11-10",
+   "funds": 16596.79,
+   "msci": 16313.2,
+   "plan": 15246.52,
+   "msci_after_tax": 16313.2,
+   "plan_after_tax": 15246.52,
+   "B": 0,
+   "A": 1
   }
  ],
  "trades": [
@@ -493,8 +503,8 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 14.062,
-   "value": 16336.43
+   "price": 14.042,
+   "value": 16313.2
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
@@ -509,16 +519,16 @@
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 118.19,
-   "value": 3309.32
+   "price": 116.06,
+   "value": 3249.68
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "B",
    "product": "UST20",
    "units": 2920.0,
-   "price": 2.7469,
-   "value": 8020.95
+   "price": 2.7183,
+   "value": 7937.44
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
@@ -526,7 +536,7 @@
    "product": "CASH",
    "units": null,
    "price": null,
-   "value": -28.36
+   "value": -28.39
   }
  ],
  "totals": {
@@ -536,7 +546,7 @@
    "loss_pot": 0.0
   },
   "Michael Wittemann Premium Fonds": {
-   "fees": 1.11,
+   "fees": 1.14,
    "taxes": 0.0,
    "loss_pot": -105.84
   }
@@ -608,12 +618,5 @@
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
- "stale": [],
- "live": {
-  "time": "2026-11-10T21:14+00:00",
-  "plan": 15246.54,
-  "msci": 16313.2,
-  "funds": 16423.88,
-  "funds_raw": 17180.44
- }
+ "stale": []
 }
