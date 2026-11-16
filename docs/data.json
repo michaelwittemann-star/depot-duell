@@ -648,5 +648,12 @@
   "tax": "26,375 % Abgeltungsteuer und Soli auf jeden realisierten Gewinn, Verlustverrechnung, kein Sparer-Pauschbetrag, keine Kirchensteuer. MSCI-Fonds 30 % Teilfreistellung, Plan-Produkte ohne. Xetra-Gold nach einem Jahr steuerfrei. Vorabpauschale und Steuer auf Ausschuettungen nicht beruecksichtigt.",
   "prices": "Kurse von Yahoo Finance, um Ausschuettungen bereinigt. Handel zum Eroeffnungskurs plus/minus halbem Spread (je Produkt geschaetzt)."
  },
- "stale": []
+ "stale": [],
+ "live": {
+  "time": "2026-11-16T15:23+00:00",
+  "plan": 15118.18,
+  "msci": 16427.05,
+  "funds": 16757.64,
+  "funds_raw": 17529.58
+ }
 }
