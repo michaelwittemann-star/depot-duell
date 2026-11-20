@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-20T14:16+00:00",
+ "generated": "2026-11-20T16:17+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -693,7 +693,7 @@
   "time": "2026-11-20T15:11+00:00",
   "plan": 14705.37,
   "msci": 15697.47,
-  "funds": 16343.27,
+  "funds": 16343.26,
   "funds_raw": 17096.11
  }
 }
