@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-23T16:21+00:00",
+ "generated": "2026-11-23T19:23+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -70,45 +70,11 @@
   "B": 0,
   "A": 0
  },
- "tomorrow": [
-  {
-   "depot": "Michael Wittemann Premium Fonds",
-   "text": "Topf A: Amundi Nasdaq-100 Daily (2x) Leveraged UCITS ETF verkaufen, Erlös in iShares $ Treasury Bond 7-10yr UCITS ETF (Dist) + Xetra-Gold (Regel A aus: SPY unter 200-Tage-Schnitt (-5 %))"
-  }
- ],
- "orders": [
-  {
-   "depot": "Michael Wittemann Premium Fonds",
-   "action": "Verkauf",
-   "product": "NDX2X",
-   "sleeve": "A",
-   "amount": 3550.83,
-   "units": 479.0,
-   "all": true,
-   "price": 7.413
-  },
-  {
-   "depot": "Michael Wittemann Premium Fonds",
-   "action": "Kauf",
-   "product": "UST710",
-   "sleeve": "A",
-   "amount": 1775.41,
-   "units": null,
-   "price": 150.15
-  },
-  {
-   "depot": "Michael Wittemann Premium Fonds",
-   "action": "Kauf",
-   "product": "GOLD",
-   "sleeve": "A",
-   "amount": 1775.41,
-   "units": null,
-   "price": 103.78
-  }
- ],
+ "tomorrow": [],
+ "orders": [],
  "state": {
   "B": 0,
-  "A": 1
+  "A": 0
  },
  "my_depot": 16310.98,
  "warn": 0.2,
@@ -529,6 +495,16 @@
    "plan_after_tax": 14538.62,
    "B": 0,
    "A": 1
+  },
+  {
+   "date": "2026-11-23",
+   "funds": 16071.41,
+   "msci": 16143.58,
+   "plan": 14827.99,
+   "msci_after_tax": 16143.58,
+   "plan_after_tax": 14827.99,
+   "B": 0,
+   "A": 0
   }
  ],
  "trades": [
@@ -609,6 +585,45 @@
    "fee": 0.0,
    "tax": 0.0,
    "reason": "Regel B aus: QQQ-Trend, Vola oder Momentum verletzt – tatsaechliche Ausfuehrung bei flatex am 05.11.2026"
+  },
+  {
+   "date": "2026-11-23",
+   "depot": "Michael Wittemann Premium Fonds",
+   "action": "Verkauf",
+   "sleeve": "A",
+   "product": "NDX2X",
+   "units": 479.0,
+   "price": 7.4595,
+   "value": 3573.12,
+   "fee": 5.9,
+   "tax": 0.0,
+   "reason": "Regel A aus: SPY unter 200-Tage-Schnitt (-5 %)"
+  },
+  {
+   "date": "2026-11-23",
+   "depot": "Michael Wittemann Premium Fonds",
+   "action": "Kauf",
+   "sleeve": "A",
+   "product": "UST710",
+   "units": 11.8625,
+   "price": 149.8594,
+   "value": 1783.61,
+   "fee": 5.9,
+   "tax": 0.0,
+   "reason": "Regel A aus: SPY unter 200-Tage-Schnitt (-5 %)"
+  },
+  {
+   "date": "2026-11-23",
+   "depot": "Michael Wittemann Premium Fonds",
+   "action": "Kauf",
+   "sleeve": "A",
+   "product": "GOLD",
+   "units": 16.8515,
+   "price": 105.4927,
+   "value": 1783.61,
+   "fee": 5.9,
+   "tax": 0.0,
+   "reason": "Regel A aus: SPY unter 200-Tage-Schnitt (-5 %)"
   }
  ],
  "holdings": [
@@ -617,32 +632,40 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 13.368,
-   "value": 15530.18
-  },
-  {
-   "depot": "Michael Wittemann Premium Fonds",
-   "sleeve": "A",
-   "product": "NDX2X",
-   "units": 479.0,
-   "price": 7.413,
-   "value": 3550.83
+   "price": 13.896,
+   "value": 16143.58
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 103.78,
-   "value": 2905.84
+   "price": 108.37,
+   "value": 3034.36
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "B",
    "product": "UST20",
    "units": 2920.0,
-   "price": 2.7776,
-   "value": 8110.59
+   "price": 2.8084,
+   "value": 8200.53
+  },
+  {
+   "depot": "Michael Wittemann Premium Fonds",
+   "sleeve": "A",
+   "product": "UST710",
+   "units": 11.8625,
+   "price": 151.37,
+   "value": 1795.63
+  },
+  {
+   "depot": "Michael Wittemann Premium Fonds",
+   "sleeve": "A",
+   "product": "GOLD",
+   "units": 16.8515,
+   "price": 108.37,
+   "value": 1826.19
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
@@ -650,7 +673,7 @@
    "product": "CASH",
    "units": null,
    "price": null,
-   "value": -28.64
+   "value": -28.72
   }
  ],
  "totals": {
@@ -660,9 +683,9 @@
    "loss_pot": 0.0
   },
   "Michael Wittemann Premium Fonds": {
-   "fees": 1.39,
+   "fees": 19.17,
    "taxes": 0.0,
-   "loss_pot": -105.84
+   "loss_pot": -1464.66
   }
  },
  "products": {
@@ -737,7 +760,7 @@
   "time": "2026-11-23T17:48+00:00",
   "plan": 15081.36,
   "msci": 16143.58,
-  "funds": 16071.4,
+  "funds": 16071.41,
   "funds_raw": 16811.73
  }
 }
