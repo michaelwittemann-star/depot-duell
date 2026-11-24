@@ -33,10 +33,14 @@ MY_DEPOT = CAPITAL                                       # Betraege in der Mail 
 # Tatsaechliche Ausfuehrungen vom Starttag (flatex): Topf:Produkt -> (Stueck, gebuchter Betrag inkl. Gebuehr)
 REAL_START = {"B:SP3X": (49.0, 8089.90), "A:NDX2X": (479.0, 4926.04), "G:GOLD": (28.0, 3295.04)}
 # Tatsaechliche Umschichtungen (flatex): (Tag, Topf) -> Verkaeufe (Stueck, Gutschrift netto, einbehaltene Steuer)
-# und Kaeufe (Stueck, Belastung inkl. Gebuehr). Ersetzt fuer diesen Wechsel die geschaetzte Ausfuehrung.
+# und Kaeufe (Stueck, Belastung inkl. Gebuehr). Ersetzt fuer diesen Wechsel die geschaetzte Ausfuehrung. Liegt der Tag
+# nach dem Signaltag (Order verspaetet), haelt das Modell den alten Bestand bis dahin. Negative Steuer = Erstattung.
 REAL_TRADES = {
     (date(2026, 11, 5), "B"): {"sell": {"B:SP3X": (49.0, 7984.06, 0.0)}, "buy": {"B:UST20": (2920.0, 8011.31)}},
+    (date(2026, 11, 24), "A"): {"sell": {"A:NDX2X": (479.0, 3876.10, -107.58)},
+                                "buy": {"A:UST710": (13.0, 1977.88), "A:GOLD": (17.0, 1820.78)}},
 }
+REAL_DELAY_DAYS = 7                                      # so lange darf eine echte Ausfuehrung hinter dem Signal liegen
 WARN = 0.20                                              # Vorwarnung ab 20 % Wechselwahrscheinlichkeit in 5 Handelstagen
 PLAN_NAME = "Michael Wittemann Premium Fonds"             # Name des Plan-Depots, ueberall gleich
 SITE = "https://michaelwittemann-star.github.io/depot-duell/"
@@ -409,7 +413,8 @@ class Depot:
             if take < lot.units - 1e-12:
                 new_lots.append(Lot(lot.units - take, lot.cost - lot.cost * take / lot.units, lot.bought))
         self.lots[key] = new_lots
-        self.loss_pot = min(self.loss_pot + net + tax - cost, 0.0)   # Steuer hat flatex schon einbehalten
+        used = -tax / TAX if tax < 0 else 0.0              # Erstattung: so viel Verlust hat flatex schon verrechnet
+        self.loss_pot = min(self.loss_pot + net + tax - cost + used, 0.0)   # Steuer hat flatex schon einbehalten
         self.taxes_paid += tax
         self.cash += net
         self.trades.append({"date": day.isoformat(), "depot": self.name, "action": "Verkauf", "sleeve": sleeve, "product": prod,
@@ -525,6 +530,8 @@ def main():
                         plan.buy_real(key, units, cost, day, note)
                     state[sleeve] = now
                     continue
+                if any(s == sleeve and 0 < (d - day).days <= REAL_DELAY_DAYS for d, s in REAL_TRADES):
+                    continue                                       # Order kam erst spaeter: alten Bestand bis dahin halten
                 before = plan.cash
                 for key in plan.keys(sleeve):
                     plan.sell(key, 1.0, po[key.split(":")[1]], day, reason)
