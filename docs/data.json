@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-26T15:37+00:00",
+ "generated": "2026-11-26T17:50+00:00",
  "plan_name": "Michael Wittemann Premium Fonds",
  "start": "2026-09-29",
  "capital": 16310.98,
@@ -525,6 +525,16 @@
    "plan_after_tax": 14861.3,
    "B": 0,
    "A": 0
+  },
+  {
+   "date": "2026-11-26",
+   "funds": 16075.38,
+   "msci": 16018.11,
+   "plan": 14956.56,
+   "msci_after_tax": 16018.11,
+   "plan_after_tax": 14956.56,
+   "B": 0,
+   "A": 0
   }
  ],
  "trades": [
@@ -652,40 +662,40 @@
    "sleeve": "M",
    "product": "MSCI",
    "units": 1161.7431,
-   "price": 13.456,
-   "value": 15632.42
+   "price": 13.788,
+   "value": 16018.11
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "G",
    "product": "GOLD",
    "units": 28.0,
-   "price": 101.43,
-   "value": 2840.04
+   "price": 104.69,
+   "value": 2931.32
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "B",
    "product": "UST20",
    "units": 2920.0,
-   "price": 2.8334,
-   "value": 8273.53
+   "price": 2.8194,
+   "value": 8232.65
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "A",
    "product": "UST710",
    "units": 13.0,
-   "price": 151.905,
-   "value": 1974.76
+   "price": 151.095,
+   "value": 1964.24
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
    "sleeve": "A",
    "product": "GOLD",
    "units": 17.0,
-   "price": 101.43,
-   "value": 1724.31
+   "price": 104.69,
+   "value": 1779.73
   },
   {
    "depot": "Michael Wittemann Premium Fonds",
@@ -693,7 +703,7 @@
    "product": "CASH",
    "units": null,
    "price": null,
-   "value": 48.66
+   "value": 48.62
   }
  ],
  "totals": {
@@ -703,7 +713,7 @@
    "loss_pot": 0.0
   },
   "Michael Wittemann Premium Fonds": {
-   "fees": 1.53,
+   "fees": 1.57,
    "taxes": -107.58,
    "loss_pot": -855.47
   }
@@ -780,7 +790,7 @@
   "time": "2026-11-26T16:40+00:00",
   "plan": 14947.1,
   "msci": 16043.67,
-  "funds": 16075.39,
+  "funds": 16075.38,
   "funds_raw": 16815.89
  }
 }
